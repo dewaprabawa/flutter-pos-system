@@ -23,7 +23,11 @@ enum PrinterStatus {
   tooHot(0),
   lowBattery(0),
   printing(0),
-  unknown(0);
+  unknown(0),
+  unrecoverable(0),
+  paperJams(0),
+  uncovering(0),
+  noResponse(0);
 
   final int priority;
 
@@ -57,6 +61,8 @@ class BluetoothDevice {
   final String address = '';
 
   BluetoothDevice({fbp.BluetoothDevice? device});
+
+  factory BluetoothDevice.demo() => BluetoothDevice();
 
   Future<void> connect() => Future.value();
   Future<void> disconnect() => Future.value();
