@@ -32,9 +32,7 @@ dependencies:
   shared_preferences: ^2.5.3
   http: ^1.5.0
   packages:
-    git:
-      url: https://github.com/evan361425/flutter-pos-packages
-      ref: 2026.05.03-04
+    path: packages/mock
 
   # google services
   googleapis: ^14.0.0
@@ -86,6 +84,13 @@ dev_dependencies:
   sqflite_common_ffi: ^2.3.6
 
   arb_glue: ^1.0.0
+
+dependency_overrides:
+  flutter_blue_plus:
+    git:
+      url: https://github.com/evan361425/flutter_blue_plus
+      ref: uint8
+      path: packages/flutter_blue_plus
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

@@ -61,6 +61,8 @@ Pipfile.lock
 /lib/firebase_options.dart
 .metadata
 
-
 #Ignore vscode AI rules
 .github/instructions/codacy.instructions.md
+
+# FVM Version Cache
+.fvm/
