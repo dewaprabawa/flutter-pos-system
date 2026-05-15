@@ -115,7 +115,7 @@ extension IntOrDouble on num {
 
   /// Parse value to int or double string, decided by [CurrencySetting.isInt]
   String toCurrency() {
-    return CurrencySetting.instance.formatter.format(toCurrencyNum());
+    return CurrencySetting.instance.currencyFormatter.format(toCurrencyNum());
   }
 
   /// Without any `intl` format

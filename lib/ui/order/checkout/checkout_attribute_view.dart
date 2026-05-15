@@ -32,13 +32,29 @@ class CheckoutAttributeView extends StatelessWidget {
     );
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(kHorizontalSpacing, kTopSpacing, kHorizontalSpacing, kFABSpacing),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        for (final item in OrderAttributes.instance.notEmptyItems) _CheckoutAttributeGroup(item, price),
-        Text(S.orderCheckoutAttributeNoteTitle, style: Theme.of(context).textTheme.titleMedium),
-        const SizedBox(height: kInternalSpacing),
-        noteField,
-      ]),
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 100),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (final item in OrderAttributes.instance.notEmptyItems.where((e) {
+            final name = e.name.toLowerCase();
+            return name != 'age' &&
+                name != 'eco-friendly' &&
+                name != 'eco friendly';
+          }))
+            _CheckoutAttributeGroup(item, price),
+          const SizedBox(height: 10),
+          Text(
+            S.orderCheckoutAttributeNoteTitle,
+            style: Theme.of(context)
+                .textTheme
+                .titleMedium
+                ?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 12),
+          noteField,
+        ],
+      ),
     );
   }
 }
@@ -51,7 +67,8 @@ class _CheckoutAttributeGroup extends StatefulWidget {
   const _CheckoutAttributeGroup(this.attribute, this.price);
 
   @override
-  State<_CheckoutAttributeGroup> createState() => _CheckoutAttributeGroupState();
+  State<_CheckoutAttributeGroup> createState() =>
+      _CheckoutAttributeGroupState();
 }
 
 class _CheckoutAttributeGroupState extends State<_CheckoutAttributeGroup> {
@@ -59,35 +76,44 @@ class _CheckoutAttributeGroupState extends State<_CheckoutAttributeGroup> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      Text(
-        widget.attribute.name,
-        style: Theme.of(context).textTheme.titleMedium,
-      ),
-      const SizedBox(height: kInternalSpacing),
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: kHorizontalSpacing),
-        child: Wrap(spacing: kInternalSpacing, children: [
-          for (final option in widget.attribute.itemList)
-            ChoiceChip(
-              key: Key('order.attr.${widget.attribute.id}.${option.id}'),
-              onSelected: (selected) {
-                setState(() => selectedId = selected ? option.id : null);
-                selectOption(option, selected);
-              },
-              selected: selectedId == option.id,
-              label: Text(option.name),
-            )
-        ]),
-      ),
-      const SizedBox(height: kInternalLargeSpacing),
-    ]);
+    final theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          widget.attribute.name,
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: theme.colorScheme.onSurface,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 12,
+          runSpacing: 12,
+          children: [
+            for (final option in widget.attribute.itemList)
+              _AttributeChip(
+                key: Key('order.attr.${widget.attribute.id}.${option.id}'),
+                label: option.name,
+                isSelected: selectedId == option.id,
+                onSelected: (selected) {
+                  setState(() => selectedId = selected ? option.id : null);
+                  selectOption(option, selected);
+                },
+              ),
+          ],
+        ),
+        const SizedBox(height: 24),
+      ],
+    );
   }
 
   @override
   void initState() {
     super.initState();
-    selectedId = Cart.instance.attributes[widget.attribute.id] ?? widget.attribute.defaultOption?.id;
+    selectedId = Cart.instance.attributes[widget.attribute.id] ??
+        widget.attribute.defaultOption?.id;
   }
 
   void selectOption(OrderAttributeOption option, bool isSelected) {
@@ -97,5 +123,63 @@ class _CheckoutAttributeGroupState extends State<_CheckoutAttributeGroup> {
     );
 
     widget.price.value = Cart.instance.price;
+  }
+}
+
+class _AttributeChip extends StatelessWidget {
+  final String label;
+  final bool isSelected;
+  final ValueChanged<bool> onSelected;
+
+  const _AttributeChip({
+    super.key,
+    required this.label,
+    required this.isSelected,
+    required this.onSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return InkWell(
+      onTap: () => onSelected(!isSelected),
+      borderRadius: BorderRadius.circular(12),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? colorScheme.primaryContainer
+              : colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected
+                ? colorScheme.primary
+                : colorScheme.outlineVariant.withValues(alpha: 0.3),
+            width: 1.5,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (isSelected) ...[
+              Icon(Icons.check_circle, size: 18, color: colorScheme.primary),
+              const SizedBox(width: 8),
+            ],
+            Text(
+              label,
+              style: theme.textTheme.labelLarge?.copyWith(
+                color: isSelected
+                    ? colorScheme.onPrimaryContainer
+                    : colorScheme.onSurfaceVariant,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

@@ -5,23 +5,60 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "android",
+      "name": "POS System (Dev - Android)",
       "request": "launch",
       "type": "dart",
       "program": "lib/main.dart",
       "args": [
         "--flavor",
         "dev",
-        "--dart-define=appFlavor=debug",
+        "--target",
+        "lib/main.dart",
+        "--dart-define=appFlavor=dev",
         "--dart-define=logLevel=debug"
       ]
     },
     {
-      "name": "ios",
+      "name": "POS System (Prod - Android)",
       "request": "launch",
       "type": "dart",
       "program": "lib/main.dart",
-      "args": ["--dart-define=appFlavor=debug", "--dart-define=logLevel=debug"]
+      "args": [
+        "--flavor",
+        "prod",
+        "--target",
+        "lib/main.dart",
+        "--dart-define=appFlavor=prod",
+        "--dart-define=logLevel=info"
+      ]
+    },
+    {
+      "name": "POS System (Dev - iOS)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "args": [
+        "--flavor",
+        "dev",
+        "--target",
+        "lib/main.dart",
+        "--dart-define=appFlavor=dev",
+        "--dart-define=logLevel=debug"
+      ]
+    },
+    {
+      "name": "POS System (Prod - iOS)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "args": [
+        "--flavor",
+        "prod",
+        "--target",
+        "lib/main.dart",
+        "--dart-define=appFlavor=prod",
+        "--dart-define=logLevel=info"
+      ]
     }
   ]
 }

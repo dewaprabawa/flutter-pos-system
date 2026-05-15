@@ -7,86 +7,120 @@ import 'package:possystem/translator.dart';
 
 class ImageHolder extends StatelessWidget {
   final ImageProvider image;
-
   final String? title;
-
+  final String? subtitle;
   final void Function()? onPressed;
-
   final void Function()? onImageError;
-
   final FocusNode? focusNode;
-
   final EdgeInsets padding;
-
   final double size;
 
   const ImageHolder({
     super.key,
     required this.image,
     this.title,
+    this.subtitle,
     this.size = 256,
     this.onPressed,
     this.onImageError,
     this.focusNode,
-    this.padding = const EdgeInsets.fromLTRB(4.0, 8.0, 4.0, 8.0),
+    this.padding = const EdgeInsets.fromLTRB(12.0, 8.0, 12.0, 12.0),
   });
 
   @override
   Widget build(BuildContext context) {
-    final color = Theme.of(context).colorScheme.surface;
-    final style = Theme.of(context).textTheme.bodyMedium;
-    final colors = [color, color.withAlpha(180), color.withAlpha(10)];
+    final theme = Theme.of(context);
 
-    Widget body = title == null
-        ? const SizedBox.expand()
-        : Container(
-            width: double.infinity,
-            decoration: const BoxDecoration(border: Border()),
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                width: double.infinity,
-                padding: padding,
-                decoration: BoxDecoration(
-                  border: Border(bottom: BorderSide(color: colors[0])),
-                  gradient: LinearGradient(
-                    colors: colors,
-                    begin: Alignment.bottomCenter,
-                    end: Alignment.topCenter,
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxHeight: size, maxWidth: size),
+          child: AspectRatio(
+            aspectRatio: 1,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                Ink.image(
+                  image: image,
+                  fit: BoxFit.cover,
+                  onImageError: (error, stack) {
+                    Log.err(error, 'image_error', stack);
+                    onImageError?.call();
+                  },
+                ),
+                if (title != null)
+                  Positioned.fill(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.transparent,
+                            Colors.black.withValues(alpha: 0.1),
+                            Colors.black.withValues(alpha: 0.8),
+                          ],
+                          stops: const [0.4, 0.6, 1.0],
+                        ),
+                      ),
+                      padding: padding,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text(
+                            title!,
+                            textAlign: TextAlign.center,
+                            style: theme.textTheme.labelLarge?.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              shadows: [
+                                const Shadow(
+                                  offset: Offset(0, 1),
+                                  blurRadius: 2,
+                                  color: Colors.black54,
+                                ),
+                              ],
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          if (subtitle != null) ...[
+                            const SizedBox(height: 2),
+                            Text(
+                              subtitle!,
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                color: Colors.white.withValues(alpha: 0.9),
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-                child: Text(
-                  title!,
-                  textAlign: TextAlign.center,
-                  style: style?.copyWith(fontWeight: FontWeight.bold),
-                ),
-              ),
+                if (onPressed != null)
+                  Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: onPressed,
+                      focusNode: focusNode,
+                      splashColor: theme.colorScheme.primary.withValues(alpha: 0.12),
+                      highlightColor: theme.colorScheme.primary.withValues(alpha: 0.04),
+                    ),
+                  ),
+              ],
             ),
-          );
-
-    if (onPressed != null) {
-      body = InkWell(
-        onTap: onPressed,
-        focusNode: focusNode,
-        child: body,
-      );
-    }
-
-    return ConstrainedBox(
-      constraints: BoxConstraints(maxHeight: size, maxWidth: size),
-      child: AspectRatio(
-        aspectRatio: 1,
-        child: Material(
-          type: MaterialType.transparency,
-          child: Ink.image(
-            padding: EdgeInsets.zero,
-            image: image,
-            fit: BoxFit.cover,
-            onImageError: (error, stack) {
-              Log.err(error, 'image_error', stack);
-              onImageError?.call();
-            },
-            child: body,
           ),
         ),
       ),

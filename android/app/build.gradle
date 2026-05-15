@@ -13,7 +13,10 @@ def localProperties = new Properties()
 rootProject.file('local.properties').withInputStream { localProperties.load(it) }
 
 def keystoreProperties = new Properties()
-rootProject.file('key.properties').withInputStream { keystoreProperties.load(it) }
+def keystorePropertiesFile = rootProject.file('key.properties')
+if (keystorePropertiesFile.exists()) {
+    keystorePropertiesFile.withInputStream { keystoreProperties.load(it) }
+}
 
 def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
 def flutterVersionName = localProperties.getProperty('flutter.versionName')

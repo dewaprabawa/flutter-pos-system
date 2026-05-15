@@ -218,7 +218,7 @@ class _RestockDialogState extends State<_RestockDialog> {
         textAlign: TextAlign.end,
         decoration: InputDecoration(
           label: Text(S.stockIngredientRestockDialogPriceLabel),
-          prefix: const Text(r'$'),
+          prefix: const Text(r'Rp'),
         ),
         validator: Validator.positiveNumber(S.stockIngredientRestockDialogPriceLabel),
         textInputAction: TextInputAction.done,
@@ -228,7 +228,7 @@ class _RestockDialogState extends State<_RestockDialog> {
         const Text('÷', style: TextStyle(color: Colors.grey, fontSize: 14, inherit: true)),
         // this money is independent to currency, so we don't need use
         // currency to format it.
-        Text('\$${widget.ingredient.restockPrice!.toShortString()}'),
+        Text('Rp${widget.ingredient.restockPrice!.toShortString()}'),
       ]),
       const SizedBox(height: 8.0),
       Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [

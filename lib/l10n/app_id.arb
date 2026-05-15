@@ -1,5 +1,5 @@
 {
-  "@@locale": "en",
+  "@@locale": "id",
   "@@author": "Lu Shueh Chou",
   "settingTab": "Settings",
   "settingVersion": "Version: {version}",
@@ -1514,7 +1514,7 @@
       }
     }
   },
-  "orderActionCheckout": "Checkout",
+  "orderActionCheckout": "Pembayaran",
   "@orderActionCheckout": {
     "description": "Proceed to the next step after confirming the items in your cart"
   },
@@ -1660,7 +1660,7 @@
   },
   "orderCheckoutEmptyCart": "Please make an order first.",
   "orderCheckoutActionStash": "Stash",
-  "orderCheckoutActionConfirm": "Confirm",
+  "orderCheckoutActionConfirm": "Konfirmasi",
   "orderCheckoutStashTab": "Stash",
   "orderCheckoutStashEmpty": "No items currently stashed.",
   "orderCheckoutStashNoProducts": "No products",
@@ -1683,10 +1683,10 @@
       }
     }
   },
-  "orderCheckoutSnackbarPaidFailed": "Payment is less than the order amount.",
-  "orderCheckoutAttributeNoteTitle": "Note",
-  "orderCheckoutAttributeNoteHint": "Some instructions for this order",
-  "orderObjectViewEmpty": "No order records found",
+  "orderCheckoutSnackbarPaidFailed": "Pembayaran kurang dari jumlah pesanan.",
+  "orderCheckoutAttributeNoteTitle": "Catatan",
+  "orderCheckoutAttributeNoteHint": "Beberapa instruksi untuk pesanan ini",
+  "orderObjectViewEmpty": "Tidak ada catatan pesanan ditemukan",
   "orderObjectViewChange": "Change",
   "orderObjectViewPriceTotal": "Total Price: {price}",
   "@orderObjectViewPriceTotal": {

@@ -14,7 +14,7 @@ class SignInButton extends StatelessWidget {
   final EdgeInsetsGeometry padding;
 
   // if we are in local test it might be null, but it should be fine.
-  final Widget Function(User? user)? signedInWidgetBuilder;
+  final Widget Function(User user)? signedInWidgetBuilder;
 
   const SignInButton({
     super.key,
@@ -183,6 +183,8 @@ class User {
   final String? _displayName;
 
   String get displayName => user?.displayName ?? _displayName!;
+
+  String get email => user?.email ?? '';
 
   final bool notSignedIn;
 

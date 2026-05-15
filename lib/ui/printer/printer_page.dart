@@ -32,27 +32,30 @@ class PrinterPage extends StatelessWidget {
 
     return SafeArea(
       child: SlidableItemList(
-        hintText: '', // disabling hint text, no need to show count
-        leading: ButtonGroup(spacerAt: 2, buttons: [
-          RouteIconButton(
-            key: const Key('printer.create'),
-            route: Routes.printerCreate,
-            icon: const Icon(KIcons.add),
-            label: S.printerTitleCreate,
-          ),
-          IconButton(
-            key: const Key('printer.supported_list'),
-            onPressed: _showSupportedPrinters(context),
-            icon: const Icon(Icons.info_outline),
-            tooltip: S.printerSupportedTitle,
-          ),
-          RouteIconButton(
-            key: const Key('printer.settings'),
-            route: Routes.printerSettings,
-            icon: const Icon(Icons.settings),
-            label: S.printerTitleSettings,
-          ),
-        ]),
+        hintText: '',
+        leading: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          child: ButtonGroup(spacerAt: 2, buttons: [
+            RouteIconButton(
+              key: const Key('printer.create'),
+              route: Routes.printerCreate,
+              icon: const Icon(KIcons.add),
+              label: S.printerTitleCreate,
+            ),
+            IconButton(
+              key: const Key('printer.supported_list'),
+              onPressed: _showSupportedPrinters(context),
+              icon: const Icon(Icons.info_outline),
+              tooltip: S.printerSupportedTitle,
+            ),
+            RouteIconButton(
+              key: const Key('printer.settings'),
+              route: Routes.printerSettings,
+              icon: const Icon(Icons.settings),
+              label: S.printerTitleSettings,
+            ),
+          ]),
+        ),
         delegate: SlidableItemDelegate(
           disableSlide: true,
           items: Printers.instance.itemList,
@@ -75,14 +78,11 @@ class _Tile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final actor = actorBuilder(context);
-    return Padding(
-      padding: const EdgeInsets.only(top: kInternalSpacing),
-      child: PrinterView(
-        printer: item,
-        trailing: EntryMoreButton(onPressed: actor),
-        onTap: () => context.pushNamed(Routes.printerUpdate, pathParameters: {'id': item.id}),
-        onLogPress: actor,
-      ),
+    return PrinterView(
+      printer: item,
+      trailing: EntryMoreButton(onPressed: actor),
+      onTap: () => context.pushNamed(Routes.printerUpdate, pathParameters: {'id': item.id}),
+      onLogPress: actor,
     );
   }
 }
@@ -93,144 +93,70 @@ class _EmptyBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final buttons = Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-      FilledButton(
-        onPressed: () => context.pushNamed(Routes.printerCreate),
-        child: Text(S.printerTitleCreate),
-      ),
-      const SizedBox(width: kInternalSpacing),
-      OutlinedButton(
-        onPressed: _showSupportedPrinters(context),
-        child: Text(S.printerSupportedTitle),
-      ),
-    ]);
+    final colorScheme = theme.colorScheme;
 
-    return Stack(children: [
-      Positioned.fill(
-        child: DecoratedBox(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomRight,
-              colors: [
-                Color.fromRGBO(25, 118, 210, 1), // blue.shade700
-                Color.fromRGBO(21, 101, 192, 1), // blue.shade800
-                Color.fromRGBO(13, 71, 161, 1), // blue.shade900
-                // only half screen will be shown, so below color is used but not shown
-                Color.fromRGBO(13, 71, 161, 1),
-                Color.fromRGBO(13, 71, 161, 1),
-                Color.fromRGBO(13, 71, 161, 1),
-              ],
-            ),
-          ),
-          child: Column(children: [
-            Expanded(
-              child: Center(
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(100),
-                    color: Colors.white,
-                  ),
-                  child: const Padding(
-                    padding: EdgeInsets.all(14.0),
-                    child: Icon(
-                      Icons.bluetooth,
-                      color: Color.fromRGBO(13, 71, 161, 1), // blue.shade900
-                      size: 56,
-                    ),
-                  ),
-                ),
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(32.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(32),
+              decoration: BoxDecoration(
+                color: colorScheme.primaryContainer.withValues(alpha: 0.2),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.print_disabled_outlined,
+                size: 80,
+                color: colorScheme.primary,
               ),
             ),
-            const Spacer(),
-          ]),
-        ),
-      ),
-      Positioned.fill(
-        child: ClipPath(
-          clipper: _Wave1(),
-          child: ColoredBox(color: theme.scaffoldBackgroundColor.withAlpha(102), child: const SizedBox.expand()),
-        ),
-      ),
-      Positioned.fill(
-        child: ClipPath(
-          clipper: _Wave2(),
-          child: ColoredBox(color: theme.scaffoldBackgroundColor, child: const SizedBox.expand()),
-        ),
-      ),
-      Positioned.fill(
-        child: Column(children: [
-          const Spacer(),
-          Expanded(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 340),
-              child: Center(
-                child: SingleChildScrollView(
-                  child: Column(children: [
-                    Text(
-                      S.printerMetaHelper,
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.titleMedium,
-                    ),
-                    const SizedBox(height: kInternalSpacing),
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: buttons,
-                    ),
-                    if (kDebugMode)
-                      OutlinedButton(
-                        onPressed: () => Printers.instance.addItem(Printer(id: 'demo', name: 'Demo Printer')),
-                        child: const Text('Add demo'),
-                      ),
-                  ]),
-                ),
+            const SizedBox(height: 32),
+            Text(
+              S.printerMetaHelper,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
               ),
             ),
-          ),
-        ]),
+            const SizedBox(height: 12),
+            Text(
+              S.printerSupportedTitle,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: colorScheme.outline,
+              ),
+            ),
+            const SizedBox(height: 48),
+            FilledButton.icon(
+              onPressed: () => context.pushNamed(Routes.printerCreate),
+              icon: const Icon(Icons.add),
+              label: Text(S.printerTitleCreate),
+              style: FilledButton.styleFrom(
+                minimumSize: const Size(200, 56),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextButton(
+              onPressed: _showSupportedPrinters(context),
+              child: Text(S.printerSupportedTitle),
+            ),
+            if (kDebugMode)
+              Padding(
+                padding: const EdgeInsets.only(top: 32.0),
+                child: OutlinedButton(
+                  onPressed: () => Printers.instance.addItem(Printer(id: 'demo', name: 'Demo Printer')),
+                  child: const Text('Add demo'),
+                ),
+              ),
+          ],
+        ),
       ),
-    ]);
+    );
   }
-}
-
-class _Wave1 extends CustomClipper<Path> {
-  @override
-  getClip(Size size) {
-    final w = size.width;
-    final h = size.height;
-
-    return Path()
-      ..lineTo(0, 0.5 * h)
-      ..quadraticBezierTo(0.15 * w, 0.4 * h, 0.3 * w, 0.45 * h)
-      ..quadraticBezierTo(0.4 * w, 0.48 * h, 0.62 * w, 0.41 * h)
-      ..quadraticBezierTo(0.8 * w, 0.35 * h, w, 0.43 * h)
-      ..lineTo(w, h)
-      ..lineTo(0, h)
-      ..close();
-  }
-
-  @override
-  bool shouldReclip(CustomClipper oldClipper) => false;
-}
-
-class _Wave2 extends CustomClipper<Path> {
-  @override
-  getClip(Size size) {
-    final w = size.width;
-    final h = size.height;
-
-    return Path()
-      ..lineTo(0, h / 2)
-      ..quadraticBezierTo(0.18 * w, 0.56 * h, 0.31 * w, 0.45 * h)
-      ..quadraticBezierTo(0.42 * w, 0.38 * h, 0.65 * w, 0.445 * h)
-      ..quadraticBezierTo(0.8 * w, 0.48 * h, w, 0.41 * h)
-      ..lineTo(w, h)
-      ..lineTo(0, h)
-      ..close();
-  }
-
-  @override
-  bool shouldReclip(CustomClipper oldClipper) => false;
 }
 
 VoidCallback _showSupportedPrinters(BuildContext context) {

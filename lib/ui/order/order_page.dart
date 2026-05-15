@@ -17,13 +17,11 @@ import 'package:possystem/ui/order/cart/cart_metadata_view.dart';
 import 'package:possystem/ui/order/cart/cart_product_list.dart';
 import 'package:possystem/ui/order/cart/cart_product_selector.dart';
 import 'package:possystem/ui/order/widgets/printer_button_view.dart';
+import 'package:possystem/ui/order/widgets/cart_summary_widget.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
-import 'cart/cart_product_state_selector.dart';
-import 'widgets/draggable_sheet_view.dart';
 import 'widgets/order_catalog_list_view.dart';
 import 'widgets/order_product_list_view.dart';
-import 'widgets/orientated_view.dart';
 
 class OrderPage extends StatefulWidget {
   const OrderPage({super.key});
@@ -41,73 +39,57 @@ class _OrderPageState extends State<OrderPage> {
   /// Used to update the view of [OrderProductListView]
   late final ValueNotifier<ProductListView> _productViewNotifier;
 
-  /// Reset panel to initial state, used by [DraggableSheetView]
-  final _Notifier _resetNotifier = _Notifier();
-
   @override
   Widget build(BuildContext context) {
     final catalogs = Menu.instance.notEmptyItems;
 
-    final orderCatalogListView = OrderCatalogListView(
-      catalogs: catalogs,
-      indexNotifier: _catalogIndexNotifier,
-      viewNotifier: _productViewNotifier,
-      onSelected: (index) => _pageController.jumpToPage(index),
-    );
-    final orderProductListView = ListenableBuilder(
-      listenable: _productViewNotifier,
-      builder: (context, _) => PageView.builder(
-        controller: _pageController,
-        onPageChanged: (index) => _catalogIndexNotifier.value = index,
-        itemCount: catalogs.length,
-        itemBuilder: (context, index) => OrderProductListView(
-          products: catalogs[index].itemList,
-          view: _productViewNotifier.value,
-        ),
-      ),
-    );
-
-    final body = Breakpoint.find(width: MediaQuery.sizeOf(context).width) <= Breakpoint.medium
-        ? DraggableSheetView(
-            row1: orderCatalogListView,
-            row2: orderProductListView,
-            row3_1: const CartProductSelector(),
-            row3_2Builder: (scroll, scrollable) => Expanded(
-              child: CartProductList(
-                scrollController: scroll,
-                scrollable: scrollable,
-              ),
-            ),
-            row3_3: const CartMetadataView(),
-            row4: const CartProductStateSelector(),
-            resetNotifier: _resetNotifier,
-          )
-        : OrientatedView(
-            row1: orderCatalogListView,
-            row2: orderProductListView,
-            row3_1: const CartProductSelector(),
-            row3_2: const Expanded(child: CartProductList()),
-            row3_3: const CartMetadataView(),
-            row4: const CartProductStateSelector(),
-          );
-
     return TutorialWrapper(
       child: Scaffold(
-        // avoid resize when keyboard(bottom inset) shows
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
           leading: const PopButton(),
+          title: Text(S.orderTitle),
           actions: [
-            MoreButton(key: const Key('order.more'), onPressed: _showActions),
             const PrinterButtonView(),
-            TextButton(
-              key: const Key('order.checkout'),
-              onPressed: () => _handleCheckout(),
-              child: Text(S.orderActionCheckout),
+            MoreButton(key: const Key('order.more'), onPressed: _showActions),
+          ],
+        ),
+        body: Stack(
+          children: [
+            Column(
+              children: [
+                OrderCatalogListView(
+                  catalogs: catalogs,
+                  indexNotifier: _catalogIndexNotifier,
+                  viewNotifier: _productViewNotifier,
+                  onSelected: (index) => _pageController.jumpToPage(index),
+                ),
+                Expanded(
+                  child: ListenableBuilder(
+                    listenable: _productViewNotifier,
+                    builder: (context, _) => PageView.builder(
+                      controller: _pageController,
+                      onPageChanged: (index) => _catalogIndexNotifier.value = index,
+                      itemCount: catalogs.length,
+                      itemBuilder: (context, index) => OrderProductListView(
+                        products: catalogs[index].itemList,
+                        view: _productViewNotifier.value,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: CartSummaryWidget(
+                onCheckout: _handleCheckout,
+              ),
             ),
           ],
         ),
-        body: body,
       ),
     );
   }
@@ -118,7 +100,6 @@ class _OrderPageState extends State<OrderPage> {
     _pageController.dispose();
     _catalogIndexNotifier.dispose();
     _productViewNotifier.dispose();
-    _resetNotifier.dispose();
     super.dispose();
   }
 
@@ -138,7 +119,6 @@ class _OrderPageState extends State<OrderPage> {
     final status = await context.pushNamed<CheckoutStatus>(Routes.orderCheckout);
     if (status != null && mounted) {
       handleCheckoutStatus(context, status);
-      _resetNotifier.notify();
     }
   }
 

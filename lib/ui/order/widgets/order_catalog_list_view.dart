@@ -7,11 +7,8 @@ import 'package:possystem/ui/order/order_page.dart';
 
 class OrderCatalogListView extends StatefulWidget {
   final List<Catalog> catalogs;
-
   final void Function(int) onSelected;
-
   final ValueNotifier<int> indexNotifier;
-
   final ValueNotifier<ProductListView> viewNotifier;
 
   const OrderCatalogListView({
@@ -33,40 +30,80 @@ class _OrderCatalogListViewState extends State<OrderCatalogListView> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    
     if (widget.catalogs.isEmpty) {
-      return SingleRowWrap(children: [
-        ChoiceChip(
-          selected: false,
-          label: Text(S.orderCatalogListEmpty),
-        ),
-      ]);
+      return Container(
+        height: 64,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        alignment: Alignment.centerLeft,
+        child: Text(S.orderCatalogListEmpty, style: theme.textTheme.bodyMedium),
+      );
     }
 
-    var index = 0;
-    return Material(
-      elevation: 1.0,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(4, 0, 4, 4),
-        child: Row(
-          children: [
-            const SizedBox(width: 4),
-            Expanded(
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Wrap(spacing: 6, children: [
-                  for (final catalog in widget.catalogs) _buildChoiceChip(catalog, index++),
-                  const SizedBox(),
-                ]),
-              ),
-            ),
-            _ProductListView(
-              controller: controller,
-              focusNode: _f,
-              viewNotifier: widget.viewNotifier,
-            ),
-            const SizedBox(width: 4),
-          ],
+    return Container(
+      height: 64,
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        border: Border(
+          bottom: BorderSide(
+            color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5),
+            width: 1,
+          ),
         ),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              itemCount: widget.catalogs.length,
+              itemBuilder: (context, i) {
+                final catalog = widget.catalogs[i];
+                final isSelected = catalog.id == selectedId;
+                
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    child: ChoiceChip(
+                      avatar: isSelected ? null : catalog.avator,
+                      key: Key('order.catalog.${catalog.id}'),
+                      onSelected: (isSelected) {
+                        if (isSelected) {
+                          setState(() => selectedId = catalog.id);
+                          widget.onSelected(i);
+                        }
+                      },
+                      selected: isSelected,
+                      label: Text(
+                        catalog.name,
+                        style: TextStyle(
+                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                          color: isSelected ? theme.colorScheme.onPrimary : theme.colorScheme.onSurface,
+                        ),
+                      ),
+                      selectedColor: theme.colorScheme.primary,
+                      backgroundColor: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        side: BorderSide.none,
+                      ),
+                      showCheckmark: false,
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          const VerticalDivider(width: 1, indent: 16, endIndent: 16),
+          _ProductListView(
+            controller: controller,
+            focusNode: _f,
+            viewNotifier: widget.viewNotifier,
+          ),
+        ],
       ),
     );
   }
@@ -75,22 +112,6 @@ class _OrderCatalogListViewState extends State<OrderCatalogListView> {
   void dispose() {
     _f.dispose();
     super.dispose();
-  }
-
-  ChoiceChip _buildChoiceChip(Catalog catalog, int index) {
-    return ChoiceChip(
-      avatar: selectedId == catalog.id ? null : catalog.avator,
-      key: Key('order.catalog.${catalog.id}'),
-      onSelected: (isSelected) {
-        if (isSelected) {
-          setState(() => selectedId = catalog.id);
-          widget.onSelected(index);
-        }
-      },
-      selected: catalog.id == selectedId,
-      tooltip: catalog.name,
-      label: Text(catalog.name),
-    );
   }
 
   @override
@@ -121,14 +142,10 @@ class _ProductListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: const ShapeDecoration(
-        shape: RoundedRectangleBorder(
-          side: BorderSide(width: 1),
-          borderRadius: BorderRadius.horizontal(right: Radius.circular(8)),
-        ),
-      ),
-      // TODO: use AnimatedIcon, when switching between list and grid
+    final theme = Theme.of(context);
+    
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: MenuAnchor(
         controller: controller,
         childFocusNode: focusNode,
@@ -144,10 +161,12 @@ class _ProductListView extends StatelessWidget {
           builder: (context, child) {
             return IconButton(
               focusNode: focusNode,
-              padding: EdgeInsets.zero,
-              visualDensity: VisualDensity.compact,
               onPressed: controller.toggle,
               icon: viewNotifier.value.icon,
+              style: IconButton.styleFrom(
+                backgroundColor: theme.colorScheme.surfaceVariant.withOpacity(0.3),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
             );
           },
         ),

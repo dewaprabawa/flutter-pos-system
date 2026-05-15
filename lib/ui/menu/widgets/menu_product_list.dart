@@ -14,7 +14,6 @@ import 'package:possystem/translator.dart';
 
 class MenuProductList extends StatelessWidget {
   final Catalog? catalog;
-
   final Widget? leading;
 
   const MenuProductList({
@@ -26,7 +25,12 @@ class MenuProductList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SlidableItemList(
-      leading: leading,
+      leading: leading != null
+          ? Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              child: leading,
+            )
+          : null,
       action: RouteIconButton(
         label: S.menuProductTitleReorder,
         icon: const Icon(KIcons.reorder),
@@ -71,21 +75,81 @@ class _Tile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final actor = actorBuilder(context);
-    return ListTile(
-      key: Key('product.${product.id}'),
-      leading: product.avator,
-      title: Text(product.name),
-      trailing: EntryMoreButton(onPressed: actor),
-      subtitle: MetaBlock.withString(
-        context,
-        product.items.map((e) => e.name),
-        emptyText: S.menuProductEmptyIngredients,
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6.0),
+      child: Card(
+        margin: EdgeInsets.zero,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () => context.pushNamed(
+            Routes.menuProduct,
+            pathParameters: {'id': product.id},
+          ),
+          onLongPress: actor,
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Row(
+              children: [
+                _SleekAvatar(child: product.avator),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        product.name,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      MetaBlock.withString(
+                        context,
+                        product.items.map((e) => e.name),
+                        emptyText: S.menuProductEmptyIngredients,
+                        textStyle: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.outline,
+                        ),
+                      ) ?? const SizedBox.shrink(),
+                    ],
+                  ),
+                ),
+                EntryMoreButton(onPressed: actor),
+              ],
+            ),
+          ),
+        ),
       ),
-      onLongPress: actor,
-      onTap: () => context.pushNamed(
-        Routes.menuProduct,
-        pathParameters: {'id': product.id},
+    );
+  }
+}
+
+class _SleekAvatar extends StatelessWidget {
+  final Widget child;
+
+  const _SleekAvatar({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 56,
+      height: 56,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: child,
       ),
     );
   }

@@ -219,21 +219,9 @@ Future<void> setupExampleOrderAttrs() async {
   log('setting order attributes', name: 'example order attrs');
   for (final e in [
     OrderAttribute(
-      id: 'age',
-      name: S.orderAttributeExampleAge,
-      index: 1,
-      mode: OrderAttributeMode.statOnly,
-      options: {
-        'child': OrderAttributeOption(id: 'child', name: '${S.orderAttributeExampleAgeChild} (0-12)', index: 1),
-        'adult': OrderAttributeOption(
-            id: 'adult', name: '${S.orderAttributeExampleAgeAdult} (13-60)', index: 2, isDefault: true),
-        'senior': OrderAttributeOption(id: 'senior', name: '${S.orderAttributeExampleAgeSenior} (60+)', index: 3),
-      },
-    )..prepareItem(),
-    OrderAttribute(
       id: 'place',
       name: S.orderAttributeExamplePlace,
-      index: 2,
+      index: 1,
       mode: OrderAttributeMode.changeDiscount,
       options: {
         'takeout':
@@ -245,7 +233,7 @@ Future<void> setupExampleOrderAttrs() async {
     OrderAttribute(
       id: 'eco-friendly',
       name: S.orderAttributeExampleEcoFriendly,
-      index: 3,
+      index: 2,
       mode: OrderAttributeMode.changePrice,
       options: {
         'reuseable-bag': OrderAttributeOption(

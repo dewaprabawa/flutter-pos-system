@@ -4,7 +4,6 @@ import 'package:possystem/translator.dart';
 
 class PercentileBar extends StatefulWidget {
   final num total;
-
   final num at;
 
   const PercentileBar(
@@ -19,28 +18,39 @@ class PercentileBar extends StatefulWidget {
 
 class _PercentileBarState extends State<PercentileBar> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  late Animation<Color?> _colorAnimation;
   late Animation<double> _curveAnimation;
   final nf = NumberFormat.compact(locale: S.localeName);
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    
     return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Text('${nf.format(widget.at)}／${nf.format(widget.total)}'),
-          ],
+        Padding(
+          padding: const EdgeInsets.only(bottom: 4.0),
+          child: Text(
+            '${nf.format(widget.at)} / ${nf.format(widget.total)}',
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: colorScheme.outline,
+            ),
+          ),
         ),
         AnimatedBuilder(
           animation: _curveAnimation,
           builder: (context, child) {
-            return LinearProgressIndicator(
-              value: _controller.value,
-              valueColor: _colorAnimation,
-              backgroundColor: _colorAnimation.value?.withAlpha(51),
-              semanticsLabel: S.semanticsPercentileBar(_curveAnimation.value),
+            return ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: LinearProgressIndicator(
+                value: _controller.value,
+                valueColor: AlwaysStoppedAnimation(colorScheme.primary),
+                backgroundColor: colorScheme.primaryContainer.withValues(alpha: 0.3),
+                minHeight: 8,
+                semanticsLabel: S.semanticsPercentileBar(_curveAnimation.value),
+              ),
             );
           },
         ),
@@ -53,29 +63,11 @@ class _PercentileBarState extends State<PercentileBar> with SingleTickerProvider
     super.initState();
     _controller = AnimationController(
       value: widget.total == 0 ? 1.0 : widget.at / widget.total,
-      duration: const Duration(milliseconds: 1200),
+      duration: const Duration(milliseconds: 800),
       vsync: this,
     );
 
-    final colorTween = TweenSequence([
-      TweenSequenceItem(
-        tween: ColorTween(
-          begin: const Color(0xff7fca2b),
-          end: const Color(0xff81c9de),
-        ),
-        weight: 1,
-      ),
-      TweenSequenceItem(
-        tween: ColorTween(
-          begin: const Color(0xff81c9de),
-          end: const Color(0xff3d88df),
-        ),
-        weight: 1,
-      ),
-    ]);
-
-    _colorAnimation = _controller.drive(colorTween);
-    _curveAnimation = _controller.drive(CurveTween(curve: Curves.easeIn));
+    _curveAnimation = _controller.drive(CurveTween(curve: Curves.easeOutCubic));
   }
 
   @override

@@ -37,7 +37,13 @@ void main() async {
       final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
       FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
-      await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+      try {
+        await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+      } catch (e) {
+        if (!e.toString().contains('duplicate-app')) {
+          rethrow;
+        }
+      }
       Log.out('start with firebase: ${DefaultFirebaseOptions.currentPlatform.appId}', 'init');
 
       // https://firebase.google.com/docs/crashlytics/get-started?platform=flutter&authuser=0&hl=zh-tw#configure-crash-handlers

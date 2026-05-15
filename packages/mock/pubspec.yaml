@@ -14,9 +14,7 @@ dependencies:
 
   collection: ^1.18.0
   flutter_blue_plus:
-    git:
-      url: https://github.com/evan361425/flutter_blue_plus
-      ref: uint8
+    path: ../flutter_blue_plus-b8feb3f0d3bca2100be0f76176e2ac8a5dc03ae9/packages/flutter_blue_plus
 
 dev_dependencies:
   flutter_test:

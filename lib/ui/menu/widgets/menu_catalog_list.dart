@@ -11,7 +11,6 @@ import 'package:possystem/translator.dart';
 
 class MenuCatalogList extends StatelessWidget {
   final List<Catalog> catalogs;
-
   final Widget leading;
   final void Function(Catalog) onSelected;
 
@@ -25,7 +24,10 @@ class MenuCatalogList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SlidableItemList<Catalog, _Action>(
-      leading: leading,
+      leading: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        child: leading,
+      ),
       action: RouteIconButton(
         label: S.menuCatalogTitleReorder,
         icon: const Icon(KIcons.reorder),
@@ -71,20 +73,79 @@ class _Tile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final actor = actorBuilder(context);
 
-    return ListTile(
-      key: Key('catalog.${catalog.id}'),
-      leading: catalog.avator,
-      title: Text(catalog.name),
-      trailing: EntryMoreButton(onPressed: actor),
-      subtitle: MetaBlock.withString(
-        context,
-        catalog.itemList.map((product) => product.name),
-        emptyText: S.menuCatalogEmptyProducts,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6.0),
+      child: Card(
+        margin: EdgeInsets.zero,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () => onSelected(catalog),
+          onLongPress: actor,
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Row(
+              children: [
+                _SleekAvatar(child: catalog.avator),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        catalog.name,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      MetaBlock.withString(
+                        context,
+                        catalog.itemList.map((product) => product.name),
+                        emptyText: S.menuCatalogEmptyProducts,
+                        textStyle: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.outline,
+                        ),
+                      ) ?? const SizedBox.shrink(),
+                    ],
+                  ),
+                ),
+                EntryMoreButton(onPressed: actor),
+              ],
+            ),
+          ),
+        ),
       ),
-      onLongPress: actor,
-      onTap: () => onSelected(catalog),
+    );
+  }
+}
+
+class _SleekAvatar extends StatelessWidget {
+  final Widget child;
+
+  const _SleekAvatar({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 56,
+      height: 56,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: child,
+      ),
     );
   }
 }

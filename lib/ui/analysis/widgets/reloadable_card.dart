@@ -38,128 +38,149 @@ class ReloadableCard<T> extends StatefulWidget {
 }
 
 class _ReloadableCardState<T> extends State<ReloadableCard<T>> with AutomaticKeepAliveClientMixin {
-  /// Error message when loading failed
   String? error;
-
-  /// Data loaded from loader
   T? data;
-
-  /// Whether the card is reloading
   bool reloadable = false;
-
-  /// Last built target, used to prevent rebuild when reloading
   Widget? lastBuiltTarget;
-
-  Future<T>? lastFuture;
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return Column(children: [
-      if (widget.title != null)
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 0, 4),
-          child: buildTitle(),
+    
+    final title = widget.title != null
+        ? Padding(
+            padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
+            child: buildTitle(),
+          )
+        : const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        title,
+        Stack(
+          children: [
+            ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: Breakpoint.medium.max),
+              child: SizedBox(
+                width: double.infinity,
+                child: buildWrapper(
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 300),
+                    child: buildTarget(),
+                  ),
+                ),
+              ),
+            ),
+            if (reloadable) 
+              Positioned(
+                top: 24,
+                right: 24,
+                child: buildReloadingIndicator(),
+              ),
+          ],
         ),
-      Stack(children: [
-        ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: Breakpoint.medium.max),
-          child: SizedBox(
-            width: double.infinity,
-            child: buildWrapper(buildTarget()),
-          ),
-        ),
-        if (reloadable) buildReloading(),
-      ]),
-    ]);
+      ],
+    );
   }
 
   @override
   void didUpdateWidget(covariant ReloadableCard<T> oldWidget) {
-    // after reorder, the widget will be updated
     if (oldWidget.id != widget.id) {
       data = null;
       reloadable = true;
       reload();
       updateKeepAlive();
     }
-
     super.didUpdateWidget(oldWidget);
   }
 
   @override
   bool get wantKeepAlive => data != null;
 
-  /// Main content of the card
   Widget buildTarget() {
     if (error != null) {
-      return Center(child: Text(error!));
+      return Center(
+        key: const ValueKey('error'),
+        child: Padding(
+          padding: const EdgeInsets.all(32.0),
+          child: Text(error!, style: const TextStyle(color: Colors.red)),
+        ),
+      );
     }
 
     if (data == null) {
-      return const CircularLoading();
+      return const Padding(
+        key: ValueKey('loading'),
+        padding: EdgeInsets.all(64.0),
+        child: CircularLoading(),
+      );
     }
 
-    // when reloading, only show the circular loading indicator and
-    // should not rebuild the target
     if (reloadable && lastBuiltTarget != null) {
       return lastBuiltTarget!;
     }
 
-    return lastBuiltTarget = widget.builder(context, data as T);
+    return lastBuiltTarget = Container(
+      key: ValueKey('data-${widget.id}'),
+      child: widget.builder(context, data as T),
+    );
   }
 
-  /// Wrap the target with card or not
   Widget buildWrapper(Widget child) {
     if (widget.wrappedByCard) {
       return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12.0),
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
         child: Card(
-          margin: const EdgeInsets.only(top: 8.0),
+          margin: EdgeInsets.zero,
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(20.0),
             child: child,
           ),
         ),
       );
     }
 
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      const SizedBox(height: 8.0),
-      child,
-    ]);
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: child,
+    );
   }
 
   Widget buildTitle() {
-    return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-      Text(
-        widget.title!,
-        style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontSize: 24),
-        overflow: TextOverflow.ellipsis,
-      ),
-      if (widget.action != null) widget.action!,
-    ]);
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Expanded(
+          child: Text(
+            widget.title!,
+            style: Theme.of(context).textTheme.titleMedium,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        if (widget.action != null) widget.action!,
+      ],
+    );
   }
 
-  Widget buildReloading() {
-    return Positioned.fill(
-      child: VisibilityDetector(
-        key: Key('anal_card.${widget.id}'),
-        onVisibilityChanged: (info) async {
-          // if partially visible
-          if (info.visibleFraction > 0.1) {
-            await reload();
-          }
-        },
-        child: const ColoredBox(
-          color: Colors.black12,
-          child: Center(
-            child: SizedBox(
-              height: 20,
-              width: 20,
-              child: CircularProgressIndicator.adaptive(strokeWidth: 2),
-            ),
-          ),
+  Widget buildReloadingIndicator() {
+    return VisibilityDetector(
+      key: Key('anal_card_detector.${widget.id}'),
+      onVisibilityChanged: (info) async {
+        if (info.visibleFraction > 0.1) {
+          await reload();
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.5),
+          shape: BoxShape.circle,
+        ),
+        child: const SizedBox(
+          height: 12,
+          width: 12,
+          child: CircularProgressIndicator.adaptive(strokeWidth: 2),
         ),
       ),
     );
@@ -168,7 +189,6 @@ class _ReloadableCardState<T> extends State<ReloadableCard<T>> with AutomaticKee
   @override
   void initState() {
     super.initState();
-
     load().then((value) {
       if (mounted) {
         setState(() => data = value);
@@ -181,10 +201,10 @@ class _ReloadableCardState<T> extends State<ReloadableCard<T>> with AutomaticKee
 
   @override
   void dispose() {
-    super.dispose();
     widget.notifiers?.forEach((e) {
       e.removeListener(handleUpdate);
     });
+    super.dispose();
   }
 
   Future<T?> load() {
@@ -196,21 +216,20 @@ class _ReloadableCardState<T> extends State<ReloadableCard<T>> with AutomaticKee
   }
 
   Future<void> reload() async {
-    // only reload when data changed
     if (reloadable) {
-      lastBuiltTarget = null;
       final inline = await load();
-
-      setState(() {
-        reloadable = false;
-        lastBuiltTarget = null;
-        data = inline;
-      });
+      if (mounted) {
+        setState(() {
+          reloadable = false;
+          lastBuiltTarget = null;
+          data = inline;
+        });
+      }
     }
   }
 
   void handleUpdate() {
-    if (!reloadable) {
+    if (!reloadable && mounted) {
       setState(() {
         reloadable = true;
       });

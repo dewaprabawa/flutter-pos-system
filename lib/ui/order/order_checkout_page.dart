@@ -6,6 +6,7 @@ import 'package:possystem/components/style/pop_button.dart';
 import 'package:possystem/components/style/snackbar.dart';
 import 'package:possystem/constants/constant.dart';
 import 'package:possystem/helpers/breakpoint.dart';
+import 'package:possystem/helpers/util.dart';
 import 'package:possystem/models/repository/cart.dart';
 import 'package:possystem/translator.dart';
 import 'package:possystem/ui/order/checkout/checkout_cashier_calculator.dart';
@@ -80,114 +81,113 @@ class _Mobile extends StatefulWidget {
   State<_Mobile> createState() => _MobileState();
 }
 
-class _MobileState extends State<_Mobile> with SingleTickerProviderStateMixin {
-  static const double snapshotHeight = 64.0;
-  static const double calculatorHeight = 408.0;
-
-  late final TabController _controller;
-
-  ScrollableDraggableController? draggableController;
-
+class _MobileState extends State<_Mobile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         leading: const PopButton(),
+        title: Text(S.orderActionCheckout),
         actions: Cart.instance.isEmpty
             ? null
             : <Widget>[
                 const _StashButton(),
-                _ConfirmButton(price: widget.price, paid: widget.paid),
               ],
-        bottom: TabBar(
-          controller: _controller,
-          tabs: [
-            Tab(key: const Key('order.details.attr'), text: S.orderCheckoutAttributeTab),
-            Tab(key: const Key('order.details.order'), text: S.orderCheckoutDetailsTab),
-            Tab(key: const Key('order.details.stashed'), text: S.orderCheckoutStashTab),
-          ],
-        ),
       ),
       body: _buildBody(),
+      bottomNavigationBar: Cart.instance.isEmpty
+          ? null
+          : Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.1),
+                    blurRadius: 10,
+                    offset: const Offset(0, -5),
+                  ),
+                ],
+              ),
+              child: SafeArea(
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: ValueListenableBuilder(
+                        valueListenable: widget.paid,
+                        builder: (context, value, child) => Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              S.orderCartMetaTotalPrice(value.toCurrency()),
+                              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                            ),
+                            Text(
+                              S.orderObjectViewPriceTotal(widget.price.value.toCurrency()),
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    ElevatedButton(
+                      onPressed: () => _ConfirmButton.confirm(context, paid: widget.paid.value),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                        minimumSize: const Size(160, 56),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      child: Text(
+                        S.orderCheckoutActionConfirm,
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
     );
   }
 
   Widget _buildBody() {
     if (Cart.instance.isEmpty) {
-      return TabBarView(controller: _controller, children: [
-        CheckoutAttributeView(price: widget.price),
-        Center(child: HintText(S.orderCheckoutEmptyCart)),
-        const StashedOrderListView(),
-      ]);
+      return Center(child: HintText(S.orderCheckoutEmptyCart));
     }
 
-    return Stack(children: [
-      Positioned.fill(
-        child: GestureDetector(
-          onTap: () => draggableController?.reset(),
-          child: TabBarView(controller: _controller, children: [
-            CheckoutAttributeView(price: widget.price),
-            ValueListenableBuilder(
-              valueListenable: widget.paid,
-              builder: (context, value, child) => OrderObjectView(
-                order: Cart.instance.toObject(paid: value),
-              ),
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          CheckoutAttributeView(price: widget.price),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.0),
+            child: Divider(),
+          ),
+          ValueListenableBuilder(
+            valueListenable: widget.paid,
+            builder: (context, value, child) => OrderObjectView(
+              order: Cart.instance.toObject(paid: value),
+              bottomPadding: 100, // Extra space for the sticky bottom bar
             ),
-            const StashedOrderListView(),
-          ]),
-        ),
+          ),
+        ],
       ),
-      Positioned.fill(
-        child: ScrollableDraggableSheet(
-          indicator: const DraggableIndicator(key: Key('order.details.ds')),
-          snapSizes: const [snapshotHeight, calculatorHeight],
-          builder: (controller, scroll, _) {
-            draggableController = controller;
-            return [
-              FixedHeightClipper(
-                controller: controller,
-                height: snapshotHeight,
-                baseline: -2 * snapshotHeight,
-                valueScalar: -1,
-                child: CheckoutCashierSnapshot(price: widget.price, paid: widget.paid),
-              ),
-              Expanded(
-                child: SingleChildScrollView(
-                  controller: scroll,
-                  child: SizedBox(
-                    height: calculatorHeight,
-                    child: CheckoutCashierCalculator(
-                      onSubmit: () => _ConfirmButton.confirm(context, paid: widget.paid.value),
-                      price: widget.price,
-                      paid: widget.paid,
-                    ),
-                  ),
-                ),
-              )
-            ];
-          },
-        ),
-      ),
-    ]);
+    );
   }
 
   @override
   void initState() {
     super.initState();
-
-    _controller = TabController(
-      initialIndex: widget.viewIndex.value,
-      length: 3,
-      vsync: this,
-    );
-    _controller.addListener(() {
-      widget.viewIndex.value = _controller.index;
-    });
   }
 
   @override
   void dispose() {
-    _controller.dispose();
     super.dispose();
   }
 }

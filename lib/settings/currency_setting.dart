@@ -5,11 +5,12 @@ import 'package:possystem/settings/setting.dart';
 class CurrencySetting extends Setting<CurrencyTypes> {
   static CurrencySetting instance = CurrencySetting._();
 
-  static const defaultValue = CurrencyTypes.twd;
+  static const defaultValue = CurrencyTypes.idr;
 
   static const supports = <CurrencyTypes, List<num>>{
     CurrencyTypes.twd: [1, 5, 10, 50, 100, 500, 1000],
     CurrencyTypes.usd: [0.01, 0.05, 0.1, 0.25, 0.5, 1, 5, 10, 20, 50, 100],
+    CurrencyTypes.idr: [100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000],
   };
 
   /// Current available unit of money
@@ -24,8 +25,14 @@ class CurrencySetting extends Setting<CurrencyTypes> {
   CurrencySetting._() {
     value = defaultValue;
     LanguageSetting.instance.addListener(() {
-      formatter = NumberFormat.compact(locale: LanguageSetting.instance.language.locale.toString());
+      _setFormatter();
     });
+  }
+
+  void _setFormatter() {
+    final locale = LanguageSetting.instance.language.locale.toString();
+    formatter = NumberFormat.compact(locale: locale);
+    currencyFormatter = NumberFormat.simpleCurrency(locale: locale, name: value.name.toUpperCase());
   }
 
   @override
@@ -34,6 +41,8 @@ class CurrencySetting extends Setting<CurrencyTypes> {
   String get recordName => '新台幣';
 
   NumberFormat formatter = NumberFormat.compact(locale: LanguageSetting.instance.language.locale.toString());
+
+  NumberFormat currencyFormatter = NumberFormat.simpleCurrency(locale: LanguageSetting.instance.language.locale.toString(), name: defaultValue.name.toUpperCase());
 
   /// Ceiling [value] to currency least value
   ///
@@ -84,6 +93,7 @@ class CurrencySetting extends Setting<CurrencyTypes> {
   void initialize() {
     value = CurrencyTypes.values[service.get<int>(key) ?? defaultValue.index];
     _setMetadata(value);
+    _setFormatter();
   }
 
   @override
@@ -108,4 +118,5 @@ class CurrencySetting extends Setting<CurrencyTypes> {
 enum CurrencyTypes {
   twd,
   usd,
+  idr,
 }

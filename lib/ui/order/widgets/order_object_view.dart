@@ -1,162 +1,261 @@
 import 'package:flutter/material.dart';
-import 'package:possystem/components/meta_block.dart';
-import 'package:possystem/components/models/order_attribute_value_widget.dart';
-import 'package:possystem/components/style/head_tail_tile.dart';
-import 'package:possystem/components/style/hint_text.dart';
 import 'package:possystem/components/style/outlined_text.dart';
-import 'package:possystem/components/style/text_divider.dart';
-import 'package:possystem/constants/constant.dart';
 import 'package:possystem/helpers/util.dart';
 import 'package:possystem/models/objects/order_object.dart';
-import 'package:possystem/models/repository/menu.dart';
 import 'package:possystem/translator.dart';
 
 class OrderObjectView extends StatelessWidget {
   final OrderObject order;
+  final double bottomPadding;
 
   const OrderObjectView({
     super.key,
     required this.order,
+    this.bottomPadding = 16.0,
   });
 
   @override
   Widget build(BuildContext context) {
-    final priceWidget = ExpansionTile(
-      title: Text(S.orderObjectViewPriceTotal(order.price.toCurrency())),
-      children: <Widget>[
-        HeadTailTile(
-          head: S.orderObjectViewPriceProducts,
-          tail: order.productsPrice.toCurrency(),
-        ),
-        HeadTailTile(
-          head: S.orderObjectViewPriceAttributes,
-          tail: order.attributesPrice.toCurrency(),
-        ),
-        HeadTailTile(
-          head: S.orderObjectViewCost,
-          tail: order.cost.toCurrency(),
-        ),
-        HeadTailTile(
-          head: S.orderObjectViewProfit,
-          tail: order.profit.toCurrency(),
-        ),
-        HeadTailTile(
-          head: S.orderObjectViewPaid,
-          tail: order.paid.toCurrency(),
-        ),
-      ],
-    );
-
-    final attrWidget = order.attributes.isEmpty
-        ? const SizedBox.shrink()
-        : ExpansionTile(
-            key: const Key('order.attributes'),
-            title: Text(S.orderObjectViewDividerAttribute),
-            subtitle: Text(
-              S.totalCount(order.attributes.length),
-            ),
-            children: <Widget>[
-              for (final attribute in order.attributes)
-                ListTile(
-                  title: Text(attribute.name.toString()),
-                  subtitle: OrderAttributeValueWidget.build(attribute.mode, attribute.modeValue),
-                  trailing: OutlinedText(attribute.optionName.toString()),
-                ),
-            ],
-          );
-
-    final Widget noteWidget;
-    if (order.note.isEmpty) {
-      noteWidget = const SizedBox.shrink();
-    } else {
-      noteWidget = Card(
-        margin: const EdgeInsets.symmetric(horizontal: 12.0),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 400),
-          child: SizedBox(
-            width: double.infinity,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(S.orderObjectViewNote, style: Theme.of(context).textTheme.titleMedium),
-                const SizedBox(height: kInternalSpacing),
-                Text(order.note),
-              ]),
-            ),
-          ),
-        ),
-      );
-    }
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return SingleChildScrollView(
-      child: Column(children: [
-        priceWidget,
-        attrWidget,
-        noteWidget,
-        TextDivider(label: S.orderObjectViewDividerProduct),
-        HintText(S.totalCount(order.productsCount)),
-        for (final product in order.products) _ProductTile(product),
-        // padding for ScrollableDraggableSheet on OrderDetailsPage
-        const SizedBox(height: 428),
-      ]),
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _ReceiptSection(
+            title: S.orderObjectViewDividerProduct,
+            child: Column(
+              children: [
+                for (final product in order.products) _ProductItem(product),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16.0),
+                  child: Divider(),
+                ),
+                _TotalRow(
+                  label: S.orderObjectViewPriceProducts,
+                  value: order.productsPrice.toCurrency(),
+                ),
+                if (order.attributesPrice != 0)
+                  _TotalRow(
+                    label: S.orderObjectViewPriceAttributes,
+                    value: order.attributesPrice.toCurrency(),
+                  ),
+                const SizedBox(height: 12),
+                _TotalRow(
+                  label: S.orderObjectViewPriceTotal(''),
+                  value: order.price.toCurrency(),
+                  isBold: true,
+                  fontSize: 24,
+                  color: colorScheme.primary,
+                ),
+              ],
+            ),
+          ),
+          if (order.attributes.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            _ReceiptSection(
+              title: S.orderObjectViewDividerAttribute,
+              child: Column(
+                children: [
+                  for (final attribute in order.attributes) _AttributeItem(attribute),
+                ],
+              ),
+            ),
+          ],
+          if (order.note.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            _ReceiptSection(
+              title: S.orderObjectViewNote,
+              child: Text(
+                order.note,
+                style: theme.textTheme.bodyMedium,
+              ),
+            ),
+          ],
+          SizedBox(height: bottomPadding),
+        ],
+      ),
     );
   }
 }
 
-class _ProductTile extends StatelessWidget {
-  final OrderProductObject data;
+class _ReceiptSection extends StatelessWidget {
+  final String title;
+  final Widget child;
 
-  const _ProductTile(this.data);
+  const _ReceiptSection({required this.title, required this.child});
 
   @override
   Widget build(BuildContext context) {
-    return ExpansionTile(
-      title: Text(data.productName),
-      subtitle: MetaBlock.withString(context, <String>[
-        '${S.orderObjectViewProductPrice}：${data.totalPrice.toCurrency()}',
-        '${S.orderObjectViewProductCost}：${data.totalCost.toCurrency()}',
-      ]),
-      leading: Menu.instance.getProductByName(data.productName)?.avator ??
-          (data.productName != ''
-              ? CircleAvatar(
-                  child: Text(data.productName.characters.first.toUpperCase()),
-                )
-              : null),
-      expandedCrossAxisAlignment: CrossAxisAlignment.stretch,
-      childrenPadding: const EdgeInsets.all(8.0),
-      children: [
-        HeadTailTile(
-          head: S.orderObjectViewProductPrice,
-          tail: data.totalPrice.toCurrency(),
+    final theme = Theme.of(context);
+    return Card(
+      elevation: 0,
+      margin: EdgeInsets.zero,
+      color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title.toUpperCase(),
+              style: theme.textTheme.labelMedium?.copyWith(
+                color: theme.colorScheme.outline,
+                letterSpacing: 1.5,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 20),
+            child,
+          ],
         ),
-        HeadTailTile(
-          head: S.orderObjectViewProductCost,
-          tail: data.totalCost.toCurrency(),
-        ),
-        HeadTailTile(
-          head: S.orderObjectViewProductCount,
-          tail: data.count.toString(),
-        ),
-        HeadTailTile(
-          head: S.orderObjectViewProductSinglePrice,
-          tail: data.singlePrice.toCurrency(),
-        ),
-        HeadTailTile(
-          head: S.orderObjectViewProductOriginalPrice,
-          tail: data.originalPrice.toCurrency(),
-        ),
-        HeadTailTile(
-          head: S.orderObjectViewProductCatalog,
-          tail: data.catalogName,
-        ),
-        if (data.ingredients.isNotEmpty) const SizedBox(height: 8.0),
-        if (data.ingredients.isNotEmpty) HeadTailTile(head: S.orderObjectViewProductIngredient, tail: ''),
-        for (final e in data.ingredients)
-          HeadTailTile(
-            head: e.ingredientName,
-            tailWidget: e.quantityName == null ? HintText(S.orderObjectViewProductDefaultQuantity) : null,
-            tail: e.quantityName,
+      ),
+    );
+  }
+}
+
+class _ProductItem extends StatelessWidget {
+  final OrderProductObject data;
+  const _ProductItem(this.data);
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10.0),
+      child: Row(
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: theme.colorScheme.primaryContainer,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Center(
+              child: Text(
+                '${data.count}',
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: theme.colorScheme.onPrimaryContainer,
+                ),
+              ),
+            ),
           ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  data.productName,
+                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+                ),
+                if (data.ingredients.isNotEmpty)
+                  Text(
+                    data.ingredients.map((e) => e.ingredientName).join(', '),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.outline,
+                      height: 1.5,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+              ],
+            ),
+          ),
+          Text(
+            data.totalPrice.toCurrency(),
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: theme.colorScheme.onSurface,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AttributeItem extends StatelessWidget {
+  final OrderSelectedAttributeObject attribute;
+  const _AttributeItem(this.attribute);
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            attribute.name,
+            style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.outline),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.secondaryContainer,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              attribute.optionName,
+              style: theme.textTheme.labelMedium?.copyWith(
+                color: theme.colorScheme.onSecondaryContainer,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TotalRow extends StatelessWidget {
+  final String label;
+  final String value;
+  final bool isBold;
+  final double? fontSize;
+  final Color? color;
+
+  const _TotalRow({
+    required this.label,
+    required this.value,
+    this.isBold = false,
+    this.fontSize,
+    this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: theme.textTheme.bodyLarge?.copyWith(
+            fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+            fontSize: fontSize,
+            color: color ?? theme.colorScheme.onSurface,
+          ),
+        ),
+        Text(
+          value,
+          style: theme.textTheme.bodyLarge?.copyWith(
+            fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+            fontSize: fontSize,
+            color: color ?? theme.colorScheme.onSurface,
+          ),
+        ),
       ],
     );
   }
