@@ -76,7 +76,7 @@ class _WithTab extends StatelessWidget {
                 NavigationDestination(
                   key: Key('home.${e.name}'),
                   icon: e.icon,
-                  label: S.title(e.name),
+                  label: e == _Tab.analysis ? S.analysisHistoryTitle : S.title(e.name),
                   selectedIcon: e.selectedIcon,
                 ),
             ],
@@ -150,7 +150,7 @@ class _WithDrawerState extends State<_WithDrawer> {
                   ListTile(
                     key: Key('home.${e.name}'),
                     leading: tab == e ? e.selectedIcon : e.icon,
-                    title: Text(S.title(e.name)),
+                    title: Text(e == _Tab.analysis ? S.analysisHistoryTitle : S.title(e.name)),
                     selected: tab == e,
                     visualDensity: VisualDensity.compact,
                     shape: const RoundedRectangleBorder(
@@ -271,7 +271,7 @@ class _WithRailState extends State<_WithRail> {
             NavigationRailDestination(
               icon: e.icon,
               selectedIcon: e.selectedIcon,
-              label: e.wrap(Text(S.title(e.name))),
+              label: e.wrap(Text(e == _Tab.analysis ? S.analysisHistoryTitle : S.title(e.name))),
             ),
       ],
     );
@@ -333,6 +333,7 @@ class _FlexibleSpace extends StatelessWidget {
 const _bottomNavTabs = [
   _Tab.order,
   _Tab.cashier,
+  _Tab.analysis,
   _Tab.more,
 ];
 
@@ -357,8 +358,8 @@ enum _Tab {
     important: true,
   ),
   analysis(
-    icon: Icon(Icons.analytics_outlined),
-    selectedIcon: Icon(Icons.analytics),
+    icon: Icon(Icons.receipt_long_outlined),
+    selectedIcon: Icon(Icons.receipt_long),
     important: true,
   ),
   stock(

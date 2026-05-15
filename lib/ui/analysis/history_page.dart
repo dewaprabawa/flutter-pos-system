@@ -30,55 +30,82 @@ class _HistoryPageState extends State<HistoryPage> {
   @override
   Widget build(BuildContext context) {
     final singleView = MediaQuery.sizeOf(context).width <= Breakpoint.medium.max;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return TutorialWrapper(
       child: Scaffold(
-        appBar: AppBar(
-          leading: const PopButton(),
-          title: Text(S.analysisHistoryTitle),
-          actions: [
-            Tutorial(
-              id: 'history.action',
-              title: S.analysisHistoryActionTutorialTitle,
-              message: S.analysisHistoryActionTutorialContent,
-              spotlightBuilder: const SpotlightRectBuilder(borderRadius: 8.0),
-              child: MenuAnchor(
-                builder: (context, controller, child) => IconButton(
-                  key: const Key('history.action'),
-                  onPressed: controller.open,
-                  icon: const Icon(KIcons.more),
+        body: Column(
+          children: [
+            Container(
+              padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    colorScheme.primary,
+                    colorScheme.primary.withValues(alpha: 0.8),
+                  ],
                 ),
-                menuChildren: [
-                  SubmenuButton(
-                    key: const Key('history.action.export'),
-                    menuChildren: TransitMethod.values
-                        .map((e) => MenuItemButton(
-                              onPressed: () => _onExport(e),
-                              child: Text(e.l10nName),
-                            ))
-                        .toList(),
-                    child: Text(S.analysisHistoryActionExport),
-                  ),
-                  MenuItemButton(
-                    key: const Key('history.action.clear'),
-                    onPressed: _onClear,
-                    child: Text(S.analysisHistoryActionClear),
-                  ),
-                  MenuItemButton(
-                    key: const Key('history.action.reset_no'),
-                    onPressed: _onResetNo,
-                    child: Text(S.analysisHistoryActionResetNo),
-                  ),
-                  MenuItemButton(
-                    key: const Key('history.action.schedule_reset_no'),
-                    onPressed: _onScheduleResetNo,
-                    child: Text(S.analysisHistoryActionScheduleResetNo),
+              ),
+              child: AppBar(
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+                leading: Navigator.canPop(context) ? const PopButton(color: Colors.white) : null,
+                title: Text(
+                  S.analysisHistoryTitle,
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                ),
+                actions: [
+                  Tutorial(
+                    id: 'history.action',
+                    title: S.analysisHistoryActionTutorialTitle,
+                    message: S.analysisHistoryActionTutorialContent,
+                    spotlightBuilder: const SpotlightRectBuilder(borderRadius: 8.0),
+                    child: MenuAnchor(
+                      builder: (context, controller, child) => IconButton(
+                        key: const Key('history.action'),
+                        onPressed: controller.open,
+                        icon: const Icon(KIcons.more, color: Colors.white),
+                      ),
+                      menuChildren: [
+                        SubmenuButton(
+                          key: const Key('history.action.export'),
+                          menuChildren: TransitMethod.values
+                              .map((e) => MenuItemButton(
+                                    onPressed: () => _onExport(e),
+                                    child: Text(e.l10nName),
+                                  ))
+                              .toList(),
+                          child: Text(S.analysisHistoryActionExport),
+                        ),
+                        MenuItemButton(
+                          key: const Key('history.action.clear'),
+                          onPressed: _onClear,
+                          child: Text(S.analysisHistoryActionClear),
+                        ),
+                        MenuItemButton(
+                          key: const Key('history.action.reset_no'),
+                          onPressed: _onResetNo,
+                          child: Text(S.analysisHistoryActionResetNo),
+                        ),
+                        MenuItemButton(
+                          key: const Key('history.action.schedule_reset_no'),
+                          onPressed: _onScheduleResetNo,
+                          child: Text(S.analysisHistoryActionScheduleResetNo),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
+            Expanded(
+              child: singleView ? _buildSingleColumn() : _buildTwoColumns(),
+            ),
           ],
         ),
-        body: singleView ? _buildSingleColumn() : _buildTwoColumns(),
       ),
     );
   }

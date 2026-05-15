@@ -11,6 +11,7 @@ import 'package:possystem/models/printer.dart';
 import 'package:possystem/models/repository/menu.dart';
 import 'package:possystem/models/repository/order_attributes.dart';
 import 'package:possystem/models/repository/stashed_orders.dart';
+import 'package:possystem/models/xfile.dart';
 
 import 'cashier.dart';
 import 'seller.dart';
@@ -43,6 +44,9 @@ class Cart extends ChangeNotifier {
 
   /// Note for the order.
   String note = '';
+
+  /// Path of image proof.
+  String? imagePath;
 
   /// Current selected product index.
   int selectedIndex = -1;
@@ -120,6 +124,12 @@ class Cart extends ChangeNotifier {
     note = value;
   }
 
+  /// Update the image path of the order.
+  void updateImagePath(String? value) {
+    imagePath = value;
+    notifyListeners();
+  }
+
   /// Finish the order and get paid.
   ///
   /// - [paid] is the money that customer paid. If it is less than the price,
@@ -134,7 +144,16 @@ class Cart extends ChangeNotifier {
     if (paid < price) return CheckoutStatus.paidNotEnough;
 
     Log.ger('begin_order_checkout', {'name': name, 'paid': paid, 'price': price});
-    final data = toObject(paid: paid);
+    var data = toObject(paid: paid);
+
+    if (data.imagePath != null) {
+      final dir = await XFile.createDir('order_proof');
+
+      final dst = XFile.fs.path.join(dir.path, 'proof_${DateTime.now().millisecondsSinceEpoch}.jpg');
+      await XFile(data.imagePath!).file.copy(dst);
+      Log.out('proof saved to $dst', 'order_checkout');
+      data = data.replaceImagePath(dst);
+    }
 
     final receipt = await Printers.instance.generateReceipts(context: context, order: data);
     if (receipt != null) {
@@ -179,7 +198,15 @@ class Cart extends ChangeNotifier {
     if (able) {
       Log.ger('begin_order_stash');
 
-      await StashedOrders.instance.stash(toObject());
+      var data = toObject();
+      if (data.imagePath != null) {
+        final dir = await XFile.createDir('order_proof');
+        final dst = XFile.fs.path.join(dir.path, 'stash_${DateTime.now().millisecondsSinceEpoch}.jpg');
+        await XFile(data.imagePath!).file.copy(dst);
+        data = data.replaceImagePath(dst);
+      }
+
+      await StashedOrders.instance.stash(data);
 
       clear();
     }
@@ -289,6 +316,7 @@ class Cart extends ChangeNotifier {
     attributes.clear();
     selectedProduct.value = null;
     note = '';
+    imagePath = null;
 
     notifyListeners();
   }
@@ -328,6 +356,7 @@ class Cart extends ChangeNotifier {
       note: note,
       products: products.map<OrderProductObject>((e) => e.toObject()).toList(),
       attributes: selectedAttributeOptions.map((e) => OrderSelectedAttributeObject.fromModel(e)).toList(),
+      imagePath: imagePath,
       createdAt: timer(),
     );
   }

@@ -13,6 +13,8 @@ void showSnackBar(
   BuildContext? context,
   GlobalKey<ScaffoldMessengerState>? key,
   SnackBarAction? action,
+  Color? backgroundColor,
+  IconData? icon,
 }) {
   ScaffoldMessengerState? state;
   if (context != null) {
@@ -29,9 +31,18 @@ void showSnackBar(
     state.clearSnackBars();
     state.showSnackBar(SnackBar(
       showCloseIcon: true,
+      backgroundColor: backgroundColor,
       // make floating button below
       behavior: SnackBarBehavior.floating,
-      content: Text(message),
+      content: Row(
+        children: [
+          if (icon != null) ...[
+            Icon(icon, color: Colors.white, size: 20),
+            const SizedBox(width: 12),
+          ],
+          Expanded(child: Text(message)),
+        ],
+      ),
       width: Routes.homeMode.value.isMobile() ? null : 600,
       action: action,
     ));

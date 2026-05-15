@@ -42,6 +42,9 @@ class OrderObject extends _Object {
   /// All product details.
   final List<OrderProductObject> products;
 
+  /// Path of image proof.
+  final String? imagePath;
+
   /// Order created time, important property to sort.
   final DateTime createdAt;
 
@@ -57,8 +60,26 @@ class OrderObject extends _Object {
     this.productsPrice = 0,
     this.attributes = const [],
     this.products = const [],
+    this.imagePath,
     required this.createdAt,
   });
+
+  OrderObject replaceImagePath(String? path) {
+    return OrderObject(
+      id: id,
+      periodSeq: periodSeq,
+      paid: paid,
+      cost: cost,
+      price: price,
+      note: note,
+      productsCount: productsCount,
+      productsPrice: productsPrice,
+      attributes: attributes,
+      products: products,
+      imagePath: path,
+      createdAt: createdAt,
+    );
+  }
 
   /// Profit, [price] minus [cost].
   num get profit => price - cost;
@@ -123,6 +144,7 @@ class OrderObject extends _Object {
       'productsPrice': productsPrice,
       'productsCount': productsCount,
       'attributesPrice': attributesPrice,
+      'imagePath': imagePath,
       'createdAt': Util.toUTC(now: createdAt),
     };
   }
@@ -133,6 +155,7 @@ class OrderObject extends _Object {
       'note': note,
       'encodedProducts': jsonEncode(products.map((e) => e.toStashMap()).toList()),
       'encodedAttributes': jsonEncode(attributes.map((e) => e.toStashMap()).toList()),
+      'imagePath': imagePath,
       'createdAt': Util.toUTC(now: createdAt),
     };
   }
@@ -160,6 +183,7 @@ class OrderObject extends _Object {
       attributes: [
         for (Map<String, dynamic> attr in attributes) OrderSelectedAttributeObject.fromMap(attr),
       ],
+      imagePath: order['imagePath'] as String?,
       createdAt: Util.fromUTC(order['createdAt'] as int? ?? 0),
     );
   }
@@ -174,6 +198,7 @@ class OrderObject extends _Object {
       note: data['note'] as String? ?? '',
       attributes: attributes.map((e) => OrderSelectedAttributeObject.fromStashMap(e)).toList(),
       products: products.map((e) => OrderProductObject.fromStashMap(e)).toList(),
+      imagePath: data['imagePath'] as String?,
       createdAt: Util.fromUTC(data['createdAt'] as int? ?? 0),
     );
   }

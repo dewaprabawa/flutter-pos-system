@@ -140,12 +140,27 @@ class Routes {
             StatefulShellBranch(routes: [_cashierRoute]),
             StatefulShellBranch(routes: [
               GoRoute(
+                name: Routes.history,
+                path: 'history',
+                builder: (ctx, state) => _l(const HistoryPage(), state),
+                routes: [
+                  GoRoute(
+                    name: Routes.historyOrder,
+                    path: 'order/:id',
+                    pageBuilder: (ctx, state) => MaterialDialogPage(
+                      child: _l(HistoryOrderModal(int.tryParse(state.pathParameters['id'] ?? '0') ?? 0), state),
+                    ),
+                  )
+                ],
+              ),
+            ]),
+            StatefulShellBranch(routes: [
+              GoRoute(
                 name: Routes.others,
                 path: '_',
                 builder: (ctx, state) => _l(const MobileMoreView(), state),
                 routes: [
                   if (!isProd) _debugRoute(inShell: false),
-                  _analysisRoute(inShell: false),
                   _menuRoute(inShell: false),
                   _stockRoute(inShell: false),
                   _printerRoute(inShell: false),
@@ -215,7 +230,12 @@ class Routes {
         name: anal,
         path: '${(inShell ? '_/' : '')}anal',
         parentNavigatorKey: inShell ? null : rootNavigatorKey,
-        pageBuilder: _analBuilder,
+        pageBuilder: (ctx, state) {
+          final child = _l(const AnalysisView(), state);
+          return NoTransitionPage(
+            child: inShell ? child : _w(child, S.analysisChartTitle),
+          );
+        },
     routes: [
       _createPrefixRoute(path: 'chart', prefix: 'anal', routes: [
         GoRoute(
@@ -253,7 +273,12 @@ class Routes {
         name: stock,
         path: '${(inShell ? '_/' : '')}stock',
         parentNavigatorKey: inShell ? null : rootNavigatorKey,
-        pageBuilder: (ctx, state) => NoTransitionPage(child: _l(const StockView(), state)),
+        pageBuilder: (ctx, state) {
+          final child = _l(const StockView(), state);
+          return NoTransitionPage(
+            child: inShell ? child : _w(child, S.stockTab),
+          );
+        },
     routes: [
       _createPrefixRoute(path: 'ingr', prefix: 'stock', routes: [
         GoRoute(
@@ -655,20 +680,6 @@ class Routes {
   // ==================== Other routes ====================
 
   static final _routes = [
-    GoRoute(
-      name: history,
-      path: 'history',
-      builder: (ctx, state) => _l(const HistoryPage(), state),
-      routes: [
-        GoRoute(
-          name: historyOrder,
-          path: 'order/:id',
-          pageBuilder: (ctx, state) => MaterialDialogPage(
-            child: _l(HistoryOrderModal(int.tryParse(state.pathParameters['id'] ?? '0') ?? 0), state),
-          ),
-        )
-      ],
-    ),
     GoRoute(
       name: imageGallery,
       path: 'imageGallery',

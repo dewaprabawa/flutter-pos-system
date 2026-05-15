@@ -39,71 +39,107 @@ class _OrderPageState extends State<OrderPage> {
   Widget build(BuildContext context) {
     final catalogs = Menu.instance.notEmptyItems;
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return TutorialWrapper(
       child: Scaffold(
         resizeToAvoidBottomInset: false,
-        appBar: AppBar(
-          title: Text(S.title('order')),
-          centerTitle: false,
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.notifications_none_outlined),
-              onPressed: () {},
-            ),
-            const SizedBox(width: 8),
-            const CircleAvatar(
-              radius: 16,
-              backgroundColor: Color(0xFF0D9488),
-              child: Text('BU', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
-            ),
-            const SizedBox(width: 16),
-          ],
-        ),
-        body: Stack(
+        body: Column(
           children: [
-            Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-                  child: TextField(
-                    decoration: InputDecoration(
-                      hintText: S.menuSearchHint,
-                      prefixIcon: const Icon(Icons.search, size: 20),
-                      fillColor: theme.colorScheme.surfaceVariant.withOpacity(0.3),
-                      filled: true,
-                      isDense: true,
-                      contentPadding: const EdgeInsets.symmetric(vertical: 0),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30),
-                        borderSide: BorderSide.none,
+            Container(
+              padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    colorScheme.primary,
+                    colorScheme.primary.withValues(alpha: 0.8),
+                  ],
+                ),
+              ),
+              child: Column(
+                children: [
+                  AppBar(
+                    backgroundColor: Colors.transparent,
+                    elevation: 0,
+                    title: Text(
+                      S.title('order'),
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                    ),
+                    centerTitle: false,
+                    actions: [
+                      IconButton(
+                        icon: const Icon(Icons.notifications_none_outlined, color: Colors.white),
+                        onPressed: () {},
+                      ),
+                      const SizedBox(width: 8),
+                      const CircleAvatar(
+                        radius: 16,
+                        backgroundColor: Colors.white24,
+                        child: Text('BU', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                      ),
+                      const SizedBox(width: 16),
+                    ],
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                    child: TextField(
+                      style: const TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        hintText: S.menuSearchHint,
+                        hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.6)),
+                        prefixIcon: const Icon(Icons.search, size: 20, color: Colors.white),
+                        fillColor: Colors.white.withValues(alpha: 0.15),
+                        filled: true,
+                        isDense: true,
+                        contentPadding: const EdgeInsets.symmetric(vertical: 0),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(30),
+                          borderSide: BorderSide.none,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                OrderCatalogListView(
-                  catalogs: catalogs,
-                  indexNotifier: _catalogIndexNotifier,
-                  onSelected: (index) => _pageController.jumpToPage(index),
-                ),
-                Expanded(
-                  child: PageView.builder(
-                    controller: _pageController,
-                    onPageChanged: (index) => _catalogIndexNotifier.value = index,
-                    itemCount: catalogs.length,
-                    itemBuilder: (context, index) => OrderProductListView(
-                      products: catalogs[index].itemList,
+                ],
+              ),
+            ),
+            Expanded(
+              child: Stack(
+                children: [
+                  Column(
+                    children: [
+                      const SizedBox(height: 12),
+                      OrderCatalogListView(
+                        catalogs: catalogs,
+                        indexNotifier: _catalogIndexNotifier,
+                        onSelected: (index) => _pageController.animateToPage(
+                          index,
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                        ),
+                      ),
+                      Expanded(
+                        child: PageView.builder(
+                          controller: _pageController,
+                          onPageChanged: (index) => _catalogIndexNotifier.value = index,
+                          itemCount: catalogs.length,
+                          itemBuilder: (context, index) => OrderProductListView(
+                            products: catalogs[index].itemList,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    child: CartSummaryWidget(
+                      onCheckout: _handleCheckout,
                     ),
                   ),
-                ),
-              ],
-            ),
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: CartSummaryWidget(
-                onCheckout: _handleCheckout,
+                ],
               ),
             ),
           ],
@@ -182,7 +218,12 @@ void handleCheckoutStatus(BuildContext context, CheckoutStatus status) {
   status = CheckoutWarningSetting.instance.shouldShow(status);
 
   return switch (status) {
-    CheckoutStatus.ok || CheckoutStatus.stash || CheckoutStatus.restore => showSnackBar(S.actSuccess, context: context),
+    CheckoutStatus.ok || CheckoutStatus.stash || CheckoutStatus.restore => showSnackBar(
+        'Transaksi Berhasil',
+        context: context,
+        backgroundColor: Colors.blue.shade700,
+        icon: Icons.check_circle_outline,
+      ),
     CheckoutStatus.cashierNotEnough => showSnackBar(S.orderSnackbarCashierNotEnough, context: context),
     CheckoutStatus.cashierUsingSmall => showMoreInfoSnackBar(
         S.orderSnackbarCashierUsingSmallMoney,

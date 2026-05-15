@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:possystem/components/style/outlined_text.dart';
 import 'package:possystem/helpers/util.dart';
@@ -28,6 +30,34 @@ class OrderObjectView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 24),
+            decoration: BoxDecoration(
+              color: colorScheme.primaryContainer.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Column(
+              children: [
+                Text(
+                  'TOTAL TRANSAKSI',
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: colorScheme.primary,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 2,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  order.price.toCurrency(),
+                  style: theme.textTheme.headlineMedium?.copyWith(
+                    color: colorScheme.primary,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
           _ReceiptSection(
             title: S.orderObjectViewDividerProduct,
             child: Column(
@@ -40,7 +70,7 @@ class OrderObjectView extends StatelessWidget {
                   ),
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 16.0),
-                  child: Divider(),
+                  child: Divider(height: 1),
                 ),
                 _TotalRow(
                   label: S.orderObjectViewPriceProducts,
@@ -51,14 +81,6 @@ class OrderObjectView extends StatelessWidget {
                     label: S.orderObjectViewPriceAttributes,
                     value: order.attributesPrice.toCurrency(),
                   ),
-                const SizedBox(height: 12),
-                _TotalRow(
-                  label: S.orderObjectViewPriceTotal(''),
-                  value: order.price.toCurrency(),
-                  isBold: true,
-                  fontSize: 20,
-                  color: colorScheme.primary,
-                ),
               ],
             ),
           ),
@@ -83,6 +105,26 @@ class OrderObjectView extends StatelessWidget {
               ),
             ),
           ],
+          if (order.imagePath != null && order.imagePath!.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            _ReceiptSection(
+              title: 'Bukti Pembayaran',
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12.0),
+                child: Image.file(
+                  File(order.imagePath!),
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    height: 100,
+                    color: theme.colorScheme.errorContainer,
+                    child: Center(
+                      child: Icon(Icons.broken_image, color: theme.colorScheme.error),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
           SizedBox(height: bottomPadding),
         ],
       ),
@@ -102,13 +144,13 @@ class _ReceiptSection extends StatelessWidget {
     return Card(
       elevation: 0,
       margin: EdgeInsets.zero,
-      color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+      color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.2),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: BorderSide(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5)),
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.3)),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

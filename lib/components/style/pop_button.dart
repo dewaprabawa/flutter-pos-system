@@ -7,10 +7,13 @@ class PopButton extends StatelessWidget {
 
   final VoidCallback? onPressed;
 
+  final Color? color;
+
   const PopButton({
     super.key,
     this.title,
     this.onPressed,
+    this.color,
   });
 
   static safePop<T>(BuildContext context, {String path = Routes.base, T? value}) {
@@ -38,6 +41,7 @@ class PopButton extends StatelessWidget {
     return BackButton(
       key: const Key('pop'),
       onPressed: cb,
+      color: color,
     );
   }
 }

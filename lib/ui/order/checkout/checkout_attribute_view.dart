@@ -1,9 +1,13 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:possystem/constants/constant.dart';
 import 'package:possystem/models/order/order_attribute.dart';
 import 'package:possystem/models/order/order_attribute_option.dart';
 import 'package:possystem/models/repository/cart.dart';
 import 'package:possystem/models/repository/order_attributes.dart';
+import 'package:possystem/models/xfile.dart';
+import 'package:possystem/services/image_dumper.dart';
 import 'package:possystem/translator.dart';
 
 class CheckoutAttributeView extends StatelessWidget {
@@ -33,7 +37,7 @@ class CheckoutAttributeView extends StatelessWidget {
     );
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -55,6 +59,8 @@ class CheckoutAttributeView extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           noteField,
+          const SizedBox(height: 16),
+          const _ProofAttachment(),
         ],
       ),
     );
@@ -182,6 +188,75 @@ class _AttributeChip extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _ProofAttachment extends StatelessWidget {
+  const _ProofAttachment();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListenableBuilder(
+      listenable: Cart.instance,
+      builder: (context, _) {
+        final path = Cart.instance.imagePath;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Bukti Pembayaran (Opsional)',
+              style: Theme.of(context)
+                  .textTheme
+                  .titleSmall
+                  ?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            if (path != null)
+              Stack(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8.0),
+                    child: Image.file(
+                      File(path),
+                      height: 200,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  Positioned(
+                    right: 8,
+                    top: 8,
+                    child: CircleAvatar(
+                      backgroundColor: Colors.black54,
+                      child: IconButton(
+                        icon: const Icon(Icons.close, color: Colors.white),
+                        onPressed: () => Cart.instance.updateImagePath(null),
+                      ),
+                    ),
+                  ),
+                ],
+              )
+            else
+              OutlinedButton.icon(
+                onPressed: () async {
+                  final image = await ImageDumper.instance.pick();
+                  if (image != null) {
+                    Cart.instance.updateImagePath(image.path);
+                  }
+                },
+                icon: const Icon(Icons.add_a_photo_outlined),
+                label: const Text('Lampirkan Bukti (QRIS/Transfer)'),
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 48),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
     );
   }
 }
