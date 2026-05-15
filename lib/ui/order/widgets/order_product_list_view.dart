@@ -11,137 +11,46 @@ import 'package:possystem/ui/order/order_page.dart';
 
 class OrderProductListView extends StatelessWidget {
   final List<Product> products;
-  final ProductListView view;
 
   const OrderProductListView({
     super.key,
     required this.products,
-    required this.view,
   });
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: _buildView(context),
-    );
-  }
-
-  Widget _buildView(BuildContext context) {
-    if (view == ProductListView.list) {
-      return _buildListView(context);
-    }
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final crossAxisCount = Breakpoint.find(box: constraints).lookup(
-          compact: 2,
-          medium: 3,
-          expanded: 4,
-          large: 5,
-        );
-        return _buildGridView(crossAxisCount);
-      },
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final crossAxisCount = Breakpoint.find(box: constraints).lookup(
+            compact: 2,
+            medium: 3,
+            expanded: 4,
+            large: 5,
+          );
+          return _buildGridView(crossAxisCount);
+        },
+      ),
     );
   }
 
   Widget _buildGridView(int crossAxisCount) {
     return GridView.builder(
-      padding: const EdgeInsets.only(top: 16, bottom: 100),
+      padding: const EdgeInsets.only(top: 8, bottom: 120),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: crossAxisCount,
-        mainAxisSpacing: 16.0,
-        crossAxisSpacing: 16.0,
-        childAspectRatio: 0.85, // Slightly taller for text
+        mainAxisSpacing: 12.0,
+        crossAxisSpacing: 12.0,
+        childAspectRatio: 0.8,
       ),
       itemCount: products.length,
       itemBuilder: (context, index) {
         final product = products[index];
-        return ImageHolder(
+        return _ProductCard(
           key: Key('order.product.${product.id}'),
-          image: product.image,
-          title: product.name,
-          subtitle: product.price.toCurrency(),
-          onPressed: () => _onSelected(product),
-        );
-      },
-    );
-  }
-
-  Widget _buildListView(BuildContext context) {
-    final theme = Theme.of(context);
-    return ListView.builder(
-      padding: const EdgeInsets.only(top: 16, bottom: 100),
-      itemCount: products.length,
-      itemBuilder: (context, index) {
-        final product = products[index];
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 12.0),
-          child: Card(
-            elevation: 0,
-            margin: EdgeInsets.zero,
-            color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-              side: BorderSide(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5)),
-            ),
-            child: InkWell(
-              onTap: () => _onSelected(product),
-              borderRadius: BorderRadius.circular(16),
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Row(
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: Image(
-                        image: product.image,
-                        width: 64,
-                        height: 64,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            product.name,
-                            style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            product.itemList.isEmpty
-                                ? S.orderProductListNoIngredient
-                                : product.itemList.map((e) => e.name).join(', '),
-                            style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.outline),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.primaryContainer,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Text(
-                        product.price.toCurrency(),
-                        style: theme.textTheme.labelLarge?.copyWith(
-                          color: theme.colorScheme.onPrimaryContainer,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
+          product: product,
+          onTap: () => _onSelected(product),
         );
       },
     );
@@ -149,5 +58,93 @@ class OrderProductListView extends StatelessWidget {
 
   void _onSelected(Product product) {
     Cart.instance.add(product);
+  }
+}
+
+class _ProductCard extends StatelessWidget {
+  final Product product;
+  final VoidCallback onTap;
+
+  const _ProductCard({super.key, required this.product, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    
+    return Card(
+      elevation: 0,
+      margin: EdgeInsets.zero,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: theme.colorScheme.outlineVariant.withOpacity(0.4)),
+      ),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Stack(
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                    child: Image(
+                      image: product.image,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          product.name,
+                          style: theme.textTheme.labelLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          product.price.toCurrency(),
+                          style: theme.textTheme.labelMedium?.copyWith(
+                            color: theme.colorScheme.primary,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            Positioned(
+              right: 4,
+              bottom: 4,
+              child: Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primary,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.add,
+                  color: Colors.white,
+                  size: 20,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

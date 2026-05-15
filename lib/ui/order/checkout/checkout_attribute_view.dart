@@ -23,35 +23,37 @@ class CheckoutAttributeView extends StatelessWidget {
       decoration: InputDecoration(
         hintText: S.orderCheckoutAttributeNoteHint,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0)),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       ),
       keyboardType: TextInputType.multiline,
       maxLength: 200,
-      minLines: 2,
-      maxLines: 5,
+      minLines: 1,
+      maxLines: 2,
       onChanged: Cart.instance.updateNote,
     );
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(24, 16, 24, 100),
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           for (final item in OrderAttributes.instance.notEmptyItems.where((e) {
             final name = e.name.toLowerCase();
             return name != 'age' &&
+                name != 'usia' &&
                 name != 'eco-friendly' &&
                 name != 'eco friendly';
           }))
             _CheckoutAttributeGroup(item, price),
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
           Text(
             S.orderCheckoutAttributeNoteTitle,
             style: Theme.of(context)
                 .textTheme
-                .titleMedium
+                .titleSmall
                 ?.copyWith(fontWeight: FontWeight.bold),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           noteField,
         ],
       ),
@@ -82,15 +84,15 @@ class _CheckoutAttributeGroupState extends State<_CheckoutAttributeGroup> {
       children: [
         Text(
           widget.attribute.name,
-          style: theme.textTheme.titleMedium?.copyWith(
+          style: theme.textTheme.titleSmall?.copyWith(
             fontWeight: FontWeight.bold,
             color: theme.colorScheme.onSurface,
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 8),
         Wrap(
-          spacing: 12,
-          runSpacing: 12,
+          spacing: 8,
+          runSpacing: 8,
           children: [
             for (final option in widget.attribute.itemList)
               _AttributeChip(
@@ -104,7 +106,7 @@ class _CheckoutAttributeGroupState extends State<_CheckoutAttributeGroup> {
               ),
           ],
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 16),
       ],
     );
   }

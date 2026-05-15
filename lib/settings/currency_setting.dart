@@ -10,7 +10,7 @@ class CurrencySetting extends Setting<CurrencyTypes> {
   static const supports = <CurrencyTypes, List<num>>{
     CurrencyTypes.twd: [1, 5, 10, 50, 100, 500, 1000],
     CurrencyTypes.usd: [0.01, 0.05, 0.1, 0.25, 0.5, 1, 5, 10, 20, 50, 100],
-    CurrencyTypes.idr: [100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000],
+    CurrencyTypes.idr: [10000, 20000, 50000, 100000],
   };
 
   /// Current available unit of money
@@ -38,7 +38,16 @@ class CurrencySetting extends Setting<CurrencyTypes> {
   @override
   String get key => 'currency';
 
-  String get recordName => '新台幣';
+  String get recordName => value.name;
+
+  void addUnit(num unit) {
+    if (!unitList.contains(unit)) {
+      unitList.add(unit);
+      unitList.sort();
+      _setMetadata(value);
+      notifyListeners();
+    }
+  }
 
   NumberFormat formatter = NumberFormat.compact(locale: LanguageSetting.instance.language.locale.toString());
 

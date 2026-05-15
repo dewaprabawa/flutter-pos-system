@@ -47,16 +47,7 @@ class _AnalysisViewState extends State<AnalysisView> with AutomaticKeepAliveClie
             ]);
           });
         },
-        child: SliverList.list(children: [
-          GoalsCardView(
-            action: RouteIconButton(
-              key: const Key('anal.history'),
-              route: Routes.history,
-              icon: const Icon(Icons.calendar_month_outlined),
-              label: S.analysisHistoryBtn,
-            ),
-          ),
-        ]),
+        child: const SliverToBoxAdapter(child: SizedBox.shrink()),
       ),
     );
   }

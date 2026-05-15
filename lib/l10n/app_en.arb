@@ -937,7 +937,7 @@
       }
     }
   },
-  "title": "{name, select, analysis{Stats} stock{Inventory} cashier{Cashier} settings{Settings} menu{Menu} printers{Printer} transit{Data Transfer} orderAttributes{Customer Settings} stockQuantities{Quantities} elf{Suggestions} more{More} debug{Debug} other{UNKNOWN}}",
+  "title": "{name, select, order{Order} analysis{Stats} stock{Inventory} cashier{Cashier} settings{Settings} menu{Menu} printers{Printer} transit{Data Transfer} orderAttributes{Customer Settings} stockQuantities{Quantities} elf{Suggestions} more{More} debug{Debug} other{UNKNOWN}}",
   "@title": {
     "placeholders": {
       "name": {
@@ -1373,7 +1373,7 @@
   "menuQuantityAdditionalCostLabel": "Additional Cost",
   "menuQuantityAdditionalCostHelper": "Additional cost can be negative, e.g., \"Less\" reduces ingredient usage, reducing cost accordingly.",
   "cashierTab": "Cashier",
-  "cashierUnitLabel": "Rp{unit}",
+  "cashierUnitLabel": "{unit}",
   "@cashierUnitLabel": {
     "placeholders": {
       "unit": {
@@ -1395,7 +1395,7 @@
   "cashierChangerTutorialTitle": "Cash Register Money Changer",
   "cashierChangerTutorialContent": "Exchange one hundred for 10 tens, for example.\nHelps to quickly adjust the cash register status.",
   "cashierChangerErrorNoSelection": "Please select a combination to apply",
-  "cashierChangerErrorNotEnough": "Not enough Rp{unit}",
+  "cashierChangerErrorNotEnough": "Not enough {unit}",
   "@cashierChangerErrorNotEnough": {
     "placeholders": {
       "unit": {
@@ -1403,7 +1403,7 @@
       }
     }
   },
-  "cashierChangerErrorInvalidHead": "Cannot exchange {count} of Rp{unit} to",
+  "cashierChangerErrorInvalidHead": "Cannot exchange {count} of {unit} to",
   "@cashierChangerErrorInvalidHead": {
     "placeholders": {
       "count": {
@@ -1414,7 +1414,7 @@
       }
     }
   },
-  "cashierChangerErrorInvalidBody": "{count} of Rp{unit}",
+  "cashierChangerErrorInvalidBody": "{count} of {unit}",
   "@cashierChangerErrorInvalidBody": {
     "description": "Concatenated multiple lines after `invalidHead` to form a complete sentence.",
     "placeholders": {
@@ -1429,7 +1429,7 @@
   "cashierChangerFavoriteTab": "Favorites",
   "cashierChangerFavoriteHint": "After selecting, please click \"Apply\" to use the combination.",
   "cashierChangerFavoriteEmptyBody": "Here can help you quickly convert different currencies.",
-  "cashierChangerFavoriteItemFrom": "Exchange {count} of Rp{unit} to",
+  "cashierChangerFavoriteItemFrom": "Exchange {count} of {unit} to",
   "@cashierChangerFavoriteItemFrom": {
     "placeholders": {
       "count": {
@@ -1440,7 +1440,7 @@
       }
     }
   },
-  "cashierChangerFavoriteItemTo": "{count} of Rp{unit}",
+  "cashierChangerFavoriteItemTo": "{count} of {unit}",
   "@cashierChangerFavoriteItemTo": {
     "placeholders": {
       "count": {
@@ -1465,7 +1465,7 @@
   "cashierSurplusErrorEmptyDefault": "Default status not set yet",
   "cashierSurplusTableHint": "Once you confirm that there are no issues with the cash register money, you can complete the surplus!",
   "cashierSurplusColumnName": "{name, select, unit{Unit} currentCount{Current} diffCount{Difference} defaultCount{Default} other{UNKNOWN}}",
-  "cashierSurplusCounterLabel": "Quantity of Rp{unit}",
+  "cashierSurplusCounterLabel": "Quantity of {unit}",
   "@cashierSurplusCounterLabel": {
     "description": "Allow users to customize currency when surplus.",
     "placeholders": {
@@ -1514,7 +1514,7 @@
       }
     }
   },
-  "orderActionCheckout": "Checkout",
+  "orderActionCheckout": "Bayar",
   "@orderActionCheckout": {
     "description": "Proceed to the next step after confirming the items in your cart"
   },
@@ -1600,7 +1600,7 @@
       }
     }
   },
-  "orderCartProductPrice": "{price, select, 0{Free} other{Rp{price}}}",
+  "orderCartProductPrice": "{price, select, 0{Free} other{{price}}}",
   "@orderCartProductPrice": {
     "description": "Price of the product",
     "placeholders": {

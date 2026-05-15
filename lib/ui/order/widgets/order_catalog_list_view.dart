@@ -9,14 +9,12 @@ class OrderCatalogListView extends StatefulWidget {
   final List<Catalog> catalogs;
   final void Function(int) onSelected;
   final ValueNotifier<int> indexNotifier;
-  final ValueNotifier<ProductListView> viewNotifier;
 
   const OrderCatalogListView({
     super.key,
     required this.catalogs,
     required this.indexNotifier,
     required this.onSelected,
-    required this.viewNotifier,
   });
 
   @override
@@ -42,22 +40,14 @@ class _OrderCatalogListViewState extends State<OrderCatalogListView> {
     }
 
     return Container(
-      height: 64,
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        border: Border(
-          bottom: BorderSide(
-            color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5),
-            width: 1,
-          ),
-        ),
-      ),
+      height: 50,
+      color: Colors.transparent,
       child: Row(
         children: [
           Expanded(
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 12),
               itemCount: widget.catalogs.length,
               itemBuilder: (context, i) {
                 final catalog = widget.catalogs[i];
@@ -65,43 +55,37 @@ class _OrderCatalogListViewState extends State<OrderCatalogListView> {
                 
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    child: ChoiceChip(
-                      avatar: isSelected ? null : catalog.avator,
-                      key: Key('order.catalog.${catalog.id}'),
-                      onSelected: (isSelected) {
-                        if (isSelected) {
-                          setState(() => selectedId = catalog.id);
-                          widget.onSelected(i);
-                        }
-                      },
-                      selected: isSelected,
-                      label: Text(
-                        catalog.name,
-                        style: TextStyle(
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                          color: isSelected ? theme.colorScheme.onPrimary : theme.colorScheme.onSurface,
-                        ),
+                  child: ChoiceChip(
+                    key: Key('order.catalog.${catalog.id}'),
+                    onSelected: (isSelected) {
+                      if (isSelected) {
+                        setState(() => selectedId = catalog.id);
+                        widget.onSelected(i);
+                      }
+                    },
+                    selected: isSelected,
+                    label: Text(
+                      catalog.name,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                        color: isSelected ? Colors.white : theme.colorScheme.onSurfaceVariant,
                       ),
-                      selectedColor: theme.colorScheme.primary,
-                      backgroundColor: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        side: BorderSide.none,
-                      ),
-                      showCheckmark: false,
                     ),
+                    selectedColor: theme.colorScheme.primary,
+                    backgroundColor: theme.colorScheme.surfaceVariant.withOpacity(0.3),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      side: BorderSide.none,
+                    ),
+                    showCheckmark: false,
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    visualDensity: VisualDensity.compact,
                   ),
                 );
               },
             ),
-          ),
-          const VerticalDivider(width: 1, indent: 16, endIndent: 16),
-          _ProductListView(
-            controller: controller,
-            focusNode: _f,
-            viewNotifier: widget.viewNotifier,
           ),
         ],
       ),
@@ -126,51 +110,5 @@ class _OrderCatalogListViewState extends State<OrderCatalogListView> {
       }
     });
     selectedId = widget.catalogs.isEmpty ? '' : widget.catalogs.first.id;
-  }
-}
-
-class _ProductListView extends StatelessWidget {
-  const _ProductListView({
-    required this.controller,
-    required this.focusNode,
-    required this.viewNotifier,
-  });
-
-  final MenuController controller;
-  final FocusNode focusNode;
-  final ValueNotifier<ProductListView> viewNotifier;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      child: MenuAnchor(
-        controller: controller,
-        childFocusNode: focusNode,
-        menuChildren: ProductListView.values.map((e) {
-          return MenuItemButton(
-            leadingIcon: e.icon,
-            onPressed: () => viewNotifier.value = e,
-            child: Text(S.orderProductListViewHelper(e.name)),
-          );
-        }).toList(),
-        child: ListenableBuilder(
-          listenable: viewNotifier,
-          builder: (context, child) {
-            return IconButton(
-              focusNode: focusNode,
-              onPressed: controller.toggle,
-              icon: viewNotifier.value.icon,
-              style: IconButton.styleFrom(
-                backgroundColor: theme.colorScheme.surfaceVariant.withOpacity(0.3),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-            );
-          },
-        ),
-      ),
-    );
   }
 }

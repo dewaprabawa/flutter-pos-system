@@ -56,11 +56,25 @@ class _MobileMoreViewState extends State<MobileMoreView> with AutomaticKeepAlive
               ),
             ),
             _buildRouteTile(
+              id: 'analysis',
+              icon: Icons.analytics_outlined,
+              route: Routes.anal,
+              title: S.analysisChartTitle,
+              subtitle: S.analysisChartTutorialTitle,
+            ),
+            _buildRouteTile(
               id: 'printers',
               icon: Icons.print_outlined,
               route: Routes.printer,
               title: S.printerTitle,
               subtitle: S.printerDescription,
+            ),
+            _buildRouteTile(
+              id: 'stock',
+              icon: Icons.inventory_2_outlined,
+              route: Routes.stock,
+              title: S.stockTab,
+              subtitle: S.stockIngredientEmptyBody,
             ),
             _buildRouteTile(
               id: 'transit',

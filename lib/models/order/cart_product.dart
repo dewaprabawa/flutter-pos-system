@@ -108,6 +108,14 @@ class CartProduct extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Decrease product count.
+  void decrement() {
+    if (_count > 0) {
+      _count -= 1;
+      notifyListeners();
+    }
+  }
+
   /// Toggle selected state.
   ///
   /// If [checked] is different with current state return false else true.

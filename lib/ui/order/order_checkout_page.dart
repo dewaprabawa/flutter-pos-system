@@ -134,20 +134,25 @@ class _MobileState extends State<_Mobile> {
                       ),
                     ),
                     const SizedBox(width: 16),
-                    ElevatedButton(
-                      onPressed: () => _ConfirmButton.confirm(context, paid: widget.paid.value),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).colorScheme.primary,
-                        foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                        minimumSize: const Size(160, 56),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                      ),
-                      child: Text(
-                        S.orderCheckoutActionConfirm,
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                      ),
+                    ListenableBuilder(
+                      listenable: Cart.instance,
+                      builder: (context, child) {
+                        return ElevatedButton(
+                          onPressed: () => _ConfirmButton.confirm(context, paid: widget.paid.value),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Theme.of(context).colorScheme.primary,
+                            foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                            minimumSize: const Size(160, 56),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+                          child: Text(
+                            '${S.orderCheckoutActionConfirm} (${Cart.instance.productCount})',
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          ),
+                        );
+                      },
                     ),
                   ],
                 ),
@@ -169,11 +174,28 @@ class _MobileState extends State<_Mobile> {
             padding: EdgeInsets.symmetric(horizontal: 16.0),
             child: Divider(),
           ),
-          ValueListenableBuilder(
-            valueListenable: widget.paid,
-            builder: (context, value, child) => OrderObjectView(
-              order: Cart.instance.toObject(paid: value),
-              bottomPadding: 100, // Extra space for the sticky bottom bar
+          ListenableBuilder(
+            listenable: Cart.instance,
+            child: null,
+            builder: (context, child) => ValueListenableBuilder(
+              valueListenable: widget.paid,
+              builder: (context, value, child) => OrderObjectView(
+                order: Cart.instance.toObject(paid: value),
+                bottomPadding: 100, // Extra space for the sticky bottom bar
+                onDelete: (index) {
+                  Cart.instance.removeAt(index);
+                  if (Cart.instance.isEmpty) {
+                    context.pop();
+                  } else {
+                    widget.price.value = Cart.instance.price;
+                  }
+                },
+                onIncrement: (index, count) {
+                  Cart.instance.products[index].count = count;
+                  Cart.instance.priceChanged();
+                  widget.price.value = Cart.instance.price;
+                },
+              ),
             ),
           ),
         ],
@@ -283,10 +305,26 @@ class _Desktop extends StatelessWidget {
         return Center(child: HintText(S.orderCheckoutEmptyCart));
       }
 
-      return ValueListenableBuilder(
-        valueListenable: paid,
-        builder: (context, value, child) => OrderObjectView(
-          order: Cart.instance.toObject(paid: value),
+      return ListenableBuilder(
+        listenable: Cart.instance,
+        child: null,
+        builder: (context, child) => ValueListenableBuilder(
+          valueListenable: paid,
+          builder: (context, value, child) => OrderObjectView(
+            order: Cart.instance.toObject(paid: value),
+            onDelete: (index) {
+              Cart.instance.removeAt(index);
+              if (Cart.instance.isEmpty) {
+                viewIndex.value = 0;
+              }
+              price.value = Cart.instance.price;
+            },
+            onIncrement: (index, count) {
+              Cart.instance.products[index].count = count;
+              Cart.instance.priceChanged();
+              price.value = Cart.instance.price;
+            },
+          ),
         ),
       );
     }

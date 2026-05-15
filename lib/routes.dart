@@ -86,13 +86,13 @@ class Routes {
       ? homeMode.value.isMobile()
           ? '$base/_'
           : '$base/_/menu' // if going to anal, the tutorial will conflicts with analysis page's tutorial
-      : '$base/anal';
+      : '$base/order';
 
   /// Base redirect function
   ///
-  /// redirect to the analysis page if the path is not started with the base path
+  /// redirect to the order page if the path is not started with the base path
   static String? _redirect(BuildContext ctx, GoRouterState state) {
-    return state.uri.path.startsWith('$base/') ? null : '$base/anal';
+    return state.uri.path.startsWith('$base/') ? null : '$base/order';
   }
 
   /// Get the desired route config based on the width
@@ -123,8 +123,20 @@ class Routes {
           builder: (context, state, shell) => HomePage(shell: shell, mode: homeMode),
           // the order of this list should follow the order of the tabs
           branches: [
-            StatefulShellBranch(routes: [_analysisRoute]),
-            StatefulShellBranch(routes: [_stockRoute]),
+            StatefulShellBranch(routes: [
+              GoRoute(
+                name: Routes.order,
+                path: 'order',
+                builder: (ctx, state) => _l(const OrderPage(), state),
+                routes: [
+                  GoRoute(
+                    name: Routes.orderCheckout,
+                    path: 'details',
+                    builder: (ctx, state) => _l(const OrderCheckoutPage(), state),
+                  ),
+                ],
+              )
+            ]),
             StatefulShellBranch(routes: [_cashierRoute]),
             StatefulShellBranch(routes: [
               GoRoute(
@@ -133,7 +145,9 @@ class Routes {
                 builder: (ctx, state) => _l(const MobileMoreView(), state),
                 routes: [
                   if (!isProd) _debugRoute(inShell: false),
+                  _analysisRoute(inShell: false),
                   _menuRoute(inShell: false),
+                  _stockRoute(inShell: false),
                   _printerRoute(inShell: false),
                   _quantitiesRoute(inShell: false),
                   _orderAttrsRoute(inShell: false),
@@ -157,8 +171,22 @@ class Routes {
         StatefulShellRoute.indexedStack(
           builder: (context, state, shell) => HomePage(shell: shell, mode: homeMode),
           branches: [
-            StatefulShellBranch(routes: [_analysisRoute]),
-            StatefulShellBranch(routes: [_stockRoute]),
+            StatefulShellBranch(routes: [
+              GoRoute(
+                name: Routes.order,
+                path: 'order',
+                builder: (ctx, state) => _l(const OrderPage(), state),
+                routes: [
+                  GoRoute(
+                    name: Routes.orderCheckout,
+                    path: 'details',
+                    builder: (ctx, state) => _l(const OrderCheckoutPage(), state),
+                  ),
+                ],
+              )
+            ]),
+            StatefulShellBranch(routes: [_analysisRoute(inShell: true)]),
+            StatefulShellBranch(routes: [_stockRoute(inShell: true)]),
             StatefulShellBranch(routes: [_cashierRoute]),
             StatefulShellBranch(routes: [_orderAttrsRoute(inShell: true)]),
             StatefulShellBranch(routes: [_menuRoute(inShell: true)]),
@@ -183,10 +211,11 @@ class Routes {
 
   static Page<dynamic> _analBuilder(BuildContext ctx, GoRouterState state) =>
       NoTransitionPage(child: _l(const AnalysisView(), state));
-  static final _analysisRoute = GoRoute(
-    name: anal,
-    path: 'anal',
-    pageBuilder: _analBuilder,
+  static GoRoute _analysisRoute({required bool inShell}) => GoRoute(
+        name: anal,
+        path: '${(inShell ? '_/' : '')}anal',
+        parentNavigatorKey: inShell ? null : rootNavigatorKey,
+        pageBuilder: _analBuilder,
     routes: [
       _createPrefixRoute(path: 'chart', prefix: 'anal', routes: [
         GoRoute(
@@ -220,10 +249,11 @@ class Routes {
       ]),
     ],
   );
-  static final _stockRoute = GoRoute(
-    name: stock,
-    path: 'stock',
-    pageBuilder: (ctx, state) => NoTransitionPage(child: _l(const StockView(), state)),
+  static GoRoute _stockRoute({required bool inShell}) => GoRoute(
+        name: stock,
+        path: '${(inShell ? '_/' : '')}stock',
+        parentNavigatorKey: inShell ? null : rootNavigatorKey,
+        pageBuilder: (ctx, state) => NoTransitionPage(child: _l(const StockView(), state)),
     routes: [
       _createPrefixRoute(path: 'ingr', prefix: 'stock', routes: [
         GoRoute(
@@ -625,18 +655,6 @@ class Routes {
   // ==================== Other routes ====================
 
   static final _routes = [
-    GoRoute(
-      name: order,
-      path: 'order',
-      builder: (ctx, state) => _l(const OrderPage(), state),
-      routes: [
-        GoRoute(
-          name: orderCheckout,
-          path: 'details',
-          builder: (ctx, state) => _l(const OrderCheckoutPage(), state),
-        ),
-      ],
-    ),
     GoRoute(
       name: history,
       path: 'history',

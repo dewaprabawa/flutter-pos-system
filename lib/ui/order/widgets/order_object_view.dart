@@ -7,11 +7,15 @@ import 'package:possystem/translator.dart';
 class OrderObjectView extends StatelessWidget {
   final OrderObject order;
   final double bottomPadding;
+  final void Function(int index)? onDelete;
+  final void Function(int index, int count)? onIncrement;
 
   const OrderObjectView({
     super.key,
     required this.order,
     this.bottomPadding = 16.0,
+    this.onDelete,
+    this.onIncrement,
   });
 
   @override
@@ -20,7 +24,7 @@ class OrderObjectView extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(12.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -28,7 +32,12 @@ class OrderObjectView extends StatelessWidget {
             title: S.orderObjectViewDividerProduct,
             child: Column(
               children: [
-                for (final product in order.products) _ProductItem(product),
+                for (var i = 0; i < order.products.length; i++)
+                  _ProductItem(
+                    order.products[i],
+                    onDelete: onDelete == null ? null : () => onDelete!(i),
+                    onIncrement: onIncrement == null ? null : (count) => onIncrement!(i, count),
+                  ),
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 16.0),
                   child: Divider(),
@@ -47,7 +56,7 @@ class OrderObjectView extends StatelessWidget {
                   label: S.orderObjectViewPriceTotal(''),
                   value: order.price.toCurrency(),
                   isBold: true,
-                  fontSize: 24,
+                  fontSize: 20,
                   color: colorScheme.primary,
                 ),
               ],
@@ -99,7 +108,7 @@ class _ReceiptSection extends StatelessWidget {
         side: BorderSide(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5)),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -111,7 +120,7 @@ class _ReceiptSection extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 12),
             child,
           ],
         ),
@@ -122,62 +131,87 @@ class _ReceiptSection extends StatelessWidget {
 
 class _ProductItem extends StatelessWidget {
   final OrderProductObject data;
-  const _ProductItem(this.data);
+  final VoidCallback? onDelete;
+  final void Function(int count)? onIncrement;
+  const _ProductItem(this.data, {this.onDelete, this.onIncrement});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10.0),
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
         children: [
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: theme.colorScheme.primaryContainer,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Center(
-              child: Text(
-                '${data.count}',
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: theme.colorScheme.onPrimaryContainer,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   data.productName,
-                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+                  style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
                 ),
-                if (data.ingredients.isNotEmpty)
-                  Text(
-                    data.ingredients.map((e) => e.ingredientName).join(', '),
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.outline,
-                      height: 1.5,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+                Text(
+                  data.totalPrice.toCurrency(),
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: theme.colorScheme.primary,
+                    fontWeight: FontWeight.bold,
                   ),
+                ),
               ],
             ),
           ),
-          Text(
-            data.totalPrice.toCurrency(),
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: theme.colorScheme.onSurface,
+          if (onIncrement != null) ...[
+            _QuantityBtn(
+              icon: Icons.remove,
+              onTap: () {
+                if (data.count > 1) {
+                  onIncrement!(data.count - 1);
+                } else if (onDelete != null) {
+                  onDelete!();
+                }
+              },
             ),
-          ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Text(
+                '${data.count}',
+                style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              ),
+            ),
+            _QuantityBtn(
+              icon: Icons.add,
+              onTap: () => onIncrement!(data.count + 1),
+            ),
+          ] else
+            Text(
+              'x${data.count}',
+              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+            ),
         ],
+      ),
+    );
+  }
+}
+
+class _QuantityBtn extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+
+  const _QuantityBtn({required this.icon, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          border: Border.all(color: theme.colorScheme.outlineVariant.withOpacity(0.5)),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Icon(icon, size: 16, color: theme.colorScheme.primary),
       ),
     );
   }

@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppThemes {
-  static const primaryColor = Color(0xFF6366F1);
-  static const secondaryColor = Color(0xFFF43F5E);
+  /// Deep teal — trustworthy and energetic for Indonesian small businesses
+  static const primaryColor = Color(0xFF0D9488);  // teal-600
+  static const secondaryColor = Color(0xFFF59E0B); // amber-500
 
   static final ThemeData lightTheme = _buildTheme(Brightness.light);
   static final ThemeData darkTheme = _buildTheme(Brightness.dark);
@@ -14,8 +15,8 @@ class AppThemes {
     final colorScheme = ColorScheme.fromSeed(
       seedColor: primaryColor,
       brightness: brightness,
-      primary: isDark ? const Color(0xFF818CF8) : primaryColor,
-      secondary: isDark ? const Color(0xFFFB7185) : secondaryColor,
+      primary: isDark ? const Color(0xFF2DD4BF) : primaryColor,
+      secondary: isDark ? const Color(0xFFFBBF24) : secondaryColor,
       surface: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
       background: isDark ? const Color(0xFF020617) : Colors.white,
     );
@@ -47,6 +48,13 @@ class AppThemes {
         ),
         iconTheme: IconThemeData(color: colorScheme.onSurface),
       ),
+      navigationBarTheme: NavigationBarThemeData(
+        indicatorColor: primaryColor.withOpacity(0.15),
+        backgroundColor: colorScheme.surface,
+        labelTextStyle: WidgetStatePropertyAll(
+          GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w500),
+        ),
+      ),
       cardTheme: CardThemeData(
         elevation: 0,
         shape: RoundedRectangleBorder(
@@ -61,21 +69,22 @@ class AppThemes {
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           elevation: 0,
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           backgroundColor: colorScheme.primary,
           foregroundColor: colorScheme.onPrimary,
+          textStyle: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w600),
         ),
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.03),
+        fillColor: isDark ? Colors.white.withOpacity(0.05) : const Color(0xFFF1F5F9),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,
@@ -91,8 +100,8 @@ class AppThemes {
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       ),
     )..setGradientColors(isDark
-        ? [const Color(0xFF1F1B24), const Color(0xFF2e2356)]
-        : [const Color(0xFFB0CDFF), const Color(0xFFD8E5FB), const Color(0xFFC3F9FE)]);
+        ? [const Color(0xFF042F2E), const Color(0xFF134E4A)]
+        : [const Color(0xFFCCFBF1), const Color(0xFF99F6E4), const Color(0xFF5EEAD4)]);
   }
 }
 

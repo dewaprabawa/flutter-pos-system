@@ -94,10 +94,15 @@ class Cart extends ChangeNotifier {
 
   /// Add [product] to the cart.
   void add(Product product) {
-    final p = CartProduct(product, isSelected: true);
-    products.add(p);
+    final index = products.indexWhere((e) => e.id == product.id);
 
-    toggleAll(false, except: p);
+    if (index != -1) {
+      products[index].increment();
+    } else {
+      final p = CartProduct(product, isSelected: true);
+      products.add(p);
+      toggleAll(false, except: p);
+    }
 
     notifyListeners();
   }

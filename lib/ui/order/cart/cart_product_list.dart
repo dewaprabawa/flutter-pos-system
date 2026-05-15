@@ -111,68 +111,100 @@ class _CartProductListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final product = context.watch<CartProduct>();
-    final color = product.isSelected ? Theme.of(context).primaryColorLight : Colors.transparent;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
-    final leading = Checkbox(
-      key: Key('cart.product.$index.select'),
-      value: product.isSelected,
-      onChanged: (checked) {
-        product.toggleSelected(checked);
-        Cart.instance.updateSelection();
-      },
-      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surfaceVariant.withOpacity(0.2),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image(
+                image: product.product.image,
+                width: 50,
+                height: 50,
+                fit: BoxFit.cover,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    product.name,
+                    style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    product.totalPrice.toCurrency(),
+                    style: theme.textTheme.labelMedium?.copyWith(color: colorScheme.primary, fontWeight: FontWeight.w600),
+                  ),
+                ],
+              ),
+            ),
+            Row(
+              children: [
+                _QuantityButton(
+                  icon: Icons.remove,
+                  onTap: () {
+                    if (product.count > 1) {
+                      product.decrement();
+                      Cart.instance.priceChanged();
+                    } else {
+                      Cart.instance.removeAt(index);
+                    }
+                  },
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                  child: Text(
+                    product.count.toString(),
+                    style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                _QuantityButton(
+                  icon: Icons.add,
+                  onTap: () {
+                    product.increment();
+                    Cart.instance.priceChanged();
+                  },
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
+  }
+}
 
-    final trailing = Wrap(
-      crossAxisAlignment: WrapCrossAlignment.center,
-      children: <Widget>[
-        Text(product.count.toString(), key: Key('cart.product.$index.count')),
-        IconButton(
-          key: Key('cart.product.$index.add'),
-          icon: const Icon(KIcons.entryAdd),
-          tooltip: S.orderCartProductIncrease,
-          onPressed: () {
-            product.increment();
-            Cart.instance.priceChanged();
-          },
-        ),
-        Text(
-          S.orderCartProductPrice(product.totalPrice.toCurrency()),
-          key: Key('cart.product.$index.price'),
-        ),
-      ],
-    );
+class _QuantityButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
 
-    final subtitle = product.quantities.map((e) => S.orderCartProductIngredient(
-          e.ingredient.name,
-          e.name,
-        ));
+  const _QuantityButton({required this.icon, required this.onTap});
 
-    return MergeSemantics(
-      child: ListTileTheme.merge(
-        selectedColor: DefaultTextStyle.of(context).style.color,
-        child: ColoredBox(
-          color: color,
-          child: ListTile(
-            key: Key('cart.product.$index'),
-            leading: leading,
-            title: Text(product.name, overflow: TextOverflow.ellipsis),
-            subtitle: MetaBlock.withString(
-                  context,
-                  subtitle,
-                  textOverflow: TextOverflow.visible,
-                ) ??
-                HintText(S.orderCartProductDefaultQuantity),
-            trailing: trailing,
-            onTap: () => Cart.instance.toggleAll(false, except: product),
-            onLongPress: () {
-              Cart.instance.toggleAll(false, except: product);
-              CartActions.showActions(context);
-            },
-            selected: product.isSelected,
-            selectedTileColor: Colors.transparent,
-          ),
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          border: Border.all(color: theme.colorScheme.outlineVariant),
+          borderRadius: BorderRadius.circular(8),
         ),
+        child: Icon(icon, size: 18, color: theme.colorScheme.primary),
       ),
     );
   }

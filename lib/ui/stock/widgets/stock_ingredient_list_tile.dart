@@ -228,7 +228,7 @@ class _RestockDialogState extends State<_RestockDialog> {
         const Text('÷', style: TextStyle(color: Colors.grey, fontSize: 14, inherit: true)),
         // this money is independent to currency, so we don't need use
         // currency to format it.
-        Text('Rp${widget.ingredient.restockPrice!.toShortString()}'),
+        Text(widget.ingredient.restockPrice!.toCurrency()),
       ]),
       const SizedBox(height: 8.0),
       Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [

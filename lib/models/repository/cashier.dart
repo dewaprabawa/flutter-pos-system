@@ -59,6 +59,18 @@ class Cashier extends ChangeNotifier {
     return _updateFavoriteStorage();
   }
 
+  Future<void> addUnit(num unit) async {
+    if (indexOf(unit) != -1) return;
+
+    _current.add(CashierUnitObject(unit: unit, count: 0));
+    _current.sort((a, b) => a.unit.compareTo(b.unit));
+    
+    // Also add to CurrencySetting to keep in sync
+    CurrencySetting.instance.addUnit(unit);
+
+    await _updateCurrentStorage();
+  }
+
   Future<bool> applyFavorite(CashierChangeBatchObject item) async {
     final sourceIndex = indexOf(item.source.unit!);
     if (!validate(sourceIndex, item.source.count!)) {
@@ -237,13 +249,12 @@ class Cashier extends ChangeNotifier {
   Future<void> setCurrent(Object? record) async {
     try {
       // if null, set to empty units
-      if (record == null) {
-        throw TypeError();
+      final data = {for (var unit in record as Iterable) unit['unit'] as num: unit['count'] as int};
+      
+      _current.clear();
+      for (final unit in CurrencySetting.instance.unitList) {
+        _current.add(CashierUnitObject(unit: unit, count: data[unit] ?? 0));
       }
-
-      _current
-        ..clear()
-        ..addAll([for (var unit in record as Iterable) CashierUnitObject.fromMap(unit.cast<String, num>())]);
     } catch (e, stack) {
       if (e is! TypeError) {
         Log.err(e, 'cashier_fetch_unit', stack);
@@ -267,7 +278,17 @@ class Cashier extends ChangeNotifier {
   ///
   /// If [record] is null, it will use current currency
   Future<void> setDefault([Iterable? record]) async {
-    if (record == null) {
+    if (record != null) {
+      try {
+        final data = {for (var unit in record) unit['unit'] as num: unit['count'] as int};
+        _default.clear();
+        for (final unit in CurrencySetting.instance.unitList) {
+          _default.add(CashierUnitObject(unit: unit, count: data[unit] ?? 0));
+        }
+      } catch (e, stack) {
+        Log.err(e, 'cashier_fetch_default', stack);
+      }
+    } else {
       final old = defaultTotal;
       _default
         ..clear()
@@ -276,13 +297,6 @@ class Cashier extends ChangeNotifier {
 
       notifyListeners();
       return _updateDefaultStorage();
-    }
-    try {
-      _default
-        ..clear()
-        ..addAll([for (var item in record) CashierUnitObject.fromMap(item.cast<String, num>())]);
-    } catch (e, stack) {
-      Log.err(e, 'cashier_fetch_default', stack);
     }
     notifyListeners();
   }

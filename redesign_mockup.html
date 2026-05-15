@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POS UI Redesign Mockup</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f2f5;
+        }
+        .phone {
+            width: 375px;
+            height: 812px;
+            background: white;
+            border: 12px solid #333;
+            border-radius: 40px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+        }
+        .app-bar {
+            background: linear-gradient(135deg, #6200ee, #3700b3);
+            color: white;
+            padding: 40px 20px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .app-bar h1 {
+            margin: 0;
+            font-size: 18px;
+        }
+        .settings-icon {
+            font-size: 24px;
+            cursor: pointer;
+        }
+        .content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .card img {
+            width: 100%;
+            height: 100px;
+            background: #e9ecef;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        .bottom-nav {
+            background: white;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0 30px;
+        }
+        .nav-item {
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+        }
+        .nav-item.active {
+            color: #6200ee;
+        }
+        .nav-item i {
+            display: block;
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+        .label-red {
+            background: #ff4757;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="phone">
+        <div class="app-bar">
+            <h1>POS System</h1>
+            <i class="fas fa-cog settings-icon"></i>
+        </div>
+        <div class="content">
+            <h2 style="font-size: 20px; margin-bottom: 20px;">Menu</h2>
+            <div class="grid">
+                <div class="card">
+                    <img src="">
+                    <div style="font-weight: bold;">Product A</div>
+                    <div style="color: #6200ee;">Rp 15.000</div>
+                </div>
+                <div class="card">
+                    <img src="">
+                    <div style="font-weight: bold;">Product B</div>
+                    <div style="color: #6200ee;">Rp 25.000</div>
+                </div>
+                <div class="card">
+                    <img src="">
+                    <div style="font-weight: bold;">Product C</div>
+                    <div style="color: #6200ee;">Rp 10.000</div>
+                </div>
+                <div class="card">
+                    <img src="">
+                    <div style="font-weight: bold;">Product D</div>
+                    <div style="color: #6200ee;">Rp 50.000</div>
+                </div>
+            </div>
+        </div>
+        <div class="bottom-nav">
+            <div class="nav-item active">
+                <i class="fas fa-shopping-cart"></i>
+                Order
+            </div>
+            <div class="nav-item">
+                <i class="fas fa-chart-line"></i>
+                Analysis
+            </div>
+            <div class="nav-item">
+                <i class="fas fa-boxes"></i>
+                Stock
+            </div>
+            <div class="nav-item">
+                <i class="fas fa-cash-register"></i>
+                Cashier
+            </div>
+            <div class="nav-item">
+                <i class="fas fa-ellipsis-h"></i>
+                More
+            </div>
+        </div>
+    </div>
+</body>
+</html>

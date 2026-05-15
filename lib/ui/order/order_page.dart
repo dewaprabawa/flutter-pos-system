@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 import 'package:possystem/components/linkify.dart';
 import 'package:possystem/components/menu_actions.dart';
 import 'package:possystem/components/style/buttons.dart';
-import 'package:possystem/components/style/pop_button.dart';
 import 'package:possystem/components/style/snackbar.dart';
 import 'package:possystem/components/tutorial.dart';
 import 'package:possystem/helpers/breakpoint.dart';
@@ -36,45 +35,64 @@ class _OrderPageState extends State<OrderPage> {
   /// Change the catalog index and pass to [OrderProductListView] and [OrderCatalogListView]
   late final ValueNotifier<int> _catalogIndexNotifier;
 
-  /// Used to update the view of [OrderProductListView]
-  late final ValueNotifier<ProductListView> _productViewNotifier;
-
   @override
   Widget build(BuildContext context) {
     final catalogs = Menu.instance.notEmptyItems;
+    final theme = Theme.of(context);
 
     return TutorialWrapper(
       child: Scaffold(
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
-          leading: const PopButton(),
-          title: Text(S.orderTitle),
+          title: Text(S.title('order')),
+          centerTitle: false,
           actions: [
-            const PrinterButtonView(),
-            MoreButton(key: const Key('order.more'), onPressed: _showActions),
+            IconButton(
+              icon: const Icon(Icons.notifications_none_outlined),
+              onPressed: () {},
+            ),
+            const SizedBox(width: 8),
+            const CircleAvatar(
+              radius: 16,
+              backgroundColor: Color(0xFF0D9488),
+              child: Text('BU', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+            ),
+            const SizedBox(width: 16),
           ],
         ),
         body: Stack(
           children: [
             Column(
               children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: S.menuSearchHint,
+                      prefixIcon: const Icon(Icons.search, size: 20),
+                      fillColor: theme.colorScheme.surfaceVariant.withOpacity(0.3),
+                      filled: true,
+                      isDense: true,
+                      contentPadding: const EdgeInsets.symmetric(vertical: 0),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                  ),
+                ),
                 OrderCatalogListView(
                   catalogs: catalogs,
                   indexNotifier: _catalogIndexNotifier,
-                  viewNotifier: _productViewNotifier,
                   onSelected: (index) => _pageController.jumpToPage(index),
                 ),
                 Expanded(
-                  child: ListenableBuilder(
-                    listenable: _productViewNotifier,
-                    builder: (context, _) => PageView.builder(
-                      controller: _pageController,
-                      onPageChanged: (index) => _catalogIndexNotifier.value = index,
-                      itemCount: catalogs.length,
-                      itemBuilder: (context, index) => OrderProductListView(
-                        products: catalogs[index].itemList,
-                        view: _productViewNotifier.value,
-                      ),
+                  child: PageView.builder(
+                    controller: _pageController,
+                    onPageChanged: (index) => _catalogIndexNotifier.value = index,
+                    itemCount: catalogs.length,
+                    itemBuilder: (context, index) => OrderProductListView(
+                      products: catalogs[index].itemList,
                     ),
                   ),
                 ),
@@ -99,7 +117,6 @@ class _OrderPageState extends State<OrderPage> {
     WakelockPlus.disable();
     _pageController.dispose();
     _catalogIndexNotifier.dispose();
-    _productViewNotifier.dispose();
     super.dispose();
   }
 
@@ -111,7 +128,6 @@ class _OrderPageState extends State<OrderPage> {
 
     _pageController = PageController();
     _catalogIndexNotifier = ValueNotifier<int>(0);
-    _productViewNotifier = ValueNotifier<ProductListView>(ProductListView.grid);
     super.initState();
   }
 
@@ -199,11 +215,4 @@ class _Action {
   }
 }
 
-enum ProductListView {
-  grid(Icon(Icons.grid_view_outlined)),
-  list(Icon(Icons.view_list_outlined));
 
-  final Icon icon;
-
-  const ProductListView(this.icon);
-}
