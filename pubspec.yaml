@@ -119,7 +119,7 @@ flutter:
 # flutter pub run flutter_native_splash:create
 flutter_native_splash:
   color: "#0D9488"
-  fullscreen: true
+  fullscreen: false
   image: assets/mokkon_icon.png
 
 # dart run flutter_launcher_icons
