@@ -31,16 +31,29 @@ void showSnackBar(
     state.clearSnackBars();
     state.showSnackBar(SnackBar(
       showCloseIcon: true,
-      backgroundColor: backgroundColor,
-      // make floating button below
+      closeIconColor: Colors.white70,
+      backgroundColor: const Color(0xFF2D2D2D),
       behavior: SnackBarBehavior.floating,
+      margin: const EdgeInsets.all(16),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       content: Row(
         children: [
-          if (icon != null) ...[
-            Icon(icon, color: Colors.white, size: 20),
-            const SizedBox(width: 12),
-          ],
-          Expanded(child: Text(message)),
+          Icon(
+            icon ?? Icons.check_circle_outline,
+            color: const Color(0xFF80F0E0),
+            size: 20,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              message,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
         ],
       ),
       width: Routes.homeMode.value.isMobile() ? null : 600,

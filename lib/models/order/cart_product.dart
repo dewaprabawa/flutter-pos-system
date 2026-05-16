@@ -58,6 +58,7 @@ class CartProduct extends ChangeNotifier {
       .cast<ProductQuantity>();
 
   /// The price of the product, it may be affected by quantity of ingredients.
+  num get singlePrice => _singlePrice;
   set singlePrice(num other) {
     if (other != _singlePrice) {
       _singlePrice = other;

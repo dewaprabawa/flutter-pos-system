@@ -9,11 +9,13 @@ import 'package:possystem/constants/icons.dart';
 import 'package:possystem/helpers/breakpoint.dart';
 import 'package:possystem/models/menu/catalog.dart';
 import 'package:possystem/models/menu/product.dart';
+import 'package:possystem/models/repository/combos_manager.dart';
 import 'package:possystem/models/repository/menu.dart';
 import 'package:possystem/routes.dart';
 import 'package:possystem/translator.dart';
 import 'package:provider/provider.dart';
 
+import 'combo_list_page.dart';
 import 'widgets/menu_catalog_list.dart';
 import 'widgets/menu_product_list.dart';
 
@@ -128,14 +130,76 @@ class _MenuPageState extends State<MenuPage> {
       ),
     ]);
 
+    // Combo entry button
+    final comboButton = Consumer<CombosManager>(
+      builder: (context, manager, _) {
+        return GestureDetector(
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const ComboListPage()),
+          ),
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF004D40), Color(0xFF00695C)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF004D40).withValues(alpha: 0.25),
+                  blurRadius: 8,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.local_offer_outlined, color: Colors.white, size: 22),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Paket & Combo',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15),
+                      ),
+                      Text(
+                        manager.isEmpty
+                            ? 'Buat paket bundel produk'
+                            : '${manager.combos.length} paket tersedia',
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.75),
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(Icons.arrow_forward_ios, color: Colors.white70, size: 14),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
     return MenuCatalogList(
-      Menu.instance.itemList, // put it here to handle reload
+      Menu.instance.itemList,
       leading: Column(children: [
         if (!singleView)
           const Padding(
             padding: EdgeInsets.only(bottom: kInternalSpacing),
             child: _SearchAction(withTextFiled: true),
           ),
+        comboButton,
         addButton,
       ]),
       onSelected: _handleSelected,

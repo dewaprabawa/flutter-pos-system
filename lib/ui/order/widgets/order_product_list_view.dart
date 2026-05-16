@@ -106,6 +106,16 @@ class _ProductCard extends StatelessWidget {
                       : Image(
                           image: product.image,
                           fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) => Container(
+                            color: theme.colorScheme.primaryContainer.withValues(alpha: 0.3),
+                            child: Center(
+                              child: Icon(
+                                Icons.restaurant_menu,
+                                color: theme.colorScheme.primary,
+                                size: 32,
+                              ),
+                            ),
+                          ),
                         ),
                   ),
                 ),

@@ -116,6 +116,7 @@ flutter:
     - assets/google_sheet_icon.svg
     - assets/feature_request_please.gif
     - assets/google_signin_button.svg
+    - assets/images/buka_toko_hero.png
     - assets/excel_icon.svg
 
 # flutter pub run flutter_native_splash:create

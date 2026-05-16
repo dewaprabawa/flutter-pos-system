@@ -92,25 +92,33 @@ class _MobileState extends State<_Mobile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
-        leading: const PopButton(),
-        title: Text(S.orderActionCheckout),
-        actions: Cart.instance.isEmpty
-            ? null
-            : <Widget>[
-                const _StashButton(),
-              ],
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: const PopButton(color: Color(0xFF004D40)),
+        title: const Text(
+          'Bayar',
+          style: TextStyle(color: Color(0xFF004D40), fontWeight: FontWeight.bold),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.storefront, color: Color(0xFF004D40)),
+            onPressed: () {},
+          ),
+          if (!Cart.instance.isEmpty) const _StashButton(),
+        ],
       ),
       body: _buildBody(),
       bottomNavigationBar: Cart.instance.isEmpty
           ? null
           : Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
+                color: Colors.white,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.1),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 10,
                     offset: const Offset(0, -5),
                   ),
@@ -126,19 +134,22 @@ class _MobileState extends State<_Mobile> {
                           mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              S.orderCartMetaTotalPrice(value.toCurrency()),
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleLarge
-                                  ?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                            const Text(
+                              'Price:',
+                              style: TextStyle(
+                                  fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black87),
                             ),
                             Text(
-                              S.orderObjectViewPriceTotal(
-                                  widget.price.value.toCurrency()),
-                              style: Theme.of(context).textTheme.bodySmall,
+                              value.toCurrency(),
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF327E73),
+                              ),
+                            ),
+                            Text(
+                              'Total Price: ${widget.price.value.toCurrency()}',
+                              style: TextStyle(fontSize: 10, color: Colors.grey.shade500),
                             ),
                           ],
                         ),
@@ -150,22 +161,19 @@ class _MobileState extends State<_Mobile> {
                       builder: (context, child) {
                         return ElevatedButton(
                           onPressed: () => _ConfirmButton.confirm(context,
-                              paid: widget.paid.value,
-                              paymentMethod: widget.paymentMethod.value),
+                              paid: widget.paid.value, paymentMethod: widget.paymentMethod.value),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                Theme.of(context).colorScheme.primary,
-                            foregroundColor:
-                                Theme.of(context).colorScheme.onPrimary,
-                            minimumSize: const Size(160, 56),
+                            backgroundColor: const Color(0xFF004D40),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
+                              borderRadius: BorderRadius.circular(12),
                             ),
+                            elevation: 0,
                           ),
                           child: Text(
-                            '${S.orderCheckoutActionConfirm} (${Cart.instance.productCount})',
-                            style: const TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 16),
+                            'Konfirmasi (${Cart.instance.productCount})',
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                           ),
                         );
                       },
@@ -178,93 +186,320 @@ class _MobileState extends State<_Mobile> {
   }
 
   Widget _buildBody() {
-    if (Cart.instance.isEmpty) {
-      return Center(child: HintText(S.orderCheckoutEmptyCart));
-    }
-
     return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            child: ValueListenableBuilder<String>(
-              valueListenable: widget.paymentMethod,
-              builder: (context, method, child) {
-                return Column(
-                  children: [
-                    SegmentedButton<String>(
-                      segments: const [
-                        ButtonSegment(value: 'Tunai', label: Text('Tunai')),
-                        ButtonSegment(value: 'QRIS', label: Text('QRIS')),
-                        ButtonSegment(value: 'Kartu', label: Text('Kartu')),
-                      ],
-                      selected: {method},
-                      onSelectionChanged: (set) =>
-                          widget.paymentMethod.value = set.first,
+          // Payment Method Selector
+          ValueListenableBuilder<String>(
+            valueListenable: widget.paymentMethod,
+            builder: (context, method, child) {
+              return Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade100,
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    if (method != 'Tunai') ...[
-                      const SizedBox(height: 12),
-                      ListenableBuilder(
-                        listenable: Cart.instance,
-                        builder: (context, child) {
-                          final hasImage = Cart.instance.imagePath != null;
-                          return OutlinedButton.icon(
-                            onPressed: () async {
-                              final picker = ImagePicker();
-                              final image = await picker.pickImage(
-                                  source: ImageSource.camera);
-                              if (image != null) {
-                                Cart.instance.updateImagePath(image.path);
-                              }
-                            },
-                            icon: Icon(
-                                hasImage
-                                    ? Icons.check_circle
-                                    : Icons.camera_alt,
-                                color: hasImage ? Colors.green : null),
-                            label: Text(hasImage
-                                ? 'Bukti Tersimpan'
-                                : 'Ambil Bukti Pembayaran'),
-                          );
-                        },
-                      ),
-                    ],
+                    child: Row(
+                      children: [
+                        _buildPaymentChip('TUNAI', method),
+                        _buildPaymentChip('QRIS', method),
+                        _buildPaymentChip('KARTU', method),
+                      ],
+                    ),
+                  ),
+                  if (method.toUpperCase() != 'TUNAI') ...[
+                    const SizedBox(height: 12),
+                    ListenableBuilder(
+                      listenable: Cart.instance,
+                      builder: (context, child) {
+                        final hasImage = Cart.instance.imagePath != null;
+                        return GestureDetector(
+                          onTap: () async {
+                            final picker = ImagePicker();
+                            final image = await picker.pickImage(source: ImageSource.camera);
+                            if (image != null) {
+                              Cart.instance.updateImagePath(image.path);
+                            }
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                            decoration: BoxDecoration(
+                              color: hasImage ? const Color(0xFFE0F2F1) : Colors.grey.shade100,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: hasImage ? const Color(0xFF004D40) : Colors.transparent,
+                                width: 1,
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  hasImage ? Icons.check_circle : Icons.camera_alt_outlined,
+                                  color: hasImage ? const Color(0xFF004D40) : Colors.grey,
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 12),
+                                Text(
+                                  hasImage ? 'Bukti Pembayaran Terlampir' : 'Ambil Bukti Pembayaran',
+                                  style: TextStyle(
+                                    color: hasImage ? const Color(0xFF004D40) : Colors.grey.shade600,
+                                    fontWeight: hasImage ? FontWeight.bold : FontWeight.normal,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                                const Spacer(),
+                                if (hasImage)
+                                  GestureDetector(
+                                    onTap: () => Cart.instance.updateImagePath(null),
+                                    child: const Icon(Icons.close, size: 18, color: Color(0xFF004D40)),
+                                  )
+                                else
+                                  Icon(Icons.arrow_forward_ios, size: 12, color: Colors.grey.shade400),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
                   ],
-                );
-              },
+                ],
+              );
+            },
+          ),
+          const SizedBox(height: 24),
+
+          // Note Section
+          const Text(
+            'CATATAN',
+            style: TextStyle(
+                fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 0.5),
+          ),
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade100,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                TextField(
+                  maxLines: 3,
+                  decoration: InputDecoration(
+                    hintText: 'Beberapa instruksi untuk pesanan ini',
+                    hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 13),
+                    border: InputBorder.none,
+                    isDense: true,
+                  ),
+                ),
+                Text(
+                  '0/200',
+                  style: TextStyle(color: Colors.grey.shade400, fontSize: 10),
+                ),
+              ],
             ),
           ),
-          CheckoutAttributeView(price: widget.price),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
-            child: Divider(),
+          const SizedBox(height: 24),
+
+          // Total Card
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 32),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.grey.shade100),
+            ),
+            child: Column(
+              children: [
+                const Text(
+                  'TOTAL TRANSAKSI',
+                  style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF327E73),
+                      letterSpacing: 1),
+                ),
+                const SizedBox(height: 12),
+                ValueListenableBuilder(
+                  valueListenable: widget.paid,
+                  builder: (context, value, child) => Text(
+                    value.toCurrency(),
+                    style: const TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF327E73),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-          ListenableBuilder(
-            listenable: Cart.instance,
-            child: null,
-            builder: (context, child) => ValueListenableBuilder(
-              valueListenable: widget.paid,
-              builder: (context, value, child) => OrderObjectView(
-                order: Cart.instance.toObject(paid: value),
-                bottomPadding: 100, // Extra space for the sticky bottom bar
-                onDelete: (index) {
-                  Cart.instance.removeAt(index);
-                  if (Cart.instance.isEmpty) {
-                    context.pop();
-                  } else {
-                    widget.price.value = Cart.instance.price;
-                  }
-                },
-                onIncrement: (index, count) {
-                  Cart.instance.products[index].count = count;
-                  Cart.instance.priceChanged();
-                  widget.price.value = Cart.instance.price;
-                },
+          const SizedBox(height: 24),
+
+          // Product Information
+          const Text(
+            'PRODUCT INFORMATION',
+            style: TextStyle(
+                fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 0.5),
+          ),
+          const SizedBox(height: 8),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.grey.shade100),
+            ),
+            child: ListenableBuilder(
+              listenable: Cart.instance,
+              builder: (context, child) => Column(
+                children: Cart.instance.products.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final product = entry.value;
+                  return Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        product.name,
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.bold, fontSize: 15),
+                                      ),
+                                      Text(
+                                        product.singlePrice.toCurrency(),
+                                        style: const TextStyle(
+                                            color: Color(0xFF327E73),
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 15),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Container(
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: Colors.grey.shade200),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      IconButton(
+                                        onPressed: () {
+                                          if (product.count > 1) {
+                                            product.count--;
+                                            Cart.instance.priceChanged();
+                                            widget.price.value = Cart.instance.price;
+                                          } else {
+                                            Cart.instance.removeAt(index);
+                                            if (Cart.instance.isEmpty) context.pop();
+                                          }
+                                        },
+                                        icon: const Icon(Icons.remove, size: 16),
+                                        padding: EdgeInsets.zero,
+                                        constraints: const BoxConstraints(),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                                        child: Text(
+                                          '${product.count}',
+                                          style: const TextStyle(fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                      IconButton(
+                                        onPressed: () {
+                                          product.count++;
+                                          Cart.instance.priceChanged();
+                                          widget.price.value = Cart.instance.price;
+                                        },
+                                        icon: const Icon(Icons.add, size: 16, color: Color(0xFF327E73)),
+                                        padding: EdgeInsets.zero,
+                                        constraints: const BoxConstraints(),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            const Divider(height: 1),
+                            const SizedBox(height: 12),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text('Product Price',
+                                    style: TextStyle(color: Colors.grey.shade500, fontSize: 13)),
+                                Text(
+                                  product.totalPrice.toCurrency(),
+                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (index != Cart.instance.products.length - 1) const Divider(height: 1),
+                    ],
+                  );
+                }).toList(),
               ),
             ),
           ),
+          const SizedBox(height: 100),
         ],
+      ),
+    );
+  }
+
+  Widget _buildPaymentChip(String label, String currentMethod) {
+    final isSelected = currentMethod.toUpperCase() == label;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => widget.paymentMethod.value =
+            label[0] + label.substring(1).toLowerCase(), // Tunai, Qris, Kartu
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            color: isSelected ? Colors.white : Colors.transparent,
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.05),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2))
+                  ]
+                : null,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (isSelected)
+                const Icon(Icons.check, size: 14, color: Color(0xFF004D40)),
+              if (isSelected) const SizedBox(width: 4),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: isSelected ? const Color(0xFF004D40) : Colors.grey.shade500,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

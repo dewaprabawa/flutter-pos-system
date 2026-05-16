@@ -25,6 +25,7 @@ import 'models/repository/seller.dart';
 import 'models/repository/stock.dart';
 import 'models/repository/session_manager.dart';
 import 'models/repository/notifications.dart';
+import 'models/repository/combos_manager.dart';
 import 'services/cache.dart';
 import 'services/database.dart';
 import 'services/storage.dart';
@@ -81,6 +82,7 @@ void main() async {
       await Menu().initialize();
       await Notifications.instance.initialize();
       await SessionManager.instance.initialize();
+      await CombosManager.instance.initialize();
 
       /// Why use provider?
       /// https://stackoverflow.com/questions/57157823/provider-vs-inheritedwidget
@@ -98,6 +100,7 @@ void main() async {
           ChangeNotifierProvider.value(value: Printers.instance),
           ChangeNotifierProvider.value(value: Notifications.instance),
           ChangeNotifierProvider.value(value: SessionManager.instance),
+          ChangeNotifierProvider.value(value: CombosManager.instance),
         ],
         child: const App(),
       ));

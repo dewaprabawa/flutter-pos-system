@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:possystem/components/style/snackbar.dart';
 import 'package:possystem/models/repository/seller.dart';
 import 'package:possystem/models/repository/session_manager.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -104,7 +105,7 @@ Selisih: ${formatCurrency.format(selisih)}
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Tidak dapat membuka WhatsApp')));
+        showSnackBar('Tidak dapat membuka WhatsApp', context: context);
       }
     }
   }
@@ -112,7 +113,7 @@ Selisih: ${formatCurrency.format(selisih)}
   void _tutupToko(double actualCash) async {
     await SessionManager.instance.closeSession(actualCash);
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Toko berhasil ditutup')));
+      showSnackBar('Toko berhasil ditutup', context: context);
       context.pop();
     }
   }

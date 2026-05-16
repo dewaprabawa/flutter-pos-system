@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:possystem/components/style/pop_button.dart';
+import 'package:possystem/components/style/status_banner.dart';
 import 'package:possystem/models/repository/session_manager.dart';
 import 'package:possystem/models/repository/stock.dart';
 import 'package:possystem/models/stock/ingredient.dart';
@@ -25,8 +27,6 @@ class _BukaTokoPageState extends State<BukaTokoPage> {
 
   void _checkStock() {
     final items = Stock.instance.itemList;
-    // Assuming warning level is some threshold, for example 10.
-    // Replace with your actual warning logic if you have one.
     _lowStockItems = items.where((e) => e.currentAmount < 10).toList();
   }
 
@@ -47,125 +47,172 @@ class _BukaTokoPageState extends State<BukaTokoPage> {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
+        automaticallyImplyLeading: false,
         title: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.storefront, color: Colors.teal.shade900),
+            const Icon(Icons.storefront, color: Color(0xFF004D40)),
             const SizedBox(width: 8),
-            Text(
+            const Text(
               'MokkonPOS',
               style: TextStyle(
-                color: Colors.teal.shade900,
+                color: Color(0xFF004D40),
                 fontWeight: FontWeight.bold,
+                fontSize: 18,
               ),
             ),
           ],
         ),
-        centerTitle: true,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: Center(
+              child: Text(
+                'Buka Toko',
+                style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+              ),
+            ),
+          ),
+        ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.symmetric(horizontal: 24.0),
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              const SizedBox(height: 24),
               Text(
                 'Mulai Sesi Kasir',
-                style: textTheme.headlineSmall
-                    ?.copyWith(fontWeight: FontWeight.bold),
+                style: textTheme.headlineMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Siapkan register Anda untuk mulai menerima pembayaran hari ini.',
+                style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 32),
-              TextFormField(
-                controller: _cashierController,
-                decoration: const InputDecoration(
-                  labelText: 'Nama Kasir',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.person),
-                ),
-                validator: (value) => value?.isEmpty == true
-                    ? 'Nama kasir tidak boleh kosong'
-                    : null,
-              ),
-              const SizedBox(height: 24),
-              TextFormField(
-                controller: _cashController,
-                decoration: const InputDecoration(
-                  labelText: 'Modal Kas Awal',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.attach_money),
-                ),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.isEmpty)
-                    return 'Kas awal tidak boleh kosong';
-                  if (double.tryParse(value) == null)
-                    return 'Masukkan angka yang valid';
-                  return null;
-                },
-              ),
-              const SizedBox(height: 32),
-              if (_lowStockItems.isNotEmpty) ...[
-                Text(
-                  '⚠️ Peringatan Stok Tipis',
-                  style: textTheme.titleMedium?.copyWith(
-                      color: colorScheme.error, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                Card(
-                  color: colorScheme.errorContainer,
-                  child: Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: _lowStockItems.map((item) {
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 4.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(item.name,
-                                  style: TextStyle(
-                                      color: colorScheme.onErrorContainer)),
-                              Text('${item.currentAmount}',
-                                  style: TextStyle(
-                                      color: colorScheme.onErrorContainer,
-                                      fontWeight: FontWeight.bold)),
-                            ],
-                          ),
-                        );
-                      }).toList(),
-                    ),
+              // Hero Image
+              Container(
+                height: 200,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(24),
+                  image: const DecorationImage(
+                    image: AssetImage('assets/images/buka_toko_hero.png'),
+                    fit: BoxFit.cover,
                   ),
                 ),
-                const SizedBox(height: 32),
-              ],
+              ),
+              const SizedBox(height: 40),
+              // Form Fields
+              _buildSectionHeader('INFORMASI KASIR'),
+              _buildTextField(
+                controller: _cashierController,
+                hint: 'Nama Kasir',
+                icon: Icons.person_outline,
+                validator: (val) => val?.isEmpty == true ? 'Wajib diisi' : null,
+              ),
+              const SizedBox(height: 24),
+              _buildSectionHeader('KAS AWAL'),
+              _buildTextField(
+                controller: _cashController,
+                hint: 'Modal Kas Awal',
+                icon: Icons.account_balance_wallet_outlined,
+                keyboardType: TextInputType.number,
+                validator: (val) => val?.isEmpty == true ? 'Wajib diisi' : null,
+              ),
+              const SizedBox(height: 40),
               ElevatedButton(
                 onPressed: _startSession,
                 style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  backgroundColor: const Color(0xFF004D40), // Dark Teal
+                  backgroundColor: const Color(0xFF004D40),
                   foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 18),
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16)),
-                  elevation: 2,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  elevation: 0,
                 ),
-                child: const Text('Mulai Berjualan',
-                    style:
-                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                child: const Text(
+                  'Mulai Berjualan',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
               ),
+              // const SizedBox(height: 16),
+              // const StatusBanner(
+              //   message: 'Toko berhasil ditutup pada sesi sebelumnya',
+              // ),
+
+              const SizedBox(height: 48),
+              Center(
+                child: Text(
+                  'POWERED BY MOKKONPOS TECHNOLOGY',
+                  style: TextStyle(
+                    color: Colors.grey.shade400,
+                    fontSize: 10,
+                    letterSpacing: 0.8,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 32),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 4, bottom: 8),
+      child: Text(
+        title,
+        style: TextStyle(
+          color: Colors.grey.shade600,
+          fontSize: 11,
+          fontWeight: FontWeight.bold,
+          letterSpacing: 0.5,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String hint,
+    required IconData icon,
+    TextInputType? keyboardType,
+    String? Function(String?)? validator,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: TextFormField(
+        controller: controller,
+        keyboardType: keyboardType,
+        validator: validator,
+        decoration: InputDecoration(
+          hintText: hint,
+          prefixIcon: Icon(icon, color: Colors.grey.shade500, size: 20),
+          border: InputBorder.none,
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          errorStyle: const TextStyle(height: 0),
         ),
       ),
     );

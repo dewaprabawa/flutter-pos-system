@@ -5,7 +5,11 @@ import 'package:possystem/components/linkify.dart';
 import 'package:possystem/components/menu_actions.dart';
 import 'package:possystem/components/style/snackbar.dart';
 import 'package:possystem/components/tutorial.dart';
+import 'package:possystem/helpers/util.dart';
+import 'package:possystem/models/menu/combo_product.dart';
+import 'package:possystem/models/menu/product.dart';
 import 'package:possystem/models/repository/cart.dart';
+import 'package:possystem/models/repository/combos_manager.dart';
 import 'package:possystem/models/repository/menu.dart';
 import 'package:possystem/models/repository/notifications.dart';
 import 'package:possystem/routes.dart';
@@ -182,13 +186,54 @@ class _OrderPageState extends State<OrderPage> {
                       ],
                     ],
                   ),
+                  // Paket / Combo quick-access button (only when combos exist)
                   Positioned(
                     left: 0,
                     right: 0,
                     bottom: 80,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: _PromoCard(),
+                    child: Consumer<CombosManager>(
+                      builder: (context, manager, _) {
+                        if (manager.isEmpty) return const SizedBox.shrink();
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: GestureDetector(
+                            onTap: () => _showPaketSheet(context, manager),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [Color(0xFF004D40), Color(0xFF00695C)],
+                                ),
+                                borderRadius: BorderRadius.circular(14),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: const Color(0xFF004D40).withValues(alpha: 0.25),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.local_offer, color: Colors.white, size: 20),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Text(
+                                      '${manager.combos.length} Paket Tersedia — Tap untuk lihat',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ),
+                                  const Icon(Icons.keyboard_arrow_up, color: Colors.white70, size: 20),
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   ),
                   Positioned(
@@ -220,13 +265,21 @@ class _OrderPageState extends State<OrderPage> {
   @override
   void initState() {
     WakelockPlus.toggle(enable: OrderAwakeningSetting.instance.value);
-    // rebind menu/attributes if changed
     Cart.instance.rebind();
 
     _pageController = PageController();
     _catalogIndexNotifier = ValueNotifier<int>(0);
     _searchController = TextEditingController();
     super.initState();
+  }
+
+  void _showPaketSheet(BuildContext context, CombosManager manager) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => _PaketSheet(manager: manager),
+    );
   }
 
   Widget _buildEmptyMenuState(
@@ -411,80 +464,194 @@ class _OrderPageState extends State<OrderPage> {
   }
 }
 
-class _PromoCard extends StatelessWidget {
+class _PaketSheet extends StatelessWidget {
+  final CombosManager manager;
+
+  const _PaketSheet({required this.manager});
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFFE0F2F1), // Light teal background
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.teal.shade100, width: 1),
+      height: MediaQuery.of(context).size.height * 0.7,
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      child: Row(
+      child: Column(
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          const SizedBox(height: 12),
+          Center(
+            child: Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Row(
               children: [
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF004D40),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: const Text(
-                    'PROMO',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
+                const Icon(Icons.local_offer, color: Color(0xFF004D40)),
+                const SizedBox(width: 12),
                 const Text(
-                  'Bundle Hemat!',
+                  'Daftar Paket & Combo',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF004D40),
                   ),
                 ),
-                const SizedBox(height: 4),
-                const Text(
-                  'Get 2 Geprek + 2 Ice Tea',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Color(0xFF00695C),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    const Text(
-                      'Lihat Detail',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF004D40),
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    Icon(Icons.arrow_forward_ios,
-                        size: 12, color: Color(0xFF004D40)),
-                  ],
+                const Spacer(),
+                IconButton(
+                  icon: const Icon(Icons.close, color: Colors.grey),
+                  onPressed: () => Navigator.pop(context),
                 ),
               ],
             ),
           ),
-          const SizedBox(width: 16),
-          Icon(Icons.local_offer_outlined,
-              size: 80, color: Colors.teal.shade200.withValues(alpha: 0.5)),
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
+              itemCount: manager.combos.length,
+              itemBuilder: (context, index) {
+                return _PaketCard(combo: manager.combos[index]);
+              },
+            ),
+          ),
         ],
       ),
     );
+  }
+}
+
+class _PaketCard extends StatelessWidget {
+  final ComboProduct combo;
+
+  const _PaketCard({required this.combo});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade100),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        combo.name,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: Color(0xFF004D40),
+                        ),
+                      ),
+                      if (combo.description.isNotEmpty)
+                        Text(
+                          combo.description,
+                          style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                        ),
+                    ],
+                  ),
+                ),
+                Text(
+                  combo.price.toCurrency(),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: Color(0xFF004D40),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 4,
+              children: [
+                for (final item in combo.items)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade50,
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: Colors.grey.shade100),
+                    ),
+                    child: Text(
+                      '${item.qty}x ${item.productName}',
+                      style: TextStyle(fontSize: 11, color: Colors.grey.shade700),
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () => _addToCart(context),
+                icon: const Icon(Icons.add_shopping_cart, size: 18),
+                label: const Text('Tambah Paket'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF004D40),
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _addToCart(BuildContext context) {
+    int added = 0;
+    for (final item in combo.items) {
+      final product = _findProduct(item.productId);
+      if (product != null) {
+        for (int i = 0; i < item.qty; i++) {
+          Cart.instance.add(product);
+          added++;
+        }
+      }
+    }
+
+    if (added > 0) {
+      Navigator.pop(context);
+      showSnackBar('${combo.name} ditambahkan!', context: context);
+    }
+  }
+
+  Product? _findProduct(String id) {
+    for (final catalog in Menu.instance.itemList) {
+      for (final p in catalog.itemList) {
+        if (p.id == id) return p;
+      }
+    }
+    return null;
   }
 }
 
