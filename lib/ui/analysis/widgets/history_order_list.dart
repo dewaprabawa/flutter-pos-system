@@ -50,19 +50,18 @@ class HistoryOrderList extends StatelessWidget {
                 width: 56,
                 height: 56,
                 decoration: BoxDecoration(
-                  color: colorScheme.primaryContainer,
-                  borderRadius: BorderRadius.circular(16),
+                  color: const Color(0xFFE0F2F1), // Light teal
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.access_time_filled,
-                        size: 16, color: colorScheme.onPrimaryContainer),
-                    const SizedBox(height: 4),
+                    const Icon(Icons.access_time, size: 18, color: Color(0xFF00695C)),
+                    const SizedBox(height: 2),
                     Text(
                       DateFormat.Hm(S.localeName).format(order.createdAt),
                       style: theme.textTheme.labelSmall?.copyWith(
-                        color: colorScheme.onPrimaryContainer,
+                        color: const Color(0xFF00695C),
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -87,15 +86,15 @@ class HistoryOrderList extends StatelessWidget {
                         const SizedBox(width: 8),
                         Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 6, vertical: 2),
+                              horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
-                            color: colorScheme.secondaryContainer,
-                            borderRadius: BorderRadius.circular(6),
+                            color: const Color(0xFF80F0E0), // Teal badge
+                            borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
                             order.paymentMethod.toUpperCase(),
                             style: theme.textTheme.labelSmall?.copyWith(
-                              color: colorScheme.onSecondaryContainer,
+                              color: const Color(0xFF00695C),
                               fontSize: 10,
                               fontWeight: FontWeight.w900,
                             ),
@@ -126,8 +125,8 @@ class HistoryOrderList extends StatelessWidget {
                   Text(
                     order.price.toCurrency(),
                     style: theme.textTheme.titleMedium?.copyWith(
-                      color: colorScheme.primary,
-                      fontWeight: FontWeight.w800,
+                      color: const Color(0xFF004D40), // Dark Teal
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 4),

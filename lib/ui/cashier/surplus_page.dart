@@ -19,6 +19,7 @@ class CashierSurplus extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cashier = context.watch<Cashier>();
+    final theme = Theme.of(context);
 
     final columns = <DataColumn>[
       DataColumn(label: Text(S.cashierSurplusColumnName('unit')), numeric: true),

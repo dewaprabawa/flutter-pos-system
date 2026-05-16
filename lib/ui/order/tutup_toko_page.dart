@@ -140,9 +140,24 @@ Selisih: ${formatCurrency.format(selisih)}
     final formatCurrency = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
 
     return Scaffold(
+      backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
-        title: const Text('Tutup Toko'),
-        centerTitle: true,
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Color(0xFF004D40)),
+          onPressed: () => context.pop(),
+        ),
+        title: const Text(
+          'Tutup Toko',
+          style: TextStyle(color: Color(0xFF004D40), fontWeight: FontWeight.bold),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.storefront, color: Color(0xFF004D40)),
+            onPressed: () {},
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -150,152 +165,131 @@ Selisih: ${formatCurrency.format(selisih)}
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Session Summary
-            Card(
-              elevation: 0,
-              color: colorScheme.surfaceContainerHighest,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    Text('Ringkasan Sesi', style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        _buildStatBox('Penjualan', formatCurrency.format(_totalSales), colorScheme),
-                        _buildStatBox('Transaksi', '$_transactionCount', colorScheme),
-                      ],
-                    ),
-                  ],
+            // Session Summary Cards
+            Row(
+              children: [
+                Expanded(
+                  child: _buildMetricCard(
+                    'Penjualan',
+                    formatCurrency.format(_totalSales),
+                    const Color(0xFF004D40),
+                  ),
                 ),
-              ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildMetricCard(
+                    'Transaksi',
+                    '$_transactionCount',
+                    const Color(0xFF004D40),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 16),
 
             // Payment Breakdown
-            Card(
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                side: BorderSide(color: colorScheme.outlineVariant),
-                borderRadius: BorderRadius.circular(12),
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.grey.shade100),
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Metode Pembayaran', style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 12),
-                    _buildPaymentRow('Tunai', _totalTunai, formatCurrency),
-                    const Divider(),
-                    _buildPaymentRow('QRIS', _totalQRIS, formatCurrency),
-                    const Divider(),
-                    _buildPaymentRow('Kartu', _totalKartu, formatCurrency),
-                  ],
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Metode Pembayaran',
+                      style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 20),
+                  _buildPaymentRow('Tunai', _totalTunai, formatCurrency),
+                  const SizedBox(height: 12),
+                  const Divider(height: 1),
+                  const SizedBox(height: 12),
+                  _buildPaymentRow('QRIS', _totalQRIS, formatCurrency),
+                  const SizedBox(height: 12),
+                  const Divider(height: 1),
+                  const SizedBox(height: 12),
+                  _buildPaymentRow('Kartu', _totalKartu, formatCurrency),
+                ],
               ),
             ),
             const SizedBox(height: 16),
 
             // Cash Reconciliation
-            Card(
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                side: BorderSide(color: colorScheme.outlineVariant),
-                borderRadius: BorderRadius.circular(12),
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.grey.shade100),
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Rekonsiliasi Kas', style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text('Modal Awal'),
-                        Text(formatCurrency.format(session.startCash)),
-                      ],
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Rekonsiliasi Kas',
+                      style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 20),
+                  _buildInfoRow('Modal Awal', formatCurrency.format(session.startCash)),
+                  const SizedBox(height: 12),
+                  _buildInfoRow('Total Tunai Masuk', '+ ${formatCurrency.format(_totalTunai)}',
+                      valueColor: const Color(0xFF327E73)),
+                  const SizedBox(height: 12),
+                  const Divider(height: 1),
+                  const SizedBox(height: 12),
+                  _buildInfoRow('Kas Diharapkan', formatCurrency.format(expectedCash), isBold: true),
+                  const SizedBox(height: 20),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade100,
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text('Total Tunai Masuk'),
-                        Text('+ ${formatCurrency.format(_totalTunai)}'),
-                      ],
-                    ),
-                    const Divider(),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text('Kas Diharapkan', style: TextStyle(fontWeight: FontWeight.bold)),
-                        Text(formatCurrency.format(expectedCash), style: const TextStyle(fontWeight: FontWeight.bold)),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    TextField(
+                    child: TextField(
                       controller: _actualCashController,
                       decoration: const InputDecoration(
-                        labelText: 'Kas Aktual (Uang Laci)',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.attach_money),
+                        hintText: 'Kas Aktual (Uang Laci)',
+                        border: InputBorder.none,
+                        prefixIcon: Icon(Icons.money_outlined, color: Colors.grey),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       ),
                       keyboardType: TextInputType.number,
                       onChanged: (val) => setState(() {}),
                     ),
-                    if (_actualCashController.text.isNotEmpty) ...[
-                      const SizedBox(height: 16),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text('Selisih', style: TextStyle(fontWeight: FontWeight.bold)),
-                          Text(
-                            formatCurrency.format(selisih),
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: selisih < 0 ? colorScheme.error : colorScheme.primary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+                  ),
+                  if (_actualCashController.text.isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    _buildInfoRow('Selisih', formatCurrency.format(selisih),
+                        isBold: true,
+                        valueColor: selisih < 0 ? colorScheme.error : const Color(0xFF327E73)),
                   ],
-                ),
+                ],
               ),
             ),
             const SizedBox(height: 32),
 
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () => _kirimLaporan(expectedCash, actualCash),
-                    icon: const Icon(Icons.send),
-                    label: const Text('Kirim Laporan'),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      side: BorderSide(color: colorScheme.primary),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: _actualCashController.text.isEmpty
-                        ? null
-                        : () => _tutupToko(actualCash),
-                    icon: const Icon(Icons.lock_outline),
-                    label: const Text('Tutup Toko'),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      backgroundColor: colorScheme.error,
-                      foregroundColor: colorScheme.onError,
-                    ),
-                  ),
-                ),
-              ],
+            OutlinedButton.icon(
+              onPressed: () => _kirimLaporan(expectedCash, actualCash),
+              icon: const Icon(Icons.send_outlined),
+              label: const Text('Kirim Laporan'),
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                foregroundColor: const Color(0xFF004D40),
+                side: const BorderSide(color: Color(0xFF004D40)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+            const SizedBox(height: 12),
+            ElevatedButton.icon(
+              onPressed: _actualCashController.text.isEmpty ? null : () => _tutupToko(actualCash),
+              icon: const Icon(Icons.lock_outline),
+              label: const Text('Tutup Toko'),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                backgroundColor: const Color(0xFFD6D6D6), // Greyish as per image
+                foregroundColor: Colors.grey.shade700,
+                disabledBackgroundColor: Colors.grey.shade200,
+                elevation: 0,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
             ),
             const SizedBox(height: 24),
           ],
@@ -304,13 +298,22 @@ Selisih: ${formatCurrency.format(selisih)}
     );
   }
 
-  Widget _buildStatBox(String label, String value, ColorScheme colorScheme) {
-    return Column(
-      children: [
-        Text(label, style: TextStyle(color: colorScheme.onSurfaceVariant)),
-        const SizedBox(height: 4),
-        Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-      ],
+  Widget _buildMetricCard(String label, String value, Color color) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade100),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: TextStyle(color: Colors.grey.shade600, fontSize: 12, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 8),
+          Text(value, style: TextStyle(color: color, fontSize: 18, fontWeight: FontWeight.bold)),
+        ],
+      ),
     );
   }
 
@@ -318,8 +321,24 @@ Selisih: ${formatCurrency.format(selisih)}
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label),
-        Text(formatter.format(amount), style: const TextStyle(fontWeight: FontWeight.bold)),
+        Text(label, style: TextStyle(color: Colors.grey.shade600)),
+        Text(formatter.format(amount), style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black87)),
+      ],
+    );
+  }
+
+  Widget _buildInfoRow(String label, String value, {bool isBold = false, Color? valueColor}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label,
+            style: TextStyle(
+                color: Colors.grey.shade600, fontWeight: isBold ? FontWeight.bold : FontWeight.normal)),
+        Text(value,
+            style: TextStyle(
+                fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+                color: valueColor ?? Colors.black87,
+                fontSize: isBold ? 16 : 14)),
       ],
     );
   }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:possystem/components/dialog/single_text_dialog.dart';
 import 'package:possystem/components/menu_actions.dart';
 import 'package:possystem/constants/icons.dart';
+import 'package:possystem/helpers/input_formatters.dart';
 import 'package:possystem/helpers/validator.dart';
 import 'package:possystem/models/repository/cart.dart';
 import 'package:possystem/translator.dart';
@@ -48,11 +49,12 @@ class CartActions extends StatelessWidget {
           validator: Validator.positiveNumber(S.orderCartActionChangePriceLabel),
           decoration: InputDecoration(
             hintText: S.orderCartActionChangePriceHint,
-            prefix: Text(S.orderCartActionChangePricePrefix),
+            prefixText: 'Rp ',
             suffix: Text(S.orderCartActionChangePriceSuffix),
           ),
+          inputFormatters: [CurrencyInputFormatter()],
           action: (result) {
-            Cart.instance.selectedUpdatePrice(num.tryParse(result));
+            Cart.instance.selectedUpdatePrice(num.tryParse(result.replaceAll('.', '')));
           },
         );
         break;
@@ -85,6 +87,7 @@ class CartActions extends StatelessWidget {
         validator: item.validator,
         decoration: item.decoration,
         keyboardType: TextInputType.number,
+        inputFormatters: item.inputFormatters,
       ),
     );
 
@@ -148,10 +151,12 @@ class _DialogItem {
   final String? Function(String?) validator;
   final InputDecoration decoration;
   final void Function(String) action;
+  final List<CurrencyInputFormatter>? inputFormatters;
 
   _DialogItem({
     required this.validator,
     required this.decoration,
     required this.action,
+    this.inputFormatters,
   });
 }

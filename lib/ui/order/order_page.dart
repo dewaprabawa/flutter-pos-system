@@ -46,87 +46,90 @@ class _OrderPageState extends State<OrderPage> {
     return TutorialWrapper(
       child: Scaffold(
         resizeToAvoidBottomInset: false,
+        backgroundColor: const Color(0xFFF8F9FA), // Light grey background
         body: Column(
           children: [
             Container(
               padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    colorScheme.primary,
-                    colorScheme.primary.withValues(alpha: 0.8),
-                  ],
-                ),
+              decoration: const BoxDecoration(
+                color: Colors.white,
               ),
               child: Column(
                 children: [
                   AppBar(
                     backgroundColor: Colors.transparent,
                     elevation: 0,
-                    title: Text(
-                      S.title('order'),
-                      style: const TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.bold),
+                    title: Row(
+                      children: [
+                        Icon(Icons.storefront, color: Colors.teal.shade900),
+                        const SizedBox(width: 8),
+                        Text(
+                          'MokkonPOS',
+                          style: TextStyle(
+                              color: Colors.teal.shade900,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20),
+                        ),
+                      ],
                     ),
                     centerTitle: false,
                     actions: [
                       IconButton(
                         icon: Consumer<Notifications>(
                           builder: (context, notifs, child) {
-                            if (notifs.unreadCount > 0) {
-                              return Badge(
-                                label: Text(notifs.unreadCount.toString()),
-                                child: const Icon(Icons.notifications,
-                                    color: Colors.white),
-                              );
-                            }
-                            return const Icon(Icons.notifications_none_outlined,
-                                color: Colors.white);
+                            return Icon(
+                              notifs.unreadCount > 0
+                                  ? Icons.notifications_active_outlined
+                                  : Icons.notifications_none_outlined,
+                              color: Colors.teal.shade900,
+                            );
                           },
                         ),
                         onPressed: () => _showNotifications(context),
                       ),
                       IconButton(
-                        icon:
-                            const Icon(Icons.lock_outline, color: Colors.white),
+                        icon: Icon(Icons.lock_outline,
+                            color: Colors.teal.shade900),
                         tooltip: 'Tutup Toko',
                         onPressed: () => context.pushNamed(Routes.tutupToko),
                       ),
                       const SizedBox(width: 8),
-                      const CircleAvatar(
+                      CircleAvatar(
                         radius: 16,
-                        backgroundColor: Colors.white24,
-                        child: Text('BU',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold)),
+                        backgroundColor: const Color(0xFF80F0E0),
+                        child: Text(
+                          'BU',
+                          style: TextStyle(
+                              color: Colors.teal.shade900,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold),
+                        ),
                       ),
                       const SizedBox(width: 16),
                     ],
                   ),
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-                    child: TextField(
-                      controller: _searchController,
-                      onChanged: (value) =>
-                          setState(() => _searchQuery = value),
-                      style: const TextStyle(color: Colors.white),
-                      decoration: InputDecoration(
-                        hintText: S.menuSearchHint,
-                        hintStyle: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.6)),
-                        prefixIcon: const Icon(Icons.search,
-                            size: 20, color: Colors.white),
-                        fillColor: Colors.white.withValues(alpha: 0.15),
-                        filled: true,
-                        isDense: true,
-                        contentPadding: const EdgeInsets.symmetric(vertical: 0),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(30),
-                          borderSide: BorderSide.none,
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF004D40), // Dark Teal
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: TextField(
+                        controller: _searchController,
+                        onChanged: (value) =>
+                            setState(() => _searchQuery = value),
+                        style:
+                            const TextStyle(color: Colors.white, fontSize: 14),
+                        decoration: InputDecoration(
+                          hintText: 'Search for products, ingredients, q...',
+                          hintStyle:
+                              TextStyle(color: Colors.black, fontSize: 14),
+                          prefixIcon: const Icon(Icons.search,
+                              size: 20, color: Colors.black),
+                          border: InputBorder.none,
+                          contentPadding:
+                              const EdgeInsets.symmetric(vertical: 12),
                         ),
                       ),
                     ),
@@ -178,6 +181,15 @@ class _OrderPageState extends State<OrderPage> {
                         ),
                       ],
                     ],
+                  ),
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 80,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: _PromoCard(),
+                    ),
                   ),
                   Positioned(
                     left: 0,
@@ -396,6 +408,83 @@ class _OrderPageState extends State<OrderPage> {
   Future<bool?> _handleStash() {
     DraggableScrollableActuator.reset(context);
     return Cart.instance.stash();
+  }
+}
+
+class _PromoCard extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFE0F2F1), // Light teal background
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.teal.shade100, width: 1),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF004D40),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: const Text(
+                    'PROMO',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Bundle Hemat!',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF004D40),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  'Get 2 Geprek + 2 Ice Tea',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF00695C),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    const Text(
+                      'Lihat Detail',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF004D40),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Icon(Icons.arrow_forward_ios,
+                        size: 12, color: Color(0xFF004D40)),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 16),
+          Icon(Icons.local_offer_outlined,
+              size: 80, color: Colors.teal.shade200.withValues(alpha: 0.5)),
+        ],
+      ),
+    );
   }
 }
 

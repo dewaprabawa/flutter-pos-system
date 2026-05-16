@@ -65,21 +65,21 @@ class _OrderCatalogListViewState extends State<OrderCatalogListView> {
                     },
                     selected: isSelected,
                     label: Text(
-                      catalog.name,
+                      catalog.name.toUpperCase(),
                       style: TextStyle(
-                        fontSize: 13,
+                        fontSize: 11,
+                        letterSpacing: 0.5,
                         fontWeight:
-                            isSelected ? FontWeight.w600 : FontWeight.w500,
+                            isSelected ? FontWeight.bold : FontWeight.w600,
                         color: isSelected
                             ? Colors.white
-                            : theme.colorScheme.onSurfaceVariant,
+                            : Colors.grey.shade600,
                       ),
                     ),
-                    selectedColor: theme.colorScheme.primary,
-                    backgroundColor: theme.colorScheme.surfaceContainerHighest
-                        .withValues(alpha: 0.3),
+                    selectedColor: const Color(0xFF004D40),
+                    backgroundColor: const Color(0xFFF1F1F1),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(12),
                       side: BorderSide.none,
                     ),
                     showCheckmark: false,

@@ -24,55 +24,61 @@ class CashierView extends StatelessWidget {
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showAddUnitDialog(context),
-        label: const Text('Tambah Unit'),
+        label: const Text('Tambah Unit', style: TextStyle(fontWeight: FontWeight.bold)),
         icon: const Icon(Icons.add),
-        backgroundColor: colorScheme.primary,
-        foregroundColor: colorScheme.onPrimary,
+        backgroundColor: const Color(0xFF004D40), // Dark Teal
+        foregroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
       body: Column(
         children: [
           // ── Gradient Header ──
           Container(
             padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  colorScheme.primary,
-                  colorScheme.primary.withValues(alpha: 0.8),
-                ],
-              ),
+            decoration: const BoxDecoration(
+              color: Colors.white,
             ),
             child: AppBar(
               backgroundColor: Colors.transparent,
               elevation: 0,
-              title: const Text(
-                'Kasir',
-                style:
-                    TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              title: Row(
+                children: [
+                  Icon(Icons.storefront, color: Colors.teal.shade900),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Kasir',
+                    style: TextStyle(
+                        color: Colors.teal.shade900,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20),
+                  ),
+                ],
               ),
               centerTitle: false,
               actions: [
                 Consumer<SessionManager>(
                   builder: (context, session, _) {
-                    if (session.hasActiveSession) {
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 16),
-                        child: Chip(
-                          avatar: const Icon(Icons.circle,
-                              color: Colors.greenAccent, size: 10),
-                          label: Text(
-                            session.currentSession?.cashierName ?? 'Kasir',
-                            style: const TextStyle(
-                                color: Colors.green, fontSize: 12),
-                          ),
-                          backgroundColor: Colors.white.withValues(alpha: 0.15),
-                          side: BorderSide.none,
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 16),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade200,
+                          borderRadius: BorderRadius.circular(20),
                         ),
-                      );
-                    }
-                    return const SizedBox.shrink();
+                        child: Row(
+                          children: [
+                            const Icon(Icons.circle, color: Colors.greenAccent, size: 8),
+                            const SizedBox(width: 6),
+                            Text(
+                              session.currentSession?.cashierName ?? 'dew',
+                              style: TextStyle(
+                                  color: Colors.grey.shade700, fontSize: 12, fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
                   },
                 ),
               ],
@@ -96,11 +102,15 @@ class CashierView extends StatelessWidget {
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16.0),
                           child: GoalsCardView(
-                            action: RouteIconButton(
-                              key: const Key('anal.history'),
-                              route: Routes.history,
-                              icon: const Icon(Icons.calendar_month_outlined),
-                              label: S.analysisHistoryBtn,
+                            title: "Today's Summary",
+                            action: TextButton.icon(
+                              onPressed: () => context.pushNamed(Routes.history),
+                              icon: const Icon(Icons.calendar_today_outlined, size: 16, color: Colors.grey),
+                              label: Text('Records', style: TextStyle(color: Colors.grey.shade700, fontWeight: FontWeight.bold)),
+                              style: TextButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(horizontal: 8),
+                                visualDensity: VisualDensity.compact,
+                              ),
                             ),
                           ),
                         ),
@@ -190,19 +200,20 @@ class CashierView extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
       child: Container(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 12),
         decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.5),
+          color: const Color(0xFFF8F9FA), // Light grey
           borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
           children: [
-            Icon(icon, color: Theme.of(context).colorScheme.onSurface),
-            const SizedBox(height: 4),
+            Icon(icon, color: Colors.teal.shade900, size: 28),
+            const SizedBox(height: 12),
             Text(
               title,
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     fontWeight: FontWeight.bold,
+                    color: Colors.grey.shade700,
                   ),
             ),
           ],

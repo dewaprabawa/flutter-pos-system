@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:possystem/components/style/pop_button.dart';
 
 class SingleTextDialog extends StatefulWidget {
@@ -15,7 +16,10 @@ class SingleTextDialog extends StatefulWidget {
     this.autofocus = true,
     this.header,
     this.title,
+    this.inputFormatters,
   });
+
+  final List<TextInputFormatter>? inputFormatters;
 
   final String? Function(String?)? validator;
   final String? Function(String?)? formatter;
@@ -53,6 +57,7 @@ class _SingleTextDialogState extends State<SingleTextDialog> {
       validator: widget.validator,
       decoration: widget.decoration,
       maxLength: widget.maxLength,
+      inputFormatters: widget.inputFormatters,
       textInputAction: TextInputAction.done,
     );
 

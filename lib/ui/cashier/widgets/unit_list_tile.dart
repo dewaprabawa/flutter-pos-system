@@ -28,9 +28,9 @@ class UnitListTile extends StatelessWidget {
         elevation: 0,
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: BorderSide(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.4)),
+          borderRadius: BorderRadius.circular(12),
         ),
+        color: const Color(0xFFE0F2F1), // Light teal
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
           onTap: () => _setUnitCount(context, item.unit, max, item.count),
@@ -43,16 +43,16 @@ class UnitListTile extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                       decoration: BoxDecoration(
-                        color: theme.colorScheme.primary.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(8),
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
                       ),
                       child: Text(
                         item.unit.toCurrency(),
                         style: theme.textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: theme.colorScheme.primary,
+                          color: const Color(0xFF00695C),
                         ),
                       ),
                     ),
@@ -65,8 +65,16 @@ class UnitListTile extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
-                PercentileBar(item.count, max),
+                const SizedBox(height: 12),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: LinearProgressIndicator(
+                    value: max == 0 ? 0 : item.count / max,
+                    minHeight: 6,
+                    backgroundColor: Colors.white.withValues(alpha: 0.5),
+                    valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF004D40)),
+                  ),
+                ),
               ],
             ),
           ),

@@ -51,8 +51,25 @@ class _BukaTokoPageState extends State<BukaTokoPage> {
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
+      backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
-        title: const Text('Buka Toko'),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.storefront, color: Colors.teal.shade900),
+            const SizedBox(width: 8),
+            Text(
+              'MokkonPOS',
+              style: TextStyle(
+                color: Colors.teal.shade900,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -137,10 +154,11 @@ class _BukaTokoPageState extends State<BukaTokoPage> {
                 onPressed: _startSession,
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  backgroundColor: colorScheme.primary,
-                  foregroundColor: colorScheme.onPrimary,
+                  backgroundColor: const Color(0xFF004D40), // Dark Teal
+                  foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16)),
+                  elevation: 2,
                 ),
                 child: const Text('Mulai Berjualan',
                     style:

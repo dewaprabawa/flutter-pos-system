@@ -29,7 +29,8 @@ class _HistoryPageState extends State<HistoryPage> {
 
   @override
   Widget build(BuildContext context) {
-    final singleView = MediaQuery.sizeOf(context).width <= Breakpoint.medium.max;
+    final singleView =
+        MediaQuery.sizeOf(context).width <= Breakpoint.medium.max;
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
@@ -39,35 +40,40 @@ class _HistoryPageState extends State<HistoryPage> {
           children: [
             Container(
               padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    colorScheme.primary,
-                    colorScheme.primary.withValues(alpha: 0.8),
-                  ],
-                ),
+              decoration: const BoxDecoration(
+                color: Colors.white,
               ),
               child: AppBar(
                 backgroundColor: Colors.transparent,
                 elevation: 0,
-                leading: Navigator.canPop(context) ? const PopButton(color: Colors.white) : null,
-                title: Text(
-                  S.analysisHistoryTitle,
-                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                leading: Navigator.canPop(context)
+                    ? PopButton(color: Colors.teal.shade900)
+                    : null,
+                title: Row(
+                  children: [
+                    Icon(Icons.storefront, color: Colors.teal.shade900),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Histori',
+                      style: TextStyle(
+                          color: Colors.teal.shade900,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20),
+                    ),
+                  ],
                 ),
                 actions: [
                   Tutorial(
                     id: 'history.action',
                     title: S.analysisHistoryActionTutorialTitle,
                     message: S.analysisHistoryActionTutorialContent,
-                    spotlightBuilder: const SpotlightRectBuilder(borderRadius: 8.0),
+                    spotlightBuilder:
+                        const SpotlightRectBuilder(borderRadius: 8.0),
                     child: MenuAnchor(
                       builder: (context, controller, child) => IconButton(
                         key: const Key('history.action'),
                         onPressed: controller.open,
-                        icon: const Icon(KIcons.more, color: Colors.white),
+                        icon: Icon(KIcons.more, color: Colors.teal.shade900),
                       ),
                       menuChildren: [
                         SubmenuButton(
@@ -135,13 +141,127 @@ class _HistoryPageState extends State<HistoryPage> {
   Widget _buildSingleColumn() {
     return Column(children: [
       PhysicalModel(
-        elevation: 5,
-        color: Theme.of(context).colorScheme.surface,
-        shadowColor: Colors.transparent,
+        elevation: 0,
+        color: Colors.white,
         child: _buildCalendar(shouldFillViewport: false),
       ),
+      _buildMetricsSection(),
+      const SizedBox(height: 16),
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'TRANSACTIONS',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: Colors.grey.shade500,
+                letterSpacing: 0.5,
+              ),
+            ),
+            ValueListenableBuilder(
+              valueListenable: notifier,
+              builder: (context, range, _) {
+                return FutureBuilder<OrderMetrics>(
+                  future: Seller.instance.getMetrics(range.start, range.end),
+                  builder: (context, snapshot) {
+                    final count = snapshot.data?.count ?? 0;
+                    return Text(
+                      '$count ${count > 1 ? "Items" : "Item"} Found',
+                      style:
+                          TextStyle(fontSize: 12, color: Colors.grey.shade500),
+                    );
+                  },
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+      const SizedBox(height: 8),
       Expanded(child: _buildOrderList()),
     ]);
+  }
+
+  Widget _buildMetricsSection() {
+    return ValueListenableBuilder(
+      valueListenable: notifier,
+      builder: (context, range, _) {
+        return FutureBuilder<OrderMetrics>(
+          future: Seller.instance.getMetrics(range.start, range.end),
+          builder: (context, snapshot) {
+            final metrics = snapshot.data;
+            return Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: _buildMetricCard(
+                      label: 'Revenue:',
+                      value: metrics?.revenue.toCurrency() ?? 0.toCurrency(),
+                      dotColor: const Color(0xFF00796B),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildMetricCard(
+                      label: 'Cost:',
+                      value: metrics?.cost.toCurrency() ?? 0.toCurrency(),
+                      dotColor: Colors.grey.shade600,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildMetricCard({
+    required String label,
+    required String value,
+    required Color dotColor,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(color: dotColor, shape: BoxShape.circle),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            label,
+            style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+          ),
+          const SizedBox(width: 4),
+          Expanded(
+            child: Text(
+              value,
+              textAlign: TextAlign.end,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+                color: Color(0xFF004D40),
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildCalendar({required bool shouldFillViewport}) {

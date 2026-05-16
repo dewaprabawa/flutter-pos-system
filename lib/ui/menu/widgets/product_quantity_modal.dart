@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:possystem/components/scaffold/item_modal.dart';
 import 'package:possystem/components/search_bar_wrapper.dart';
 import 'package:possystem/components/style/buttons.dart';
+import 'package:possystem/helpers/input_formatters.dart';
 import 'package:possystem/helpers/validator.dart';
 import 'package:possystem/models/menu/product_ingredient.dart';
 import 'package:possystem/models/menu/product_quantity.dart';
@@ -82,12 +83,13 @@ class _ProductQuantityModalState extends State<ProductQuantityModal> with ItemMo
         textInputAction: TextInputAction.next,
         focusNode: _priceFocusNode,
         decoration: InputDecoration(
-          prefixIcon: const Icon(Icons.loyalty_outlined),
+          prefixText: 'Rp ',
           labelText: S.menuQuantityAdditionalPriceLabel,
           helperText: S.menuQuantityAdditionalPriceHelper,
           helperMaxLines: 10,
           filled: false,
         ),
+        inputFormatters: [CurrencyInputFormatter()],
         validator: Validator.isNumber(
           S.menuQuantityAdditionalPriceLabel,
           focusNode: _priceFocusNode,
@@ -101,12 +103,13 @@ class _ProductQuantityModalState extends State<ProductQuantityModal> with ItemMo
         focusNode: _costFocusNode,
         onFieldSubmitted: handleFieldSubmit,
         decoration: InputDecoration(
-          prefixIcon: const Icon(Icons.attach_money_outlined),
+          prefixText: 'Rp ',
           labelText: S.menuQuantityAdditionalCostLabel,
           helperText: S.menuQuantityAdditionalCostHelper,
           helperMaxLines: 10,
           filled: false,
         ),
+        inputFormatters: [CurrencyInputFormatter()],
         validator: Validator.isNumber(
           S.menuQuantityAdditionalCostLabel,
           focusNode: _costFocusNode,
@@ -180,8 +183,8 @@ class _ProductQuantityModalState extends State<ProductQuantityModal> with ItemMo
     return ProductQuantityObject(
       quantityId: quantityId,
       amount: num.parse(_amountController.text),
-      additionalPrice: num.parse(_priceController.text),
-      additionalCost: num.parse(_costController.text),
+      additionalPrice: num.parse(_priceController.text.replaceAll('.', '')),
+      additionalCost: num.parse(_costController.text.replaceAll('.', '')),
     );
   }
 

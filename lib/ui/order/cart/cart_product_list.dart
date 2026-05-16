@@ -127,12 +127,27 @@ class _CartProductListTile extends StatelessWidget {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: Image(
-                image: product.product.image,
-                width: 50,
-                height: 50,
-                fit: BoxFit.cover,
-              ),
+              child: product.product.useDefaultImage
+                  ? Container(
+                      width: 50,
+                      height: 50,
+                      color: colorScheme.primaryContainer.withValues(alpha: 0.3),
+                      child: Center(
+                        child: Text(
+                          product.name.characters.first.toUpperCase(),
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            color: colorScheme.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    )
+                  : Image(
+                      image: product.product.image,
+                      width: 50,
+                      height: 50,
+                      fit: BoxFit.cover,
+                    ),
             ),
             const SizedBox(width: 12),
             Expanded(

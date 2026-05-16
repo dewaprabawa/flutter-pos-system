@@ -78,7 +78,11 @@ class App extends StatelessWidget {
           builder: (context, child) {
             final sessionManager = context.watch<SessionManager>();
             if (!sessionManager.hasActiveSession) {
-              return const BukaTokoPage();
+              return Navigator(
+                onGenerateRoute: (_) => MaterialPageRoute(
+                  builder: (context) => const BukaTokoPage(),
+                ),
+              );
             }
             return child!;
           },

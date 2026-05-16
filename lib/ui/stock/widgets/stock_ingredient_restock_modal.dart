@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:possystem/components/scaffold/item_modal.dart';
 import 'package:possystem/components/style/card_info_text.dart';
 import 'package:possystem/helpers/util.dart';
+import 'package:possystem/helpers/input_formatters.dart';
 import 'package:possystem/helpers/validator.dart';
 import 'package:possystem/models/objects/stock_object.dart';
 import 'package:possystem/models/stock/ingredient.dart';
@@ -36,10 +37,12 @@ class _ModalState extends State<StockIngredientRestockModal> with ItemModal<Stoc
           textInputAction: TextInputAction.next,
           keyboardType: TextInputType.number,
           decoration: InputDecoration(
+            prefixText: 'Rp ',
             labelText: S.stockIngredientRestockPriceLabel,
             helperMaxLines: 3,
             filled: false,
           ),
+          inputFormatters: [CurrencyInputFormatter()],
           validator: Validator.positiveNumber(
             S.stockIngredientRestockPriceLabel,
             allowNull: true,
@@ -99,7 +102,7 @@ class _ModalState extends State<StockIngredientRestockModal> with ItemModal<Stoc
 
   IngredientObject parseObject() {
     return IngredientObject(
-      restockPrice: num.tryParse(priceController.text),
+      restockPrice: num.tryParse(priceController.text.replaceAll('.', '')),
       restockQuantity: num.tryParse(quantityController.text),
       fromModal: true,
     );

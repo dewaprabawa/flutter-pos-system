@@ -90,12 +90,16 @@ mixin ModelImage<T extends ModelObject> on Model<T> {
       );
     }
 
-    final image = FileImage(XFile(_avatorPath).file);
-    return CircleAvatar(
-        foregroundImage: image,
-        onForegroundImageError: (err, stack) {
-          _avatorMissed = true;
-        });
+    final image = FileImage(XFile(imagePath!).file);
+    return Image(
+      image: image,
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) {
+        return CircleAvatar(
+          child: Text(name.characters.first.toUpperCase()),
+        );
+      },
+    );
   }
 
   ImageProvider get image {

@@ -1,6 +1,7 @@
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:possystem/helpers/util.dart';
 import 'package:possystem/models/repository/seller.dart';
 import 'package:possystem/services/cache.dart';
@@ -43,9 +44,10 @@ class _HistoryCalendarViewState extends State<HistoryCalendarView> {
 
   @override
   Widget build(BuildContext context) {
-    // text being too large will cause overlay
-    return MediaQuery.withNoTextScaling(
-      child: TableCalendar<void>(
+    return Column(
+      children: [
+        MediaQuery.withNoTextScaling(
+          child: TableCalendar<void>(
         firstDay: DateTime(2021, 1),
         lastDay: DateTime.now(),
         focusedDay: _focusedDay,
@@ -56,14 +58,24 @@ class _HistoryCalendarViewState extends State<HistoryCalendarView> {
         locale: LanguageSetting.instance.language.locale.toString(),
         // header
         // chinese will be hidden if using default value
-        daysOfWeekHeight: 20.0,
-        headerStyle: const HeaderStyle(formatButtonShowsNext: false),
-        // show next format, so k/v are not matching
-        availableCalendarFormats: {
-          CalendarFormat.month: S.twoWeeks,
-          CalendarFormat.twoWeeks: S.singleWeek,
-          CalendarFormat.week: S.singleMonth,
-        },
+        daysOfWeekHeight: 30.0,
+        headerStyle: HeaderStyle(
+          formatButtonVisible: false,
+          titleCentered: true,
+          titleTextStyle: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Colors.grey.shade800,
+          ),
+          leftChevronIcon: Icon(Icons.chevron_left, color: Colors.grey.shade600),
+          rightChevronIcon: Icon(Icons.chevron_right, color: Colors.grey.shade600),
+        ),
+        daysOfWeekStyle: DaysOfWeekStyle(
+          weekdayStyle: TextStyle(color: Colors.grey.shade600, fontWeight: FontWeight.bold, fontSize: 12),
+          weekendStyle: TextStyle(color: Colors.grey.shade600, fontWeight: FontWeight.bold, fontSize: 12),
+          dowTextFormatter: (date, locale) => 
+            DateFormat.E(locale).format(date).substring(0, 3),
+        ),
         // no need holiday/weekend days
         holidayPredicate: (day) => false,
         weekendDays: const [],
@@ -71,15 +83,81 @@ class _HistoryCalendarViewState extends State<HistoryCalendarView> {
         selectedDayPredicate: (DateTime day) => isSameDay(day, _selectedDay),
         eventLoader: (DateTime day) => List.filled(_loadedCounts[day] ?? 0, null),
         calendarBuilders: CalendarBuilders(
+          selectedBuilder: (context, date, _) => Container(
+            margin: const EdgeInsets.all(4.0),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: const Color(0xFF004D40),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              date.day.toString(),
+              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            ),
+          ),
+          todayBuilder: (context, date, _) => Container(
+            margin: const EdgeInsets.all(4.0),
+            alignment: Alignment.center,
+            child: Text(
+              date.day.toString(),
+              style: const TextStyle(color: Color(0xFF004D40), fontWeight: FontWeight.bold),
+            ),
+          ),
           markerBuilder: _badgeBuilder,
           defaultBuilder: _defaultBuilder,
         ),
         onPageChanged: _searchPageData,
-        onFormatChanged: (format) async {
-          setState(() => _calendarFormat = format);
-          await Cache.instance.set('history.calendar_format', format.index);
-        },
         onDaySelected: (DateTime selectedDay, DateTime focusedDay) => _onDaySelected(selectedDay),
+      ),
+    ),
+    const SizedBox(height: 16),
+    _buildFormatSelector(),
+    const SizedBox(height: 16),
+      ],
+    );
+  }
+
+  Widget _buildFormatSelector() {
+    return Container(
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade200,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildFormatOption(CalendarFormat.week, 'Single Week'),
+          _buildFormatOption(CalendarFormat.month, 'Monthly'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFormatOption(CalendarFormat format, String label) {
+    final isSelected = _calendarFormat == format;
+    return GestureDetector(
+      onTap: () async {
+        setState(() => _calendarFormat = format);
+        await Cache.instance.set('history.calendar_format', format.index);
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.white : Colors.transparent,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: isSelected 
+              ? [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))]
+              : null,
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: isSelected ? const Color(0xFF004D40) : Colors.grey.shade600,
+          ),
+        ),
       ),
     );
   }

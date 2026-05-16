@@ -12,11 +12,13 @@ import 'package:possystem/ui/analysis/widgets/reloadable_card.dart';
 class GoalsCardView extends StatefulWidget {
   final EMACalculator calculator;
   final Widget? action;
+  final String? title;
 
   const GoalsCardView({
     super.key,
     this.calculator = const EMACalculator(20),
     this.action,
+    this.title,
   });
 
   @override
@@ -31,7 +33,7 @@ class _GoalsCardViewState extends State<GoalsCardView> {
   Widget build(BuildContext context) {
     return ReloadableCard<OrderSummary>(
       id: 'goals',
-      title: S.analysisGoalsTitle,
+      title: widget.title ?? S.analysisGoalsTitle,
       notifiers: [Seller.instance],
       action: widget.action,
       builder: _builder,
@@ -55,77 +57,32 @@ class _GoalsCardViewState extends State<GoalsCardView> {
       final compact = constraint.maxWidth < Breakpoint.compact.max;
       final showChart = goal!.profit != 0;
 
-      return Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                _GoalItem(
-                  current: metric.count,
-                  goal: goal!.count,
-                  name: S.analysisGoalsCountTitle,
-                  desc: S.analysisGoalsCountDescription,
-                  compact: compact,
-                  isCurrency: false,
-                ),
-                const SizedBox(height: 16),
-                _GoalItem(
-                  current: metric.revenue,
-                  goal: goal!.revenue,
-                  name: S.analysisGoalsRevenueTitle,
-                  desc: S.analysisGoalsRevenueDescription,
-                  compact: compact,
-                ),
-                const SizedBox(height: 16),
-                _GoalItem(
-                  current: metric.profit,
-                  goal: goal!.profit,
-                  name: S.analysisGoalsProfitTitle,
-                  desc: S.analysisGoalsProfitDescription,
-                  compact: compact,
-                ),
-              ],
-            ),
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          _GoalItem(
+            current: metric.count,
+            name: 'ORDER COUNT',
+            desc: S.analysisGoalsCountDescription,
+            compact: compact,
+            isCurrency: false,
           ),
-          if (showChart) ...[
-            const SizedBox(width: 24),
-            SizedBox(
-              width: compact ? 100 : 140,
-              height: compact ? 100 : 140,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  CircularProgressIndicator(
-                    value: metric.profit / goal!.profit,
-                    backgroundColor:
-                        Theme.of(context).colorScheme.surfaceContainerHighest,
-                    strokeWidth: 12,
-                    strokeCap: StrokeCap.round,
-                  ),
-                  Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          formatter.format(metric.profit / goal!.profit),
-                          style: textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                        ),
-                        Text(
-                          S.analysisGoalsAchievedRate(''),
-                          style: textTheme.labelSmall,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
+          const SizedBox(height: 20),
+          _GoalItem(
+            current: metric.revenue,
+            name: 'REVENUE',
+            desc: S.analysisGoalsRevenueDescription,
+            compact: compact,
+            isTeal: true,
+          ),
+          const SizedBox(height: 20),
+          _GoalItem(
+            current: metric.profit,
+            name: 'PROFIT',
+            desc: S.analysisGoalsProfitDescription,
+            compact: compact,
+            isTeal: true,
+          ),
         ],
       );
     });
@@ -175,17 +132,17 @@ class _GoalItem extends StatelessWidget {
   final String name;
   final String? desc;
   final num current;
-  final num goal;
   final bool compact;
   final bool isCurrency;
+  final bool isTeal;
 
   const _GoalItem({
     required this.name,
     this.desc,
     required this.current,
-    required this.goal,
     required this.compact,
     this.isCurrency = true,
+    this.isTeal = false,
   });
 
   @override
@@ -198,37 +155,25 @@ class _GoalItem extends StatelessWidget {
       children: [
         Text(
           name,
-          style: textTheme.labelMedium?.copyWith(
-            color: colorScheme.onSurfaceVariant,
-            fontWeight: FontWeight.w500,
+          style: textTheme.labelSmall?.copyWith(
+            color: Colors.grey.shade500,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 0.5,
           ),
         ),
         if (desc != null) ...[
           const SizedBox(width: 4),
-          InfoPopup(desc!),
+          Icon(Icons.help_outline, size: 14, color: Colors.grey.shade400),
         ],
       ],
     );
 
-    final value = RichText(
-      text: TextSpan(
-        text: isCurrency ? current.toCurrency() : current.toString(),
-        style: textTheme.titleLarge?.copyWith(
-          fontWeight: FontWeight.bold,
-          letterSpacing: -0.5,
-        ),
-        children: goal != 0
-            ? [
-                TextSpan(
-                  text:
-                      ' / ${isCurrency ? goal.toCurrency() : goal.toString()}',
-                  style: textTheme.bodyMedium?.copyWith(
-                    color: colorScheme.outline,
-                    fontWeight: FontWeight.normal,
-                  ),
-                ),
-              ]
-            : null,
+    final value = Text(
+      isCurrency ? current.toCurrency() : current.toString(),
+      style: textTheme.headlineMedium?.copyWith(
+        fontWeight: FontWeight.bold,
+        color: isTeal ? const Color(0xFF004D40) : Colors.black87,
+        letterSpacing: -1,
       ),
     );
 

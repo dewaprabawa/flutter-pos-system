@@ -90,10 +90,23 @@ class _ProductCard extends StatelessWidget {
                   flex: 3,
                   child: ClipRRect(
                     borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                    child: Image(
-                      image: product.image,
-                      fit: BoxFit.cover,
-                    ),
+                    child: product.useDefaultImage 
+                      ? Container(
+                          color: theme.colorScheme.primaryContainer.withValues(alpha: 0.3),
+                          child: Center(
+                            child: Text(
+                              product.name.characters.first.toUpperCase(),
+                              style: theme.textTheme.displaySmall?.copyWith(
+                                color: theme.colorScheme.primary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        )
+                      : Image(
+                          image: product.image,
+                          fit: BoxFit.cover,
+                        ),
                   ),
                 ),
                 Expanded(
@@ -106,18 +119,20 @@ class _ProductCard extends StatelessWidget {
                         Text(
                           product.name,
                           style: theme.textTheme.labelLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                            color: Colors.grey.shade800,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        const SizedBox(height: 2),
+                        const SizedBox(height: 4),
                         Text(
                           product.price.toCurrency(),
-                          style: theme.textTheme.labelMedium?.copyWith(
-                            color: theme.colorScheme.primary,
-                            fontWeight: FontWeight.w700,
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            color: const Color(0xFF004D40), // Dark Teal
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
                           ),
                         ),
                       ],
@@ -131,14 +146,14 @@ class _ProductCard extends StatelessWidget {
               bottom: 4,
               child: Container(
                 padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.primary,
+                decoration: const BoxDecoration(
+                  color: Color(0xFF004D40), // Dark Teal
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
                   Icons.add,
                   color: Colors.white,
-                  size: 20,
+                  size: 24,
                 ),
               ),
             ),

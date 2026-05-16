@@ -9,9 +9,10 @@ class Validator {
     FocusNode? focusNode,
   }) {
     return (Object? value) {
-      final number = num.tryParse('$value');
+      final cleanedValue = value?.toString().replaceAll('.', '') ?? '';
+      final number = num.tryParse(cleanedValue);
       String? error;
-
+ 
       if (number == null) {
         if (!allowNull) {
           error = S.invalidNumberType(fieldName);
@@ -38,7 +39,8 @@ class Validator {
     FocusNode? focusNode,
   }) {
     return (String? value) {
-      final number = int.tryParse(value ?? '');
+      final cleanedValue = value?.replaceAll('.', '') ?? '';
+      final number = int.tryParse(cleanedValue);
       String? error;
 
       if (number == null) {
@@ -67,7 +69,8 @@ class Validator {
     FocusNode? focusNode,
   }) {
     return (String? value) {
-      final number = num.tryParse(value ?? '');
+      final cleanedValue = value?.replaceAll('.', '') ?? '';
+      final number = num.tryParse(cleanedValue);
       String? error;
 
       if (number == null) {

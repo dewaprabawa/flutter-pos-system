@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:possystem/components/style/image_holder.dart';
+import 'package:possystem/components/style/snackbar.dart';
+import 'package:possystem/helpers/input_formatters.dart';
 import 'package:possystem/helpers/validator.dart';
 import 'package:possystem/models/menu/catalog.dart';
 import 'package:possystem/models/menu/product.dart';
@@ -37,7 +39,8 @@ class _ProductModalState extends State<ProductModal> {
   String? _image;
   bool _isSaving = false;
 
-  String get title => widget.isNew ? S.menuProductTitleCreate : S.menuProductTitleUpdate;
+  String get title =>
+      widget.isNew ? S.menuProductTitleCreate : S.menuProductTitleUpdate;
 
   @override
   void initState() {
@@ -68,8 +71,8 @@ class _ProductModalState extends State<ProductModal> {
     return ProductObject(
       name: _nameController.text,
       imagePath: _image,
-      price: num.tryParse(_priceController.text),
-      cost: num.tryParse(_costController.text),
+      price: num.tryParse(_priceController.text.replaceAll('.', '')),
+      cost: num.tryParse(_costController.text.replaceAll('.', '')),
     );
   }
 
@@ -100,6 +103,7 @@ class _ProductModalState extends State<ProductModal> {
     try {
       final product = await getProduct();
       if (mounted) {
+        showSnackBar(S.actSuccess, context: context);
         context.pop(product.id);
       }
     } finally {
@@ -116,7 +120,8 @@ class _ProductModalState extends State<ProductModal> {
       key: scaffoldMessengerKey,
       child: Scaffold(
         appBar: AppBar(
-          title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+          title:
+              Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
           centerTitle: true,
           elevation: 0,
         ),
@@ -146,20 +151,23 @@ class _ProductModalState extends State<ProductModal> {
                         maxLength: 30,
                         decoration: InputDecoration(
                           labelText: S.menuProductNameLabel,
-                          hintText: widget.product?.name ?? S.menuProductNameHint,
+                          hintText:
+                              widget.product?.name ?? S.menuProductNameHint,
                           prefixIcon: const Icon(Icons.fastfood_outlined),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
                           ),
                           filled: true,
-                          fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                          fillColor: colorScheme.surfaceContainerHighest
+                              .withValues(alpha: 0.3),
                         ),
                         validator: Validator.textLimit(
                           S.menuProductNameLabel,
                           30,
                           focusNode: _nameFocusNode,
                           validator: (name) {
-                            return widget.product?.name != name && Menu.instance.hasProductByName(name)
+                            return widget.product?.name != name &&
+                                    Menu.instance.hasProductByName(name)
                                 ? S.menuProductNameErrorRepeat
                                 : null;
                           },
@@ -175,13 +183,15 @@ class _ProductModalState extends State<ProductModal> {
                         decoration: InputDecoration(
                           labelText: S.menuProductPriceLabel,
                           helperText: S.menuProductPriceHelper,
-                          prefixIcon: const Icon(Icons.attach_money_outlined),
+                          prefixText: 'Rp ',
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
                           ),
                           filled: true,
-                          fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                          fillColor: colorScheme.surfaceContainerHighest
+                              .withValues(alpha: 0.3),
                         ),
+                        inputFormatters: [CurrencyInputFormatter()],
                         validator: Validator.isNumber(
                           S.menuProductPriceLabel,
                           focusNode: _priceFocusNode,
@@ -198,13 +208,15 @@ class _ProductModalState extends State<ProductModal> {
                         decoration: InputDecoration(
                           labelText: S.menuProductCostLabel,
                           helperText: S.menuProductCostHelper,
-                          prefixIcon: const Icon(Icons.money_off_outlined),
+                          prefixText: 'Rp ',
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
                           ),
                           filled: true,
-                          fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                          fillColor: colorScheme.surfaceContainerHighest
+                              .withValues(alpha: 0.3),
                         ),
+                        inputFormatters: [CurrencyInputFormatter()],
                         validator: Validator.positiveNumber(
                           S.menuProductCostLabel,
                           focusNode: _costFocusNode,
@@ -237,7 +249,8 @@ class _ProductModalState extends State<ProductModal> {
                           )
                         : Text(
                             MaterialLocalizations.of(context).saveButtonLabel,
-                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                            style: const TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
                           ),
                   ),
                 ),

@@ -71,12 +71,22 @@ class _WithTab extends StatelessWidget {
                 initialLocation: index == shell.currentIndex,
               );
             },
+            indicatorColor: const Color(0xFF80F0E0), // Teal from image
+            labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+            backgroundColor: Colors.white,
+            elevation: 8,
             destinations: [
               for (final _Tab e in _bottomNavTabs)
                 NavigationDestination(
                   key: Key('home.${e.name}'),
                   icon: e.icon,
-                  label: e == _Tab.analysis ? S.analysisHistoryTitle : S.title(e.name),
+                  label: e == _Tab.order
+                      ? 'Jual'
+                      : e == _Tab.cashier
+                          ? 'Kasir'
+                          : e == _Tab.analysis
+                              ? 'Records'
+                              : 'More',
                   selectedIcon: e.selectedIcon,
                 ),
             ],
@@ -124,13 +134,17 @@ class _WithDrawerState extends State<_WithDrawer> {
       );
     }
 
+    final showAppBar = tab != _Tab.order && tab != _Tab.cashier && tab != _Tab.analysis;
+
     return Scaffold(
       key: scaffold,
-      appBar: AppBar(
-        title: Text(S.title(tab.name)),
-        flexibleSpace: const _FlexibleSpace(),
-        actions: [settingsAction],
-      ),
+      appBar: showAppBar
+          ? AppBar(
+              title: Text(S.title(tab.name)),
+              flexibleSpace: const _FlexibleSpace(),
+              actions: [settingsAction],
+            )
+          : null,
       drawer: _buildDrawer(tab),
       body: widget.shell,
     );
@@ -226,12 +240,16 @@ class _WithRailState extends State<_WithRail> {
       );
     }
 
+    final showAppBar = tab != _Tab.order && tab != _Tab.cashier && tab != _Tab.analysis;
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text(S.title(tab.name)),
-        flexibleSpace: const _FlexibleSpace(),
-        actions: [settingsAction],
-      ),
+      appBar: showAppBar
+          ? AppBar(
+              title: Text(S.title(tab.name)),
+              flexibleSpace: const _FlexibleSpace(),
+              actions: [settingsAction],
+            )
+          : null,
       body: _buildBody(),
     );
   }
@@ -302,8 +320,9 @@ class _Nested extends StatelessWidget {
       headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) => [
         SliverAppBar(
           pinned: true,
-          title: Text(title),
-          flexibleSpace: const _FlexibleSpace(),
+          backgroundColor: Colors.white,
+          elevation: 0,
+          title: Text(title, style: TextStyle(color: Colors.teal.shade900, fontWeight: FontWeight.bold)),
           actions: actions,
         ),
       ],
@@ -318,14 +337,7 @@ class _FlexibleSpace extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: Theme.of(context).gradientColors,
-          tileMode: TileMode.clamp,
-        ),
-      ),
+      color: Colors.white,
     );
   }
 }
@@ -353,13 +365,13 @@ const _drawerTabs = [
 
 enum _Tab {
   order(
-    icon: Icon(Icons.shopping_bag_outlined),
-    selectedIcon: Icon(Icons.shopping_bag),
+    icon: Icon(Icons.shopping_cart_outlined),
+    selectedIcon: Icon(Icons.shopping_cart, color: Color(0xFF004D40)),
     important: true,
   ),
   analysis(
     icon: Icon(Icons.receipt_long_outlined),
-    selectedIcon: Icon(Icons.receipt_long),
+    selectedIcon: Icon(Icons.receipt_long, color: Color(0xFF004D40)),
     important: true,
   ),
   stock(
@@ -368,8 +380,8 @@ enum _Tab {
     important: true,
   ),
   cashier(
-    icon: Icon(Icons.monetization_on_outlined),
-    selectedIcon: Icon(Icons.monetization_on),
+    icon: Icon(Icons.account_balance_wallet_outlined),
+    selectedIcon: Icon(Icons.account_balance_wallet, color: Color(0xFF004D40)),
     important: true,
   ),
   orderAttributes(
@@ -403,8 +415,8 @@ enum _Tab {
 
   /// entrypoint for mobile screen
   more(
-    icon: Icon(Icons.dehaze_outlined),
-    selectedIcon: Icon(Icons.dehaze),
+    icon: Icon(Icons.more_horiz_outlined),
+    selectedIcon: Icon(Icons.more_horiz, color: Color(0xFF004D40)),
   );
 
   final Icon icon;
