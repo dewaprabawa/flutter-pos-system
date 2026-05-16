@@ -55,7 +55,7 @@ class Bluetooth {
 }
 
 class BluetoothDevice {
-  const Stream<bool> connectionState = Stream.empty();
+  final Stream<bool> connectionState = const Stream.empty();
   final bool connected = false;
   final String name = '';
   final int mtu = 0;

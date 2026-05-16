@@ -1,7 +1,7 @@
 import 'package:possystem/helpers/logger.dart';
 import 'package:possystem/models/xfile.dart';
 import 'package:sembast/sembast_io.dart';
-
+import 'package:sqflite/sqflite.dart' as sqflite;
 class Storage {
   static Storage instance = Storage();
 
@@ -79,10 +79,9 @@ class Storage {
   }
 
   static Future<String> getRootPath() async {
-    final paths = (await XFile.getRootPath()).split(XFile.fs.path.separator)
-      ..removeLast()
-      ..add('databases');
-    return '${paths.join('/')}/pos_system.sembast';
+    final dir = await sqflite.getDatabasesPath();
+    await XFile.fs.directory(dir).create(recursive: true);
+    return '$dir/pos_system.sembast';
   }
 
   /// Get string map Store

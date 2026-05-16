@@ -315,6 +315,9 @@ class _TotalRow extends StatelessWidget {
   const _TotalRow({
     required this.label,
     required this.value,
+    this.isBold = false,
+    this.fontSize,
+    this.color,
   });
 
   @override
