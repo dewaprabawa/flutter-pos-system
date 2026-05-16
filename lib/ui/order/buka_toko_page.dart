@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:possystem/models/repository/session_manager.dart';
 import 'package:possystem/models/repository/stock.dart';
 import 'package:possystem/models/stock/ingredient.dart';
-import 'package:possystem/translator.dart';
 
 class BukaTokoPage extends StatefulWidget {
   const BukaTokoPage({super.key});
@@ -65,7 +64,8 @@ class _BukaTokoPageState extends State<BukaTokoPage> {
             children: [
               Text(
                 'Mulai Sesi Kasir',
-                style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+                style: textTheme.headlineSmall
+                    ?.copyWith(fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 32),
@@ -76,7 +76,9 @@ class _BukaTokoPageState extends State<BukaTokoPage> {
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.person),
                 ),
-                validator: (value) => value?.isEmpty == true ? 'Nama kasir tidak boleh kosong' : null,
+                validator: (value) => value?.isEmpty == true
+                    ? 'Nama kasir tidak boleh kosong'
+                    : null,
               ),
               const SizedBox(height: 24),
               TextFormField(
@@ -88,8 +90,10 @@ class _BukaTokoPageState extends State<BukaTokoPage> {
                 ),
                 keyboardType: TextInputType.number,
                 validator: (value) {
-                  if (value == null || value.isEmpty) return 'Kas awal tidak boleh kosong';
-                  if (double.tryParse(value) == null) return 'Masukkan angka yang valid';
+                  if (value == null || value.isEmpty)
+                    return 'Kas awal tidak boleh kosong';
+                  if (double.tryParse(value) == null)
+                    return 'Masukkan angka yang valid';
                   return null;
                 },
               ),
@@ -97,7 +101,8 @@ class _BukaTokoPageState extends State<BukaTokoPage> {
               if (_lowStockItems.isNotEmpty) ...[
                 Text(
                   '⚠️ Peringatan Stok Tipis',
-                  style: textTheme.titleMedium?.copyWith(color: colorScheme.error, fontWeight: FontWeight.bold),
+                  style: textTheme.titleMedium?.copyWith(
+                      color: colorScheme.error, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
                 Card(
@@ -112,8 +117,13 @@ class _BukaTokoPageState extends State<BukaTokoPage> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(item.name, style: TextStyle(color: colorScheme.onErrorContainer)),
-                              Text('${item.currentAmount}', style: TextStyle(color: colorScheme.onErrorContainer, fontWeight: FontWeight.bold)),
+                              Text(item.name,
+                                  style: TextStyle(
+                                      color: colorScheme.onErrorContainer)),
+                              Text('${item.currentAmount}',
+                                  style: TextStyle(
+                                      color: colorScheme.onErrorContainer,
+                                      fontWeight: FontWeight.bold)),
                             ],
                           ),
                         );
@@ -129,9 +139,12 @@ class _BukaTokoPageState extends State<BukaTokoPage> {
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   backgroundColor: colorScheme.primary,
                   foregroundColor: colorScheme.onPrimary,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16)),
                 ),
-                child: const Text('Mulai Berjualan', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                child: const Text('Mulai Berjualan',
+                    style:
+                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               ),
             ],
           ),

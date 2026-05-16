@@ -66,7 +66,9 @@ class OrderObjectView extends StatelessWidget {
                   _ProductItem(
                     order.products[i],
                     onDelete: onDelete == null ? null : () => onDelete!(i),
-                    onIncrement: onIncrement == null ? null : (count) => onIncrement!(i, count),
+                    onIncrement: onIncrement == null
+                        ? null
+                        : (count) => onIncrement!(i, count),
                   ),
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 16.0),
@@ -90,7 +92,8 @@ class OrderObjectView extends StatelessWidget {
               title: S.orderObjectViewDividerAttribute,
               child: Column(
                 children: [
-                  for (final attribute in order.attributes) _AttributeItem(attribute),
+                  for (final attribute in order.attributes)
+                    _AttributeItem(attribute),
                 ],
               ),
             ),
@@ -118,7 +121,8 @@ class OrderObjectView extends StatelessWidget {
                     height: 100,
                     color: theme.colorScheme.errorContainer,
                     child: Center(
-                      child: Icon(Icons.broken_image, color: theme.colorScheme.error),
+                      child: Icon(Icons.broken_image,
+                          color: theme.colorScheme.error),
                     ),
                   ),
                 ),
@@ -147,7 +151,8 @@ class _ReceiptSection extends StatelessWidget {
       color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.2),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.3)),
+        side: BorderSide(
+            color: theme.colorScheme.outlineVariant.withValues(alpha: 0.3)),
       ),
       child: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -190,7 +195,8 @@ class _ProductItem extends StatelessWidget {
               children: [
                 Text(
                   data.productName,
-                  style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                  style: theme.textTheme.titleSmall
+                      ?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 Text(
                   data.totalPrice.toCurrency(),
@@ -217,7 +223,8 @@ class _ProductItem extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: Text(
                 '${data.count}',
-                style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                style: theme.textTheme.titleMedium
+                    ?.copyWith(fontWeight: FontWeight.bold),
               ),
             ),
             _QuantityBtn(
@@ -227,7 +234,8 @@ class _ProductItem extends StatelessWidget {
           ] else
             Text(
               'x${data.count}',
-              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              style: theme.textTheme.titleMedium
+                  ?.copyWith(fontWeight: FontWeight.bold),
             ),
         ],
       ),
@@ -250,7 +258,8 @@ class _QuantityBtn extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(4),
         decoration: BoxDecoration(
-          border: Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5)),
+          border: Border.all(
+              color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5)),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Icon(icon, size: 16, color: theme.colorScheme.primary),
@@ -273,7 +282,8 @@ class _AttributeItem extends StatelessWidget {
         children: [
           Text(
             attribute.name,
-            style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.outline),
+            style: theme.textTheme.bodyMedium
+                ?.copyWith(color: theme.colorScheme.outline),
           ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -305,9 +315,6 @@ class _TotalRow extends StatelessWidget {
   const _TotalRow({
     required this.label,
     required this.value,
-    this.isBold = false,
-    this.fontSize,
-    this.color,
   });
 
   @override

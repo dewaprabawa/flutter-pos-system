@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:possystem/components/dialog/confirm_dialog.dart';
-import 'package:possystem/components/style/buttons.dart';
 import 'package:possystem/components/style/route_buttons.dart';
 import 'package:possystem/components/style/snackbar.dart';
-import 'package:possystem/components/tutorial.dart';
-import 'package:possystem/constants/constant.dart';
 import 'package:possystem/helpers/breakpoint.dart';
 import 'package:possystem/models/repository/cashier.dart';
+import 'package:possystem/models/repository/session_manager.dart';
 import 'package:possystem/routes.dart';
 import 'package:possystem/translator.dart';
+import 'package:provider/provider.dart';
 
 import 'package:possystem/ui/analysis/widgets/goals_card_view.dart';
 import 'widgets/unit_list_tile.dart';
@@ -20,104 +19,160 @@ class CashierView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showAddUnitDialog(context),
         label: const Text('Tambah Unit'),
         icon: const Icon(Icons.add),
-        backgroundColor: theme.colorScheme.primary,
-        foregroundColor: theme.colorScheme.onPrimary,
+        backgroundColor: colorScheme.primary,
+        foregroundColor: colorScheme.onPrimary,
       ),
-      body: SafeArea(
-        child: Align(
-          alignment: Alignment.topCenter,
-          child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: Breakpoint.medium.max),
-            child: ListenableBuilder(
-              listenable: Cashier.instance,
-              builder: (context, _) {
-                var i = 0;
-                return ListView(
-                  padding: const EdgeInsets.only(bottom: 80, top: 16),
-                  children: [
-                    _buildHeader(context),
-                    const SizedBox(height: 16),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: GoalsCardView(
-                        action: RouteIconButton(
-                          key: const Key('anal.history'),
-                          route: Routes.history,
-                          icon: const Icon(Icons.calendar_month_outlined),
-                          label: S.analysisHistoryBtn,
+      body: Column(
+        children: [
+          // ── Gradient Header ──
+          Container(
+            padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  colorScheme.primary,
+                  colorScheme.primary.withValues(alpha: 0.8),
+                ],
+              ),
+            ),
+            child: AppBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              title: const Text(
+                'Kasir',
+                style:
+                    TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              ),
+              centerTitle: false,
+              actions: [
+                Consumer<SessionManager>(
+                  builder: (context, session, _) {
+                    if (session.hasActiveSession) {
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 16),
+                        child: Chip(
+                          avatar: const Icon(Icons.circle,
+                              color: Colors.greenAccent, size: 10),
+                          label: Text(
+                            session.currentSession?.cashierName ?? 'Kasir',
+                            style: const TextStyle(
+                                color: Colors.green, fontSize: 12),
+                          ),
+                          backgroundColor: Colors.white.withValues(alpha: 0.15),
+                          side: BorderSide.none,
                         ),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    for (final item in Cashier.instance.currentUnits)
-                      UnitListTile(
-                        item: item,
-                        index: i++,
-                      ),
-                  ],
-                );
-              },
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  },
+                ),
+              ],
             ),
           ),
-        ),
+          // ── Body ──
+          Expanded(
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: Breakpoint.medium.max),
+                child: ListenableBuilder(
+                  listenable: Cashier.instance,
+                  builder: (context, _) {
+                    var i = 0;
+                    return ListView(
+                      padding: const EdgeInsets.only(bottom: 80, top: 16),
+                      children: [
+                        _buildQuickActions(context),
+                        const SizedBox(height: 16),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          child: GoalsCardView(
+                            action: RouteIconButton(
+                              key: const Key('anal.history'),
+                              route: Routes.history,
+                              icon: const Icon(Icons.calendar_month_outlined),
+                              label: S.analysisHistoryBtn,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          child: Text(
+                            'DENOMINASI',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1.2,
+                              color: theme.colorScheme.outline,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        for (final item in Cashier.instance.currentUnits)
+                          UnitListTile(
+                            item: item,
+                            index: i++,
+                          ),
+                      ],
+                    );
+                  },
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildHeader(BuildContext context) {
+  Widget _buildQuickActions(BuildContext context) {
     final theme = Theme.of(context);
-    
+    final colorScheme = theme.colorScheme;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Text(
-            'Kasir',
-            style: theme.textTheme.headlineMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: theme.colorScheme.onSurface,
+          Expanded(
+            child: _buildActionCard(
+              context,
+              title: 'Setelan Awal',
+              icon: Cashier.instance.defaultNotSet
+                  ? Icons.star_border
+                  : Icons.star,
+              onTap: () => _handleSetDefault(context),
+              color: colorScheme.secondaryContainer,
             ),
           ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: _buildActionCard(
-                  context,
-                  title: 'Setelan Awal',
-                  icon: Cashier.instance.defaultNotSet ? Icons.star_border : Icons.star,
-                  onTap: () => _handleSetDefault(context),
-                  color: theme.colorScheme.secondaryContainer,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildActionCard(
-                  context,
-                  title: 'Tukar',
-                  icon: Icons.sync_alt,
-                  onTap: () => context.pushNamed(Routes.cashierChanger),
-                  color: theme.colorScheme.tertiaryContainer,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildActionCard(
-                  context,
-                  title: 'Selisih',
-                  icon: Icons.coffee_outlined,
-                  onTap: () => _handleSurplus(context),
-                  color: theme.colorScheme.primaryContainer,
-                ),
-              ),
-            ],
+          const SizedBox(width: 12),
+          Expanded(
+            child: _buildActionCard(
+              context,
+              title: 'Tukar',
+              icon: Icons.sync_alt,
+              onTap: () => context.pushNamed(Routes.cashierChanger),
+              color: colorScheme.tertiaryContainer,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: _buildActionCard(
+              context,
+              title: 'Selisih',
+              icon: Icons.coffee_outlined,
+              onTap: () => _handleSurplus(context),
+              color: colorScheme.primaryContainer,
+            ),
           ),
         ],
       ),
@@ -147,8 +202,8 @@ class CashierView extends StatelessWidget {
             Text(
               title,
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
           ],
         ),

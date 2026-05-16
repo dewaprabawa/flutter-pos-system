@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:possystem/components/scrollable_draggable_sheet.dart';
 import 'package:possystem/components/style/hint_text.dart';
 import 'package:possystem/components/style/pop_button.dart';
 import 'package:possystem/components/style/snackbar.dart';
@@ -129,12 +128,16 @@ class _MobileState extends State<_Mobile> {
                           children: [
                             Text(
                               S.orderCartMetaTotalPrice(value.toCurrency()),
-                              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleLarge
+                                  ?.copyWith(
                                     fontWeight: FontWeight.bold,
                                   ),
                             ),
                             Text(
-                              S.orderObjectViewPriceTotal(widget.price.value.toCurrency()),
+                              S.orderObjectViewPriceTotal(
+                                  widget.price.value.toCurrency()),
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
                           ],
@@ -146,10 +149,14 @@ class _MobileState extends State<_Mobile> {
                       listenable: Cart.instance,
                       builder: (context, child) {
                         return ElevatedButton(
-                          onPressed: () => _ConfirmButton.confirm(context, paid: widget.paid.value, paymentMethod: widget.paymentMethod.value),
+                          onPressed: () => _ConfirmButton.confirm(context,
+                              paid: widget.paid.value,
+                              paymentMethod: widget.paymentMethod.value),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Theme.of(context).colorScheme.primary,
-                            foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                            backgroundColor:
+                                Theme.of(context).colorScheme.primary,
+                            foregroundColor:
+                                Theme.of(context).colorScheme.onPrimary,
                             minimumSize: const Size(160, 56),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16),
@@ -157,7 +164,8 @@ class _MobileState extends State<_Mobile> {
                           ),
                           child: Text(
                             '${S.orderCheckoutActionConfirm} (${Cart.instance.productCount})',
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16),
                           ),
                         );
                       },
@@ -178,7 +186,8 @@ class _MobileState extends State<_Mobile> {
       child: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             child: ValueListenableBuilder<String>(
               valueListenable: widget.paymentMethod,
               builder: (context, method, child) {
@@ -191,7 +200,8 @@ class _MobileState extends State<_Mobile> {
                         ButtonSegment(value: 'Kartu', label: Text('Kartu')),
                       ],
                       selected: {method},
-                      onSelectionChanged: (set) => widget.paymentMethod.value = set.first,
+                      onSelectionChanged: (set) =>
+                          widget.paymentMethod.value = set.first,
                     ),
                     if (method != 'Tunai') ...[
                       const SizedBox(height: 12),
@@ -202,13 +212,20 @@ class _MobileState extends State<_Mobile> {
                           return OutlinedButton.icon(
                             onPressed: () async {
                               final picker = ImagePicker();
-                              final image = await picker.pickImage(source: ImageSource.camera);
+                              final image = await picker.pickImage(
+                                  source: ImageSource.camera);
                               if (image != null) {
                                 Cart.instance.updateImagePath(image.path);
                               }
                             },
-                            icon: Icon(hasImage ? Icons.check_circle : Icons.camera_alt, color: hasImage ? Colors.green : null),
-                            label: Text(hasImage ? 'Bukti Tersimpan' : 'Ambil Bukti Pembayaran'),
+                            icon: Icon(
+                                hasImage
+                                    ? Icons.check_circle
+                                    : Icons.camera_alt,
+                                color: hasImage ? Colors.green : null),
+                            label: Text(hasImage
+                                ? 'Bukti Tersimpan'
+                                : 'Ambil Bukti Pembayaran'),
                           );
                         },
                       ),
@@ -296,12 +313,14 @@ class _Desktop extends StatelessWidget {
               ),
               child: SizedBox(
                 height: 36,
-                child: CheckoutCashierSnapshot(price: price, paid: paid, showChange: false),
+                child: CheckoutCashierSnapshot(
+                    price: price, paid: paid, showChange: false),
               ),
             ),
             Expanded(
               child: CheckoutCashierCalculator(
-                onSubmit: () => _ConfirmButton.confirm(context, paid: paid.value, paymentMethod: paymentMethod.value),
+                onSubmit: () => _ConfirmButton.confirm(context,
+                    paid: paid.value, paymentMethod: paymentMethod.value),
                 price: price,
                 paid: paid,
               ),
@@ -318,7 +337,8 @@ class _Desktop extends StatelessWidget {
             ? null
             : [
                 const _StashButton(),
-                _ConfirmButton(price: price, paid: paid, paymentMethod: paymentMethod),
+                _ConfirmButton(
+                    price: price, paid: paid, paymentMethod: paymentMethod),
               ],
       ),
       body: ListenableBuilder(
@@ -365,7 +385,8 @@ class _Desktop extends StatelessWidget {
                         ButtonSegment(value: 'Kartu', label: Text('Kartu')),
                       ],
                       selected: {method},
-                      onSelectionChanged: (set) => paymentMethod.value = set.first,
+                      onSelectionChanged: (set) =>
+                          paymentMethod.value = set.first,
                     ),
                     if (method != 'Tunai') ...[
                       const SizedBox(height: 12),
@@ -376,13 +397,20 @@ class _Desktop extends StatelessWidget {
                           return OutlinedButton.icon(
                             onPressed: () async {
                               final picker = ImagePicker();
-                              final image = await picker.pickImage(source: ImageSource.camera);
+                              final image = await picker.pickImage(
+                                  source: ImageSource.camera);
                               if (image != null) {
                                 Cart.instance.updateImagePath(image.path);
                               }
                             },
-                            icon: Icon(hasImage ? Icons.check_circle : Icons.camera_alt, color: hasImage ? Colors.green : null),
-                            label: Text(hasImage ? 'Bukti Tersimpan' : 'Ambil Bukti Pembayaran'),
+                            icon: Icon(
+                                hasImage
+                                    ? Icons.check_circle
+                                    : Icons.camera_alt,
+                                color: hasImage ? Colors.green : null),
+                            label: Text(hasImage
+                                ? 'Bukti Tersimpan'
+                                : 'Ambil Bukti Pembayaran'),
                           );
                         },
                       ),
@@ -468,11 +496,15 @@ class _ConfirmButton extends StatelessWidget {
 
   final ValueNotifier<String> paymentMethod;
 
-  const _ConfirmButton({required this.price, required this.paid, required this.paymentMethod});
+  const _ConfirmButton(
+      {required this.price, required this.paid, required this.paymentMethod});
 
-  static void confirm(BuildContext context, {required num paid, required String paymentMethod}) async {
-    final future = Cart.instance.checkout(paid: paid, paymentMethod: paymentMethod, context: context);
-    final status = await showSnackbarWhenFutureError(future, 'order_checkout', context: context);
+  static void confirm(BuildContext context,
+      {required num paid, required String paymentMethod}) async {
+    final future = Cart.instance
+        .checkout(paid: paid, paymentMethod: paymentMethod, context: context);
+    final status = await showSnackbarWhenFutureError(future, 'order_checkout',
+        context: context);
 
     if (context.mounted && status != null) {
       if (status == CheckoutStatus.paidNotEnough) {
@@ -488,7 +520,8 @@ class _ConfirmButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return IconButton(
       key: const Key('order.details.confirm'),
-      onPressed: () => confirm(context, paid: paid.value, paymentMethod: paymentMethod.value),
+      onPressed: () => confirm(context,
+          paid: paid.value, paymentMethod: paymentMethod.value),
       tooltip: S.orderCheckoutActionConfirm,
       icon: const Icon(Icons.check_outlined),
     );

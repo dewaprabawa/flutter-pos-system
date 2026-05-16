@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:possystem/components/style/footer.dart';
-import 'package:possystem/components/tutorial.dart';
 import 'package:possystem/constants/app_themes.dart';
 import 'package:possystem/constants/constant.dart';
 import 'package:possystem/models/printer.dart';
 import 'package:possystem/models/repository/menu.dart';
 import 'package:possystem/models/repository/order_attributes.dart';
 import 'package:possystem/routes.dart';
+import 'package:possystem/services/cache.dart';
 import 'package:possystem/translator.dart';
 import 'package:provider/provider.dart';
 
@@ -19,6 +19,16 @@ class MobileMoreView extends StatefulWidget {
 }
 
 class _MobileMoreViewState extends State<MobileMoreView> with AutomaticKeepAliveClientMixin {
+  late String _userName;
+  late String _userRole;
+
+  @override
+  void initState() {
+    super.initState();
+    _userName = Cache.instance.get<String>('profile.name') ?? 'Nama Toko';
+    _userRole = Cache.instance.get<String>('profile.role') ?? 'Owner';
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -31,13 +41,11 @@ class _MobileMoreViewState extends State<MobileMoreView> with AutomaticKeepAlive
         return Scaffold(
           body: CustomScrollView(
             slivers: [
+              // ── Gradient Header with Editable Profile ──
               SliverToBoxAdapter(
                 child: Container(
                   padding: EdgeInsets.only(
-                    top: MediaQuery.of(context).padding.top + 20,
-                    bottom: 20,
-                    left: 20,
-                    right: 20,
+                    top: MediaQuery.of(context).padding.top,
                   ),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
@@ -55,30 +63,65 @@ class _MobileMoreViewState extends State<MobileMoreView> with AutomaticKeepAlive
                   ),
                   child: Column(
                     children: [
-                      const Row(
-                        children: [
-                          CircleAvatar(
-                            radius: 30,
-                            backgroundColor: Colors.white24,
-                            child: Icon(Icons.person, color: Colors.white, size: 30),
-                          ),
-                          SizedBox(width: 16),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Budi Utomo',
-                                style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
-                              ),
-                              Text(
-                                'Owner • Premium Plan',
-                                style: TextStyle(color: Colors.white70, fontSize: 14),
-                              ),
-                            ],
-                          ),
-                        ],
+                      AppBar(
+                        backgroundColor: Colors.transparent,
+                        elevation: 0,
+                        automaticallyImplyLeading: false,
+                        title: const Text(
+                          'Lainnya',
+                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                        ),
+                        centerTitle: false,
                       ),
-                      const SizedBox(height: 24),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+                        child: InkWell(
+                          onTap: () => _showEditProfileSheet(context),
+                          borderRadius: BorderRadius.circular(16),
+                          child: Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Row(
+                              children: [
+                                CircleAvatar(
+                                  radius: 28,
+                                  backgroundColor: Colors.white24,
+                                  child: Text(
+                                    _userName.isNotEmpty ? _userName[0].toUpperCase() : '?',
+                                    style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        _userName,
+                                        style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        _userRole,
+                                        style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 13),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.edit_outlined,
+                                  color: Colors.white.withValues(alpha: 0.7),
+                                  size: 20,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
                       const _HeaderInfoList(),
                     ],
                   ),
@@ -178,16 +221,97 @@ class _MobileMoreViewState extends State<MobileMoreView> with AutomaticKeepAlive
     );
   }
 
+  void _showEditProfileSheet(BuildContext context) {
+    final nameController = TextEditingController(text: _userName);
+    final roleController = TextEditingController(text: _userRole);
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            left: 24,
+            right: 24,
+            top: 24,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                'Edit Profil',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 20),
+              TextField(
+                controller: nameController,
+                decoration: const InputDecoration(
+                  labelText: 'Nama Toko / Pemilik',
+                  prefixIcon: Icon(Icons.store_outlined),
+                ),
+                textCapitalization: TextCapitalization.words,
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: roleController,
+                decoration: const InputDecoration(
+                  labelText: 'Peran (e.g. Owner, Manager)',
+                  prefixIcon: Icon(Icons.badge_outlined),
+                ),
+                textCapitalization: TextCapitalization.words,
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () async {
+                    await Cache.instance.set<String>('profile.name', nameController.text);
+                    await Cache.instance.set<String>('profile.role', roleController.text);
+                    if (mounted) {
+                      setState(() {
+                        _userName = nameController.text;
+                        _userRole = roleController.text;
+                      });
+                    }
+                    if (context.mounted) Navigator.pop(context);
+                  },
+                  icon: const Icon(Icons.check),
+                  label: const Text('Simpan'),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildSectionHeader(String title) {
     return Padding(
       padding: const EdgeInsets.only(left: 8, bottom: 12),
       child: Text(
         title.toUpperCase(),
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.bold,
           letterSpacing: 1.2,
-          color: Colors.grey,
+          color: Theme.of(context).colorScheme.outline,
         ),
       ),
     );
@@ -201,10 +325,12 @@ class _MobileMoreViewState extends State<MobileMoreView> with AutomaticKeepAlive
     required String title,
     required String subtitle,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 0,
-      color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+      color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: ListTile(
         key: Key('home.$id'),
@@ -224,38 +350,13 @@ class _MobileMoreViewState extends State<MobileMoreView> with AutomaticKeepAlive
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(fontSize: 12),
         ),
-        trailing: const Icon(Icons.chevron_right, size: 20),
+        trailing: Icon(Icons.chevron_right, size: 20, color: colorScheme.outline),
       ),
     );
   }
 
   @override
   bool get wantKeepAlive => true;
-
-  Widget _buildRouteTile({
-    required String id,
-    required IconData icon,
-    required String route,
-    required String title,
-    required String subtitle,
-    // bool beta = false,
-  }) {
-    return ListTile(
-      key: Key('home.$id'),
-      leading: Icon(icon),
-      trailing: const Icon(Icons.navigate_next_outlined),
-      onTap: () => context.goNamed(route),
-      title: Text(title),
-      // title: beta
-      //     ? Row(children: [
-      //         Text(title),
-      //         const SizedBox(width: 8),
-      //         const Badge(label: Text('Beta')),
-      //       ])
-      //     : Text(title),
-      subtitle: Text(subtitle),
-    );
-  }
 }
 
 class _HeaderInfoList extends StatelessWidget {
@@ -319,7 +420,6 @@ class _HeaderInfoList extends StatelessWidget {
       style: const ButtonStyle(
         fixedSize: WidgetStatePropertyAll(Size.square(128)),
         padding: WidgetStatePropertyAll(EdgeInsets.zero),
-        // shadowColor: WidgetStatePropertyAll(Colors.transparent),
         shape: WidgetStatePropertyAll(RoundedRectangleBorder(
           borderRadius: borderRadius,
           side: BorderSide(color: Colors.transparent),

@@ -6,7 +6,6 @@ import 'package:possystem/components/meta_block.dart';
 import 'package:possystem/components/slidable_item_list.dart';
 import 'package:possystem/components/style/buttons.dart';
 import 'package:possystem/components/style/route_buttons.dart';
-import 'package:possystem/constants/constant.dart';
 import 'package:possystem/constants/icons.dart';
 import 'package:possystem/models/printer.dart';
 import 'package:possystem/routes.dart';
@@ -59,10 +58,12 @@ class PrinterPage extends StatelessWidget {
         delegate: SlidableItemDelegate(
           disableSlide: true,
           items: Printers.instance.itemList,
-          tileBuilder: (printer, _, actorBuilder) => _Tile(printer, actorBuilder),
+          tileBuilder: (printer, _, actorBuilder) =>
+              _Tile(printer, actorBuilder),
           handleDelete: (printer) => printer.remove(),
           deleteValue: 0,
-          warningContentBuilder: (_, printer) => S.dialogDeletionContent(printer.name, ''),
+          warningContentBuilder: (_, printer) =>
+              S.dialogDeletionContent(printer.name, ''),
         ),
       ),
     );
@@ -81,7 +82,8 @@ class _Tile extends StatelessWidget {
     return PrinterView(
       printer: item,
       trailing: EntryMoreButton(onPressed: actor),
-      onTap: () => context.pushNamed(Routes.printerUpdate, pathParameters: {'id': item.id}),
+      onTap: () => context
+          .pushNamed(Routes.printerUpdate, pathParameters: {'id': item.id}),
       onLogPress: actor,
     );
   }
@@ -136,7 +138,8 @@ class _EmptyBody extends StatelessWidget {
               label: Text(S.printerTitleCreate),
               style: FilledButton.styleFrom(
                 minimumSize: const Size(200, 56),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16)),
               ),
             ),
             const SizedBox(height: 16),
@@ -148,7 +151,8 @@ class _EmptyBody extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(top: 32.0),
                 child: OutlinedButton(
-                  onPressed: () => Printers.instance.addItem(Printer(id: 'demo', name: 'Demo Printer')),
+                  onPressed: () => Printers.instance
+                      .addItem(Printer(id: 'demo', name: 'Demo Printer')),
                   child: const Text('Add demo'),
                 ),
               ),
@@ -165,7 +169,11 @@ VoidCallback _showSupportedPrinters(BuildContext context) {
         builder: (context) => ResponsiveDialog(
           title: Text(S.printerSupportedTitle),
           content: Column(children: [
-            for (final printer in [PrinterProvider.catPrinter, PrinterProvider.xPrinter58, PrinterProvider.yokoscan58])
+            for (final printer in [
+              PrinterProvider.catPrinter,
+              PrinterProvider.xPrinter58,
+              PrinterProvider.yokoscan58
+            ])
               ListTile(
                 key: Key('printer.supported.${printer.name}'),
                 title: Text(S.printerSupportedName(printer.name)),

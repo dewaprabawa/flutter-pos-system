@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:possystem/components/style/info_popup.dart';
-import 'package:possystem/constants/constant.dart';
 import 'package:possystem/helpers/analysis/ema_calculator.dart';
 import 'package:possystem/helpers/breakpoint.dart';
 import 'package:possystem/helpers/util.dart';
@@ -55,7 +54,7 @@ class _GoalsCardViewState extends State<GoalsCardView> {
     return LayoutBuilder(builder: (context, constraint) {
       final compact = constraint.maxWidth < Breakpoint.compact.max;
       final showChart = goal!.profit != 0;
-      
+
       return Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -100,7 +99,8 @@ class _GoalsCardViewState extends State<GoalsCardView> {
                 children: [
                   CircularProgressIndicator(
                     value: metric.profit / goal!.profit,
-                    backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    backgroundColor:
+                        Theme.of(context).colorScheme.surfaceContainerHighest,
                     strokeWidth: 12,
                     strokeCap: StrokeCap.round,
                   ),
@@ -134,7 +134,9 @@ class _GoalsCardViewState extends State<GoalsCardView> {
   Future<OrderSummary> _loader() async {
     final range = Util.getDateRange();
     final result = await Seller.instance.getMetricsInPeriod(
-      goal == null ? range.start.subtract(const Duration(days: 40)) : range.start,
+      goal == null
+          ? range.start.subtract(const Duration(days: 40))
+          : range.start,
       range.end,
       types: [
         OrderMetricType.count,
@@ -147,9 +149,10 @@ class _GoalsCardViewState extends State<GoalsCardView> {
       orderDirection: "desc",
     );
 
-    final todayData = result.firstOrNull?.at == range.end.subtract(const Duration(days: 1))
-        ? result.removeAt(0)
-        : OrderSummary(at: range.start);
+    final todayData =
+        result.firstOrNull?.at == range.end.subtract(const Duration(days: 1))
+            ? result.removeAt(0)
+            : OrderSummary(at: range.start);
 
     if (goal == null) {
       final reversed = result.take(20).toList().reversed;
@@ -157,7 +160,8 @@ class _GoalsCardViewState extends State<GoalsCardView> {
         at: DateTime(0),
         values: {
           'count': widget.calculator.calculate(reversed.map((e) => e.count)),
-          'revenue': widget.calculator.calculate(reversed.map((e) => e.revenue)),
+          'revenue':
+              widget.calculator.calculate(reversed.map((e) => e.revenue)),
           'profit': widget.calculator.calculate(reversed.map((e) => e.profit)),
         },
       );
@@ -216,7 +220,8 @@ class _GoalItem extends StatelessWidget {
         children: goal != 0
             ? [
                 TextSpan(
-                  text: ' / ${isCurrency ? goal.toCurrency() : goal.toString()}',
+                  text:
+                      ' / ${isCurrency ? goal.toCurrency() : goal.toString()}',
                   style: textTheme.bodyMedium?.copyWith(
                     color: colorScheme.outline,
                     fontWeight: FontWeight.normal,

@@ -1,4 +1,4 @@
-library bluetooth;
+library;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart' as fbp;
@@ -47,14 +47,15 @@ typedef BluetoothExceptionFrom = fbp.ErrorPlatform;
 
 class Bluetooth {
   static Bluetooth i = Bluetooth();
-  Stream<List<BluetoothDevice>> startScan() => Stream.empty();
-  Future<BluetoothDevice> connect(String address) => Future.value(BluetoothDevice());
+  Stream<List<BluetoothDevice>> startScan() => const Stream.empty();
+  Future<BluetoothDevice> connect(String address) =>
+      Future.value(BluetoothDevice());
   Future<List<BluetoothDevice>> pairedDevices() => Future.value([]);
   Future<void> stopScan() => Future.value();
 }
 
 class BluetoothDevice {
-  final Stream<bool> connectionState = Stream.empty();
+  const Stream<bool> connectionState = Stream.empty();
   final bool connected = false;
   final String name = '';
   final int mtu = 0;
@@ -70,7 +71,7 @@ class BluetoothDevice {
   Stream<BluetoothSignal> createSignalStream({
     Duration interval = const Duration(minutes: 1),
   }) =>
-      Stream.empty();
+      const Stream.empty();
 }
 
 class BluetoothService {
@@ -84,7 +85,7 @@ class BluetoothCharacteristic {
   BluetoothCharacteristic(fbp.BluetoothCharacteristic char);
 
   Future<bool> watch() => Future.value(false);
-  Stream<Uint8List> read() => Stream.empty();
+  Stream<Uint8List> read() => const Stream.empty();
   Future<void> write(Uint8List data) => Future.value();
 }
 
@@ -104,7 +105,8 @@ abstract class PrinterManufactory {
   });
 
   Uint8List prepare() => Uint8List(0);
-  Uint8List toCommands(Uint8List image, {required PrinterDensity density}) => Uint8List(0);
+  Uint8List toCommands(Uint8List image, {required PrinterDensity density}) =>
+      Uint8List(0);
   Future<PrinterStatus> getStatus({
     required fbp.BluetoothCharacteristic writer,
     required fbp.BluetoothCharacteristic reader,
@@ -136,7 +138,7 @@ class Printer extends ChangeNotifier {
     Uint8List image, {
     PrinterDensity density = PrinterDensity.normal,
   }) =>
-      Stream.empty();
+      const Stream.empty();
 }
 
 class CatPrinter extends PrinterManufactory {

@@ -3,10 +3,8 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:possystem/components/linkify.dart';
 import 'package:possystem/components/menu_actions.dart';
-import 'package:possystem/components/style/buttons.dart';
 import 'package:possystem/components/style/snackbar.dart';
 import 'package:possystem/components/tutorial.dart';
-import 'package:possystem/helpers/breakpoint.dart';
 import 'package:possystem/models/repository/cart.dart';
 import 'package:possystem/models/repository/menu.dart';
 import 'package:possystem/models/repository/notifications.dart';
@@ -14,10 +12,6 @@ import 'package:possystem/routes.dart';
 import 'package:possystem/settings/checkout_warning.dart';
 import 'package:possystem/settings/order_awakening_setting.dart';
 import 'package:possystem/translator.dart';
-import 'package:possystem/ui/order/cart/cart_metadata_view.dart';
-import 'package:possystem/ui/order/cart/cart_product_list.dart';
-import 'package:possystem/ui/order/cart/cart_product_selector.dart';
-import 'package:possystem/ui/order/widgets/printer_button_view.dart';
 import 'package:possystem/ui/order/widgets/cart_summary_widget.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
@@ -73,7 +67,8 @@ class _OrderPageState extends State<OrderPage> {
                     elevation: 0,
                     title: Text(
                       S.title('order'),
-                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.bold),
                     ),
                     centerTitle: false,
                     actions: [
@@ -83,16 +78,19 @@ class _OrderPageState extends State<OrderPage> {
                             if (notifs.unreadCount > 0) {
                               return Badge(
                                 label: Text(notifs.unreadCount.toString()),
-                                child: const Icon(Icons.notifications, color: Colors.white),
+                                child: const Icon(Icons.notifications,
+                                    color: Colors.white),
                               );
                             }
-                            return const Icon(Icons.notifications_none_outlined, color: Colors.white);
+                            return const Icon(Icons.notifications_none_outlined,
+                                color: Colors.white);
                           },
                         ),
                         onPressed: () => _showNotifications(context),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.lock_outline, color: Colors.white),
+                        icon:
+                            const Icon(Icons.lock_outline, color: Colors.white),
                         tooltip: 'Tutup Toko',
                         onPressed: () => context.pushNamed(Routes.tutupToko),
                       ),
@@ -100,7 +98,11 @@ class _OrderPageState extends State<OrderPage> {
                       const CircleAvatar(
                         radius: 16,
                         backgroundColor: Colors.white24,
-                        child: Text('BU', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                        child: Text('BU',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold)),
                       ),
                       const SizedBox(width: 16),
                     ],
@@ -109,12 +111,15 @@ class _OrderPageState extends State<OrderPage> {
                     padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
                     child: TextField(
                       controller: _searchController,
-                      onChanged: (value) => setState(() => _searchQuery = value),
+                      onChanged: (value) =>
+                          setState(() => _searchQuery = value),
                       style: const TextStyle(color: Colors.white),
                       decoration: InputDecoration(
                         hintText: S.menuSearchHint,
-                        hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.6)),
-                        prefixIcon: const Icon(Icons.search, size: 20, color: Colors.white),
+                        hintStyle: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.6)),
+                        prefixIcon: const Icon(Icons.search,
+                            size: 20, color: Colors.white),
                         fillColor: Colors.white.withValues(alpha: 0.15),
                         filled: true,
                         isDense: true,
@@ -138,8 +143,16 @@ class _OrderPageState extends State<OrderPage> {
                       if (_searchQuery.isNotEmpty)
                         Expanded(
                           child: OrderProductListView(
-                            products: Menu.instance.searchProducts(text: _searchQuery).map((e) => e.product).toList(),
+                            products: Menu.instance
+                                .searchProducts(text: _searchQuery)
+                                .map((e) => e.product)
+                                .toList(),
                           ),
+                        )
+                      else if (catalogs.isEmpty)
+                        Expanded(
+                          child:
+                              _buildEmptyMenuState(context, colorScheme, theme),
                         )
                       else ...[
                         OrderCatalogListView(
@@ -154,9 +167,11 @@ class _OrderPageState extends State<OrderPage> {
                         Expanded(
                           child: PageView.builder(
                             controller: _pageController,
-                            onPageChanged: (index) => _catalogIndexNotifier.value = index,
+                            onPageChanged: (index) =>
+                                _catalogIndexNotifier.value = index,
                             itemCount: catalogs.length,
-                            itemBuilder: (context, index) => OrderProductListView(
+                            itemBuilder: (context, index) =>
+                                OrderProductListView(
                               products: catalogs[index].itemList,
                             ),
                           ),
@@ -202,8 +217,78 @@ class _OrderPageState extends State<OrderPage> {
     super.initState();
   }
 
+  Widget _buildEmptyMenuState(
+      BuildContext context, ColorScheme colorScheme, ThemeData theme) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 100,
+              height: 100,
+              decoration: BoxDecoration(
+                color: colorScheme.primaryContainer.withValues(alpha: 0.3),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.restaurant_menu_outlined,
+                size: 48,
+                color: colorScheme.primary,
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'Menu Masih Kosong',
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: colorScheme.onSurface,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Tambahkan kategori dan produk untuk mulai menerima pesanan',
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: colorScheme.outline,
+              ),
+            ),
+            const SizedBox(height: 32),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () => context.pushNamed(Routes.menuCatalogCreate),
+                icon: const Icon(Icons.add),
+                label: const Text('Buat Kategori Baru'),
+              ),
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () => context.goNamed(Routes.menu),
+                icon: const Icon(Icons.grid_view_outlined),
+                label: const Text('Kelola Menu'),
+                style: OutlinedButton.styleFrom(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                  side: BorderSide(
+                      color: colorScheme.outline.withValues(alpha: 0.3)),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   void _handleCheckout() async {
-    final status = await context.pushNamed<CheckoutStatus>(Routes.orderCheckout);
+    final status =
+        await context.pushNamed<CheckoutStatus>(Routes.orderCheckout);
     if (status != null && mounted) {
       handleCheckoutStatus(context, status);
     }
@@ -213,7 +298,8 @@ class _OrderPageState extends State<OrderPage> {
     Notifications.instance.markAllAsRead();
     showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (context) {
         return Consumer<Notifications>(
           builder: (context, notifs, child) {
@@ -230,7 +316,9 @@ class _OrderPageState extends State<OrderPage> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('Activity History', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      const Text('Activity History',
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold)),
                       TextButton(
                         onPressed: () {
                           notifs.clearAll();
@@ -249,13 +337,15 @@ class _OrderPageState extends State<OrderPage> {
                       return ListTile(
                         leading: CircleAvatar(
                           backgroundColor: Colors.blue.shade100,
-                          child: const Icon(Icons.check_circle, color: Colors.blue),
+                          child: const Icon(Icons.check_circle,
+                              color: Colors.blue),
                         ),
                         title: Text(item.title),
                         subtitle: Text(item.body),
                         trailing: Text(
                           '${item.createdAt.hour.toString().padLeft(2, '0')}:${item.createdAt.minute.toString().padLeft(2, '0')}',
-                          style: const TextStyle(color: Colors.grey, fontSize: 12),
+                          style:
+                              const TextStyle(color: Colors.grey, fontSize: 12),
                         ),
                       );
                     },
@@ -320,16 +410,21 @@ void handleCheckoutStatus(BuildContext context, CheckoutStatus status) {
   }
 
   return switch (status) {
-    CheckoutStatus.ok || CheckoutStatus.stash || CheckoutStatus.restore => showSnackBar(
+    CheckoutStatus.ok ||
+    CheckoutStatus.stash ||
+    CheckoutStatus.restore =>
+      showSnackBar(
         'Transaksi Berhasil',
         context: context,
         backgroundColor: Colors.blue.shade700,
         icon: Icons.check_circle_outline,
       ),
-    CheckoutStatus.cashierNotEnough => showSnackBar(S.orderSnackbarCashierNotEnough, context: context),
+    CheckoutStatus.cashierNotEnough =>
+      showSnackBar(S.orderSnackbarCashierNotEnough, context: context),
     CheckoutStatus.cashierUsingSmall => showMoreInfoSnackBar(
         S.orderSnackbarCashierUsingSmallMoney,
-        Linkify.fromString(S.orderSnackbarCashierUsingSmallMoneyHelper(Routes.getRoute('settings/checkoutWarning'))),
+        Linkify.fromString(S.orderSnackbarCashierUsingSmallMoneyHelper(
+            Routes.getRoute('settings/checkoutWarning'))),
         context: context,
       ),
     _ => null,
@@ -357,5 +452,3 @@ class _Action {
     return route == null ? action!() : context.pushNamed(route!);
   }
 }
-
-

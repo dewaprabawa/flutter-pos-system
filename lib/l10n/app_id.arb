@@ -896,7 +896,7 @@
   "transitGoogleSheetErrorIdEmpty": "ID cannot be empty",
   "transitGoogleSheetErrorIdInvalid": "Invalid ID. It must include:\n• /spreadsheets/d/<ID>/\n• Or provide the ID directly (combination of letters, numbers, underscores, and hyphens).",
   "transitGoogleSheetErrorNetwork": "Network error, unable to connect to Google Sheets.",
-  "appTitle": "POS System",
+  "appTitle": "Mokkon",
   "actSuccess": "Done Successfully!",
   "@actSuccess": {
     "description": "Action executed successfully and displayed on the Snackbar."

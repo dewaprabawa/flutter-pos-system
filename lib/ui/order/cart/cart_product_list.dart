@@ -119,7 +119,8 @@ class _CartProductListTile extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: theme.colorScheme.surfaceVariant.withValues(alpha: 0.2),
+          color:
+              theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.2),
           borderRadius: BorderRadius.circular(16),
         ),
         child: Row(
@@ -140,12 +141,15 @@ class _CartProductListTile extends StatelessWidget {
                 children: [
                   Text(
                     product.name,
-                    style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.bold),
+                    style: theme.textTheme.labelLarge
+                        ?.copyWith(fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     product.totalPrice.toCurrency(),
-                    style: theme.textTheme.labelMedium?.copyWith(color: colorScheme.primary, fontWeight: FontWeight.w600),
+                    style: theme.textTheme.labelMedium?.copyWith(
+                        color: colorScheme.primary,
+                        fontWeight: FontWeight.w600),
                   ),
                 ],
               ),
@@ -167,7 +171,8 @@ class _CartProductListTile extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 12.0),
                   child: Text(
                     product.count.toString(),
-                    style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                    style: theme.textTheme.titleMedium
+                        ?.copyWith(fontWeight: FontWeight.bold),
                   ),
                 ),
                 _QuantityButton(

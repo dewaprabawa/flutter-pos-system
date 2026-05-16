@@ -29,7 +29,7 @@ class _OrderCatalogListViewState extends State<OrderCatalogListView> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     if (widget.catalogs.isEmpty) {
       return Container(
         height: 64,
@@ -52,7 +52,7 @@ class _OrderCatalogListViewState extends State<OrderCatalogListView> {
               itemBuilder: (context, i) {
                 final catalog = widget.catalogs[i];
                 final isSelected = catalog.id == selectedId;
-                
+
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 4.0),
                   child: ChoiceChip(
@@ -68,12 +68,16 @@ class _OrderCatalogListViewState extends State<OrderCatalogListView> {
                       catalog.name,
                       style: TextStyle(
                         fontSize: 13,
-                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                        color: isSelected ? Colors.white : theme.colorScheme.onSurfaceVariant,
+                        fontWeight:
+                            isSelected ? FontWeight.w600 : FontWeight.w500,
+                        color: isSelected
+                            ? Colors.white
+                            : theme.colorScheme.onSurfaceVariant,
                       ),
                     ),
                     selectedColor: theme.colorScheme.primary,
-                    backgroundColor: theme.colorScheme.surfaceVariant.withValues(alpha: 0.3),
+                    backgroundColor: theme.colorScheme.surfaceContainerHighest
+                        .withValues(alpha: 0.3),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                       side: BorderSide.none,

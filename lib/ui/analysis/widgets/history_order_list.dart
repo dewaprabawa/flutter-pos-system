@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:possystem/components/meta_block.dart';
 import 'package:possystem/components/models/order_loader.dart';
 import 'package:possystem/helpers/util.dart';
 import 'package:possystem/models/objects/order_object.dart';
@@ -34,7 +33,8 @@ class HistoryOrderList extends StatelessWidget {
       color: colorScheme.surface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
-        side: BorderSide(color: colorScheme.outlineVariant.withValues(alpha: 0.4)),
+        side: BorderSide(
+            color: colorScheme.outlineVariant.withValues(alpha: 0.4)),
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -56,7 +56,8 @@ class HistoryOrderList extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.access_time_filled, size: 16, color: colorScheme.onPrimaryContainer),
+                    Icon(Icons.access_time_filled,
+                        size: 16, color: colorScheme.onPrimaryContainer),
                     const SizedBox(height: 4),
                     Text(
                       DateFormat.Hm(S.localeName).format(order.createdAt),
@@ -85,7 +86,8 @@ class HistoryOrderList extends StatelessWidget {
                         ),
                         const SizedBox(width: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
                             color: colorScheme.secondaryContainer,
                             borderRadius: BorderRadius.circular(6),
@@ -103,10 +105,15 @@ class HistoryOrderList extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      order.products.map((p) => p.count == 1 ? p.productName : '${p.productName} (x${p.count})').join(', '),
+                      order.products
+                          .map((p) => p.count == 1
+                              ? p.productName
+                              : '${p.productName} (x${p.count})')
+                          .join(', '),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+                      style: theme.textTheme.titleMedium
+                          ?.copyWith(fontWeight: FontWeight.w600),
                     ),
                   ],
                 ),
@@ -124,7 +131,8 @@ class HistoryOrderList extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  Icon(Icons.arrow_forward_ios_rounded, size: 14, color: colorScheme.outline),
+                  Icon(Icons.arrow_forward_ios_rounded,
+                      size: 14, color: colorScheme.outline),
                 ],
               ),
             ],

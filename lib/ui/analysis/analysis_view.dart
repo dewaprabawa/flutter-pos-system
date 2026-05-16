@@ -12,7 +12,6 @@ import 'package:possystem/routes.dart';
 import 'package:possystem/translator.dart';
 import 'package:possystem/ui/analysis/widgets/chart_card_view.dart';
 import 'package:possystem/ui/analysis/widgets/chart_range_page.dart';
-import 'package:possystem/ui/analysis/widgets/goals_card_view.dart';
 
 class AnalysisView extends StatefulWidget {
   const AnalysisView({super.key});
@@ -28,35 +27,56 @@ class _AnalysisViewState extends State<AnalysisView> with AutomaticKeepAliveClie
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    final colorScheme = Theme.of(context).colorScheme;
 
-    return SafeArea(
-      child: ListenableBuilder(
-        listenable: Analysis.instance,
-        builder: (context, child) {
-          return LayoutBuilder(builder: (context, constraints) {
-            final bp = Breakpoint.find(box: constraints);
-            return CustomScrollView(slivers: <Widget>[
-              child!,
-              SliverAppBar(
-                primary: false,
-                automaticallyImplyLeading: false, // avoid giving drawer's menu icon
-                title: Text(S.analysisChartTitle), actions: const [_MoreButton()],
+    return ListenableBuilder(
+      listenable: Analysis.instance,
+      builder: (context, child) {
+        return LayoutBuilder(builder: (context, constraints) {
+          final bp = Breakpoint.find(box: constraints);
+          return CustomScrollView(slivers: <Widget>[
+            // ── Gradient Header ──
+            SliverToBoxAdapter(
+              child: Container(
+                padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      colorScheme.primary,
+                      colorScheme.primary.withValues(alpha: 0.8),
+                    ],
+                  ),
+                ),
+                child: AppBar(
+                  backgroundColor: Colors.transparent,
+                  elevation: 0,
+                  automaticallyImplyLeading: false,
+                  title: Text(
+                    S.analysisHistoryTitle,
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
+                  centerTitle: false,
+                  actions: const [_MoreButton()],
+                ),
               ),
-              _buildChartHeader(),
-              _buildCharts(Analysis.instance.itemList, bp),
-            ]);
-          });
-        },
-        child: const SliverToBoxAdapter(child: SizedBox.shrink()),
-      ),
+            ),
+            _buildChartHeader(),
+            _buildCharts(Analysis.instance.itemList, bp),
+          ]);
+        });
+      },
     );
   }
 
   Widget _buildChartHeader() {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return SliverAppBar(
       primary: false,
       pinned: true,
-      leading: const Icon(Icons.calendar_today_outlined, size: 16),
+      leading: Icon(Icons.calendar_today_outlined, size: 16, color: colorScheme.outline),
       centerTitle: false,
       title: ListenableBuilder(
         listenable: range,
@@ -183,7 +203,7 @@ class _MoreButton extends StatelessWidget {
       ),
       enableFeedback: true,
       tooltip: MaterialLocalizations.of(context).moreButtonTooltip,
-      icon: const Icon(Icons.settings_outlined),
+      icon: const Icon(Icons.settings_outlined, color: Colors.white),
     );
   }
 }

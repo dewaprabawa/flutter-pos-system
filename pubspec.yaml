@@ -83,6 +83,7 @@ dev_dependencies:
   sqflite_common_ffi: ^2.3.6
 
   arb_glue: ^1.0.0
+  flutter_launcher_icons: ^0.14.3
 
 dependency_overrides:
   flutter_blue_plus:
@@ -117,9 +118,17 @@ flutter:
 
 # flutter pub run flutter_native_splash:create
 flutter_native_splash:
-  color: "#5c98ff"
+  color: "#0D9488"
   fullscreen: true
-  image: assets/logo.png
+  image: assets/mokkon_icon.png
+
+# dart run flutter_launcher_icons
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/mokkon_icon.png"
+  min_sdk_android: 21
+  remove_alpha_ios: true
 
 arb_glue:
   source: assets/l10n
