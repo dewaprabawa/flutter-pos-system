@@ -9,7 +9,9 @@ import 'package:possystem/helpers/util.dart';
 import 'package:possystem/helpers/validator.dart';
 import 'package:possystem/models/repository/cashier.dart';
 import 'package:possystem/translator.dart';
+import 'package:possystem/ui/cashier/widgets/surplus_report_dialog.dart';
 import 'package:provider/provider.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class CashierSurplus extends StatelessWidget {
   const CashierSurplus({super.key});
@@ -48,24 +50,77 @@ class CashierSurplus extends StatelessWidget {
         child: Text(MaterialLocalizations.of(context).okButtonLabel),
       ),
       content: Column(children: [
-        Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-          _DataWithLabel(
-            data: cashier.currentTotal.toCurrency(),
-            label: S.cashierSurplusCurrentTotalLabel,
-            helper: S.cashierSurplusCurrentTotalHelper,
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Row(children: [
+            Expanded(
+              child: _SummaryCard(
+                title: cashier.currentTotal.toCurrency(),
+                subtitle: S.cashierSurplusCurrentTotalLabel,
+                color: theme.colorScheme.primary,
+                icon: Icons.account_balance_wallet_outlined,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _SummaryCard(
+                title: (cashier.currentTotal - cashier.defaultTotal).toCurrency(),
+                subtitle: S.cashierSurplusDiffTotalLabel,
+                color: (cashier.currentTotal - cashier.defaultTotal) == 0 
+                    ? Colors.green 
+                    : Colors.orange,
+                icon: Icons.difference_outlined,
+              ),
+            ),
+          ]),
+        ),
+        const SizedBox(height: 16),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: ElevatedButton.icon(
+            onPressed: () => showDialog(
+              context: context,
+              builder: (context) => SurplusReportDialog(cashier: cashier),
+            ),
+            icon: const FaIcon(FontAwesomeIcons.whatsapp, size: 18),
+            label: const Text('Kirim Laporan Tutup Toko'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF25D366),
+              foregroundColor: Colors.white,
+              minimumSize: const Size.fromHeight(50),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
           ),
-          _DataWithLabel(
-            data: (cashier.currentTotal - cashier.defaultTotal).toCurrency(),
-            label: S.cashierSurplusDiffTotalLabel,
-            helper: S.cashierSurplusDiffTotalHelper,
-          ),
-        ]),
+        ),
+        const SizedBox(height: 16),
         const Divider(),
-        HintText(S.cashierSurplusTableHint, textAlign: TextAlign.center),
-        const SizedBox(height: kInternalSpacing),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: DataTable(columns: columns, rows: rows),
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                S.cashierSurplusTableHint,
+                style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.outline),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: theme.colorScheme.outlineVariant),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: DataTable(
+                    headingRowColor: WidgetStatePropertyAll(theme.colorScheme.surfaceContainerHighest),
+                    columnSpacing: 24,
+                    columns: columns, 
+                    rows: rows,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ]),
     );
@@ -105,32 +160,49 @@ class CashierSurplus extends StatelessWidget {
   }
 }
 
-class _DataWithLabel extends StatelessWidget {
-  final String data;
+class _SummaryCard extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final Color color;
+  final IconData icon;
 
-  final String label;
-
-  final String? helper;
-
-  const _DataWithLabel({
-    required this.data,
-    required this.label,
-    this.helper,
+  const _SummaryCard({
+    required this.title,
+    required this.subtitle,
+    required this.color,
+    required this.icon,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Column(children: [
-        Text(data, style: theme.textTheme.headlineSmall),
-        Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Text(label),
-          if (helper != null) InfoPopup(helper!),
-        ]),
-      ]),
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: color, size: 20),
+          const SizedBox(height: 8),
+          Text(
+            title,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+          Text(
+            subtitle,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: color.withValues(alpha: 0.8),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

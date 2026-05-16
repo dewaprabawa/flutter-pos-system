@@ -57,8 +57,8 @@ class CheckoutAttributeView extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           noteField,
-          const SizedBox(height: 16),
-          const _ProofAttachment(),
+          // const SizedBox(height: 16),
+          // const _ProofAttachment(),
         ],
       ),
     );
@@ -203,7 +203,7 @@ class _ProofAttachment extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Bukti Pembayaran (Opsional)',
+              'Pembayaran (Opsional)',
               style: Theme.of(context)
                   .textTheme
                   .titleSmall

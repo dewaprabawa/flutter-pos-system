@@ -74,7 +74,7 @@ class _MobileMoreViewState extends State<MobileMoreView> with AutomaticKeepAlive
                         centerTitle: false,
                       ),
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
                         child: InkWell(
                           onTap: () => _showEditProfileSheet(context),
                           borderRadius: BorderRadius.circular(16),
@@ -87,7 +87,7 @@ class _MobileMoreViewState extends State<MobileMoreView> with AutomaticKeepAlive
                             child: Row(
                               children: [
                                 CircleAvatar(
-                                  radius: 28,
+                                  radius: 24,
                                   backgroundColor: Colors.white24,
                                   child: Text(
                                     _userName.isNotEmpty ? _userName[0].toUpperCase() : '?',
@@ -121,7 +121,7 @@ class _MobileMoreViewState extends State<MobileMoreView> with AutomaticKeepAlive
                           ),
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 4),
                       const _HeaderInfoList(),
                     ],
                   ),
@@ -369,9 +369,9 @@ class _HeaderInfoList extends StatelessWidget {
     final attrs = context.watch<OrderAttributes>();
 
     return SizedBox(
-      height: 152,
+      height: 110,
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
+        padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 12.0),
         scrollDirection: Axis.horizontal,
         shrinkWrap: true,
         children: [
@@ -418,7 +418,7 @@ class _HeaderInfoList extends StatelessWidget {
     return ElevatedButton(
       key: Key('more_header.$id'),
       style: const ButtonStyle(
-        fixedSize: WidgetStatePropertyAll(Size.square(128)),
+        fixedSize: WidgetStatePropertyAll(Size(110, 90)),
         padding: WidgetStatePropertyAll(EdgeInsets.zero),
         shape: WidgetStatePropertyAll(RoundedRectangleBorder(
           borderRadius: borderRadius,
@@ -427,20 +427,46 @@ class _HeaderInfoList extends StatelessWidget {
       ),
       onPressed: () => context.goNamed(route, queryParameters: query),
       child: Ink(
-        width: 128,
-        height: 128,
+        width: 110,
+        height: 90,
         decoration: BoxDecoration(
           borderRadius: borderRadius,
           gradient: LinearGradient(
-            begin: Alignment.bottomRight,
-            end: Alignment.topLeft,
-            colors: theme.gradientColors,
-            tileMode: TileMode.clamp,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Colors.white.withValues(alpha: 0.95),
+              Colors.white.withValues(alpha: 0.85),
+            ],
           ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Text(title.toString(), style: theme.textTheme.headlineMedium),
-          Flexible(child: Text(subtitle, textAlign: TextAlign.center)),
+          Text(
+            title.toString(),
+            style: theme.textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: theme.colorScheme.primary,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Flexible(
+            child: Text(
+              subtitle,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
         ]),
       ),
     );
