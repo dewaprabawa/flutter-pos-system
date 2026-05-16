@@ -174,7 +174,7 @@ class _ReloadableCardState<T> extends State<ReloadableCard<T>> with AutomaticKee
       child: Container(
         padding: const EdgeInsets.all(4),
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.5),
+          color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.5),
           shape: BoxShape.circle,
         ),
         child: const SizedBox(

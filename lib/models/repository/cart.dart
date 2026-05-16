@@ -10,6 +10,7 @@ import 'package:possystem/models/order/order_attribute_option.dart';
 import 'package:possystem/models/printer.dart';
 import 'package:possystem/models/repository/menu.dart';
 import 'package:possystem/models/repository/order_attributes.dart';
+import 'package:possystem/models/repository/session_manager.dart';
 import 'package:possystem/models/repository/stashed_orders.dart';
 import 'package:possystem/models/xfile.dart';
 
@@ -137,14 +138,15 @@ class Cart extends ChangeNotifier {
   /// - [context] is the context to show the receipt dialog.
   Future<CheckoutStatus> checkout({
     required num paid,
+    required String paymentMethod,
     required BuildContext context,
   }) async {
     if (isEmpty) return CheckoutStatus.nothingHappened;
 
     if (paid < price) return CheckoutStatus.paidNotEnough;
 
-    Log.ger('begin_order_checkout', {'name': name, 'paid': paid, 'price': price});
-    var data = toObject(paid: paid);
+    Log.ger('begin_order_checkout', {'name': name, 'paid': paid, 'price': price, 'method': paymentMethod});
+    var data = toObject(paid: paid, paymentMethod: paymentMethod);
 
     if (data.imagePath != null) {
       final dir = await XFile.createDir('order_proof');
@@ -346,9 +348,11 @@ class Cart extends ChangeNotifier {
   }
 
   /// Cart status to [OrderObject]
-  OrderObject toObject({num paid = 0}) {
+  OrderObject toObject({num paid = 0, String paymentMethod = 'Tunai'}) {
     return OrderObject(
       paid: paid,
+      sessionId: SessionManager.instance.currentSession?.id,
+      paymentMethod: paymentMethod,
       cost: productsCost,
       price: price,
       productsCount: productCount,

@@ -6,6 +6,10 @@ import 'package:go_router/go_router.dart';
 import 'package:possystem/constants/constant.dart';
 import 'package:possystem/l10n/gen/app_localizations.dart';
 
+import 'package:possystem/models/repository/session_manager.dart';
+import 'package:possystem/ui/order/buka_toko_page.dart';
+import 'package:provider/provider.dart';
+
 import 'constants/app_themes.dart';
 import 'routes.dart';
 import 'settings/language_setting.dart';
@@ -70,6 +74,13 @@ class App extends StatelessWidget {
             FlutterNativeSplash.remove();
 
             return localizations.appTitle;
+          },
+          builder: (context, child) {
+            final sessionManager = context.watch<SessionManager>();
+            if (!sessionManager.hasActiveSession) {
+              return const BukaTokoPage();
+            }
+            return child!;
           },
           debugShowCheckedModeBanner: !isProd,
 

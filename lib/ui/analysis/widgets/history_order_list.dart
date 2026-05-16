@@ -31,72 +31,104 @@ class HistoryOrderList extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       elevation: 0,
-      color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+      color: colorScheme.surface,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(color: colorScheme.outlineVariant.withValues(alpha: 0.4)),
       ),
-      child: ListTile(
-        key: Key('history.order.${order.id}'),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-        leading: Container(
-          width: 56,
-          height: 56,
-          decoration: BoxDecoration(
-            color: colorScheme.primaryContainer.withValues(alpha: 0.5),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                DateFormat.Hm(S.localeName).format(order.createdAt),
-                style: theme.textTheme.labelMedium?.copyWith(
-                  color: colorScheme.primary,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-        ),
-        title: Padding(
-          padding: const EdgeInsets.only(bottom: 4.0),
-          child: Text(
-            order.products.map((p) => p.count == 1 ? p.productName : '${p.productName} (x${p.count})').join(', '),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
-          ),
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(Icons.receipt_long_outlined, size: 14, color: colorScheme.outline),
-                const SizedBox(width: 4),
-                Text(
-                  S.analysisHistoryOrderListMetaNo(order.periodSeq.toString()),
-                  style: theme.textTheme.labelSmall?.copyWith(color: colorScheme.outline),
-                ),
-                const SizedBox(width: 12),
-                Icon(Icons.payments_outlined, size: 14, color: colorScheme.outline),
-                const SizedBox(width: 4),
-                Text(
-                  order.price.toCurrency(),
-                  style: theme.textTheme.labelSmall?.copyWith(
-                    color: colorScheme.primary,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-        trailing: const Icon(Icons.chevron_right_rounded),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
         onTap: () => context.pushNamed(
           Routes.historyOrder,
           pathParameters: {'id': order.id?.toString() ?? ''},
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            children: [
+              Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: colorScheme.primaryContainer,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.access_time_filled, size: 16, color: colorScheme.onPrimaryContainer),
+                    const SizedBox(height: 4),
+                    Text(
+                      DateFormat.Hm(S.localeName).format(order.createdAt),
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: colorScheme.onPrimaryContainer,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          '#${order.periodSeq}',
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: colorScheme.outline,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: colorScheme.secondaryContainer,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            order.paymentMethod.toUpperCase(),
+                            style: theme.textTheme.labelSmall?.copyWith(
+                              color: colorScheme.onSecondaryContainer,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      order.products.map((p) => p.count == 1 ? p.productName : '${p.productName} (x${p.count})').join(', '),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    order.price.toCurrency(),
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      color: colorScheme.primary,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Icon(Icons.arrow_forward_ios_rounded, size: 14, color: colorScheme.outline),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

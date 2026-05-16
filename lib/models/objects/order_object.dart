@@ -45,6 +45,12 @@ class OrderObject extends _Object {
   /// Path of image proof.
   final String? imagePath;
 
+  /// The active session ID when order was made.
+  final int? sessionId;
+
+  /// Payment method used.
+  final String paymentMethod;
+
   /// Order created time, important property to sort.
   final DateTime createdAt;
 
@@ -61,6 +67,8 @@ class OrderObject extends _Object {
     this.attributes = const [],
     this.products = const [],
     this.imagePath,
+    this.sessionId,
+    this.paymentMethod = 'Tunai',
     required this.createdAt,
   });
 
@@ -77,6 +85,8 @@ class OrderObject extends _Object {
       attributes: attributes,
       products: products,
       imagePath: path,
+      sessionId: sessionId,
+      paymentMethod: paymentMethod,
       createdAt: createdAt,
     );
   }
@@ -145,6 +155,8 @@ class OrderObject extends _Object {
       'productsCount': productsCount,
       'attributesPrice': attributesPrice,
       'imagePath': imagePath,
+      'sessionId': sessionId,
+      'paymentMethod': paymentMethod,
       'createdAt': Util.toUTC(now: createdAt),
     };
   }
@@ -184,6 +196,8 @@ class OrderObject extends _Object {
         for (Map<String, dynamic> attr in attributes) OrderSelectedAttributeObject.fromMap(attr),
       ],
       imagePath: order['imagePath'] as String?,
+      sessionId: order['sessionId'] as int?,
+      paymentMethod: order['paymentMethod'] as String? ?? 'Tunai',
       createdAt: Util.fromUTC(order['createdAt'] as int? ?? 0),
     );
   }

@@ -29,7 +29,7 @@ class UnitListTile extends StatelessWidget {
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: BorderSide(color: theme.colorScheme.outlineVariant.withOpacity(0.4)),
+          side: BorderSide(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.4)),
         ),
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
@@ -45,7 +45,7 @@ class UnitListTile extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: theme.colorScheme.primary.withOpacity(0.1),
+                        color: theme.colorScheme.primary.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(

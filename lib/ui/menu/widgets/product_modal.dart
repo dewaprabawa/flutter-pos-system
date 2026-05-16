@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:possystem/components/scaffold/item_modal.dart';
 import 'package:possystem/components/style/image_holder.dart';
 import 'package:possystem/helpers/validator.dart';
 import 'package:possystem/models/menu/catalog.dart';
@@ -24,7 +23,10 @@ class ProductModal extends StatefulWidget {
   State<ProductModal> createState() => _ProductModalState();
 }
 
-class _ProductModalState extends State<ProductModal> with ItemModal<ProductModal> {
+class _ProductModalState extends State<ProductModal> {
+  final formKey = GlobalKey<FormState>();
+  final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+
   late TextEditingController _nameController;
   late TextEditingController _priceController;
   late TextEditingController _costController;
@@ -33,95 +35,9 @@ class _ProductModalState extends State<ProductModal> with ItemModal<ProductModal
   late FocusNode _costFocusNode;
 
   String? _image;
+  bool _isSaving = false;
 
-  @override
   String get title => widget.isNew ? S.menuProductTitleCreate : S.menuProductTitleUpdate;
-
-  @override
-  List<Widget> buildFormFields() {
-    return [
-      EditImageHolder(
-        path: _image,
-        onSelected: (image) => setState(() => _image = image),
-      ),
-      p(TextFormField(
-        key: const Key('product.name'),
-        controller: _nameController,
-        textInputAction: TextInputAction.next,
-        textCapitalization: TextCapitalization.words,
-        focusNode: _nameFocusNode,
-        decoration: InputDecoration(
-          labelText: S.menuProductNameLabel,
-          hintText: widget.product?.name ?? S.menuProductNameHint,
-          filled: false,
-        ),
-        maxLength: 30,
-        validator: Validator.textLimit(
-          S.menuProductNameLabel,
-          30,
-          focusNode: _nameFocusNode,
-          validator: (name) {
-            return widget.product?.name != name && Menu.instance.hasProductByName(name)
-                ? S.menuProductNameErrorRepeat
-                : null;
-          },
-        ),
-      )),
-      p(TextFormField(
-        key: const Key('product.price'),
-        controller: _priceController,
-        textInputAction: TextInputAction.next,
-        keyboardType: TextInputType.number,
-        focusNode: _priceFocusNode,
-        decoration: InputDecoration(
-          labelText: S.menuProductPriceLabel,
-          helperText: S.menuProductPriceHelper,
-          filled: false,
-        ),
-        validator: Validator.isNumber(
-          S.menuProductPriceLabel,
-          focusNode: _priceFocusNode,
-        ),
-      )),
-      p(TextFormField(
-        key: const Key('product.cost'),
-        controller: _costController,
-        textInputAction: TextInputAction.done,
-        keyboardType: TextInputType.number,
-        focusNode: _costFocusNode,
-        decoration: InputDecoration(
-          labelText: S.menuProductCostLabel,
-          helperText: S.menuProductCostHelper,
-          filled: false,
-        ),
-        onFieldSubmitted: handleFieldSubmit,
-        validator: Validator.positiveNumber(
-          S.menuProductCostLabel,
-          focusNode: _costFocusNode,
-        ),
-      )),
-    ];
-  }
-
-  Future<Product> getProduct() async {
-    final object = _parseObject();
-    final product = widget.product ??
-        Product(
-          index: widget.catalog.newIndex,
-          name: object.name!,
-          price: object.price!,
-          cost: object.cost!,
-          imagePath: _image,
-        );
-
-    if (widget.isNew) {
-      await widget.catalog.addItem(product);
-    } else {
-      await product.update(object);
-    }
-
-    return product;
-  }
 
   @override
   void initState() {
@@ -148,21 +64,188 @@ class _ProductModalState extends State<ProductModal> with ItemModal<ProductModal
     super.dispose();
   }
 
-  @override
-  Future<void> updateItem() async {
-    final product = await getProduct();
-
-    if (mounted) {
-      context.pop(product.id);
-    }
-  }
-
   ProductObject _parseObject() {
     return ProductObject(
       name: _nameController.text,
       imagePath: _image,
       price: num.tryParse(_priceController.text),
       cost: num.tryParse(_costController.text),
+    );
+  }
+
+  Future<Product> getProduct() async {
+    final object = _parseObject();
+    final product = widget.product ??
+        Product(
+          index: widget.catalog.newIndex,
+          name: object.name!,
+          price: object.price!,
+          cost: object.cost!,
+          imagePath: _image,
+        );
+
+    if (widget.isNew) {
+      await widget.catalog.addItem(product);
+    } else {
+      await product.update(object);
+    }
+
+    return product;
+  }
+
+  Future<void> _handleSubmit() async {
+    if (_isSaving || formKey.currentState?.validate() != true) return;
+
+    setState(() => _isSaving = true);
+    try {
+      final product = await getProduct();
+      if (mounted) {
+        context.pop(product.id);
+      }
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return ScaffoldMessenger(
+      key: scaffoldMessengerKey,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+          centerTitle: true,
+          elevation: 0,
+        ),
+        body: Form(
+          key: formKey,
+          child: Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Center(
+                        child: EditImageHolder(
+                          path: _image,
+                          onSelected: (image) => setState(() => _image = image),
+                        ),
+                      ),
+                      const SizedBox(height: 32),
+                      TextFormField(
+                        key: const Key('product.name'),
+                        controller: _nameController,
+                        focusNode: _nameFocusNode,
+                        textInputAction: TextInputAction.next,
+                        textCapitalization: TextCapitalization.words,
+                        maxLength: 30,
+                        decoration: InputDecoration(
+                          labelText: S.menuProductNameLabel,
+                          hintText: widget.product?.name ?? S.menuProductNameHint,
+                          prefixIcon: const Icon(Icons.fastfood_outlined),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          filled: true,
+                          fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                        ),
+                        validator: Validator.textLimit(
+                          S.menuProductNameLabel,
+                          30,
+                          focusNode: _nameFocusNode,
+                          validator: (name) {
+                            return widget.product?.name != name && Menu.instance.hasProductByName(name)
+                                ? S.menuProductNameErrorRepeat
+                                : null;
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        key: const Key('product.price'),
+                        controller: _priceController,
+                        focusNode: _priceFocusNode,
+                        textInputAction: TextInputAction.next,
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          labelText: S.menuProductPriceLabel,
+                          helperText: S.menuProductPriceHelper,
+                          prefixIcon: const Icon(Icons.attach_money_outlined),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          filled: true,
+                          fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                        ),
+                        validator: Validator.isNumber(
+                          S.menuProductPriceLabel,
+                          focusNode: _priceFocusNode,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        key: const Key('product.cost'),
+                        controller: _costController,
+                        focusNode: _costFocusNode,
+                        textInputAction: TextInputAction.done,
+                        keyboardType: TextInputType.number,
+                        onFieldSubmitted: (_) => _handleSubmit(),
+                        decoration: InputDecoration(
+                          labelText: S.menuProductCostLabel,
+                          helperText: S.menuProductCostHelper,
+                          prefixIcon: const Icon(Icons.money_off_outlined),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          filled: true,
+                          fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                        ),
+                        validator: Validator.positiveNumber(
+                          S.menuProductCostLabel,
+                          focusNode: _costFocusNode,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
+                  child: FilledButton(
+                    key: const Key('modal.save'),
+                    onPressed: _isSaving ? null : _handleSubmit,
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size.fromHeight(56),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    child: _isSaving
+                        ? const SizedBox(
+                            height: 24,
+                            width: 24,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : Text(
+                            MaterialLocalizations.of(context).saveButtonLabel,
+                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

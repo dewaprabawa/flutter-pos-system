@@ -22,6 +22,6 @@ class Footer extends StatelessWidget {
 }
 
 const _links = <LinkifyData>[
-  LinkifyData('Privacy Policy', 'https://evan361425.github.io/flutter-pos-system/PRIVACY_POLICY/'),
-  LinkifyData('License', 'https://evan361425.github.io/flutter-pos-system/LICENSE/'),
+  LinkifyData('Privacy Policy', 'https://opensource.org/licenses/MIT'),
+  LinkifyData('License', 'https://opensource.org/licenses/MIT'),
 ];

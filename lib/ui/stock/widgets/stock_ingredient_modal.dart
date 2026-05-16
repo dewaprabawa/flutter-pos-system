@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:possystem/components/scaffold/item_modal.dart';
 import 'package:possystem/components/style/text_divider.dart';
 import 'package:possystem/helpers/util.dart';
 import 'package:possystem/helpers/validator.dart';
@@ -22,7 +21,10 @@ class StockIngredientModal extends StatefulWidget {
   State<StockIngredientModal> createState() => _StockIngredientModalState();
 }
 
-class _StockIngredientModalState extends State<StockIngredientModal> with ItemModal<StockIngredientModal> {
+class _StockIngredientModalState extends State<StockIngredientModal> {
+  final formKey = GlobalKey<FormState>();
+  final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+
   late TextEditingController nameController;
   late TextEditingController amountController;
   late TextEditingController totalAmountController;
@@ -30,86 +32,9 @@ class _StockIngredientModalState extends State<StockIngredientModal> with ItemMo
   final _amountFocusNode = FocusNode();
   final _totalAmountFocusNode = FocusNode();
 
-  @override
+  bool _isSaving = false;
+
   String get title => widget.isNew ? S.stockIngredientTitleCreate : S.stockIngredientTitleUpdate;
-
-  @override
-  List<Widget> buildFormFields() => <Widget>[
-        p(TextFormField(
-          key: const Key('stock.ingredient.name'),
-          controller: nameController,
-          focusNode: _nameFocusNode,
-          textInputAction: TextInputAction.next,
-          textCapitalization: TextCapitalization.words,
-          decoration: InputDecoration(
-            labelText: S.stockIngredientNameLabel,
-            hintText: widget.ingredient?.name ?? S.stockIngredientNameHint,
-            filled: false,
-          ),
-          maxLength: 30,
-          validator: Validator.textLimit(
-            S.stockIngredientNameLabel,
-            30,
-            focusNode: _nameFocusNode,
-            validator: (name) {
-              return widget.ingredient?.name != name && Stock.instance.hasName(name)
-                  ? S.stockIngredientNameErrorRepeat
-                  : null;
-            },
-          ),
-        )),
-        p(TextFormField(
-          key: const Key('stock.ingredient.amount'),
-          controller: amountController,
-          focusNode: _amountFocusNode,
-          textInputAction: TextInputAction.next,
-          keyboardType: TextInputType.number,
-          decoration: InputDecoration(
-            labelText: S.stockIngredientAmountLabel,
-            filled: false,
-          ),
-          validator: Validator.positiveNumber(
-            S.stockIngredientAmountLabel,
-            allowNull: true,
-            focusNode: _amountFocusNode,
-          ),
-        )),
-        p(TextFormField(
-          key: const Key('stock.ingredient.totalAmount'),
-          controller: totalAmountController,
-          focusNode: _totalAmountFocusNode,
-          textInputAction: TextInputAction.next,
-          keyboardType: TextInputType.number,
-          decoration: InputDecoration(
-            labelText: S.stockIngredientAmountMaxLabel,
-            helperText: S.stockIngredientAmountMaxHelper,
-            helperMaxLines: 6,
-            filled: false,
-          ),
-          validator: Validator.positiveNumber(
-            S.stockIngredientAmountMaxLabel,
-            allowNull: true,
-            focusNode: _totalAmountFocusNode,
-          ),
-        )),
-        if (!widget.isNew) ..._buildProducts(),
-      ];
-
-  Iterable<Widget> _buildProducts() sync* {
-    final pi = Menu.instance.getIngredients(widget.ingredient!.id);
-    yield TextDivider(label: S.stockIngredientProductsCount(pi.length));
-    for (final ingredient in pi) {
-      final product = ingredient.product;
-      yield ListTile(
-        key: Key('stock.ingredient.${product.id}'),
-        title: Text('${product.catalog.name} - ${product.name}'),
-        onTap: () => context.pushNamed(
-          Routes.menuProductUpdate,
-          pathParameters: {'id': product.id},
-        ),
-      );
-    }
-  }
 
   @override
   void initState() {
@@ -134,25 +59,6 @@ class _StockIngredientModalState extends State<StockIngredientModal> with ItemMo
     super.dispose();
   }
 
-  @override
-  Future<void> updateItem() async {
-    final object = parseObject();
-
-    if (widget.isNew) {
-      await Stock.instance.addItem(Ingredient(
-        name: object.name!,
-        currentAmount: object.currentAmount!,
-        totalAmount: object.totalAmount,
-      ));
-    } else {
-      await widget.ingredient!.update(object);
-    }
-
-    if (mounted && context.canPop()) {
-      context.pop();
-    }
-  }
-
   IngredientObject parseObject() {
     final amount = num.tryParse(amountController.text) ?? 0;
     return IngredientObject(
@@ -160,6 +66,180 @@ class _StockIngredientModalState extends State<StockIngredientModal> with ItemMo
       currentAmount: amount,
       totalAmount: num.tryParse(totalAmountController.text),
       fromModal: true,
+    );
+  }
+
+  Future<void> _handleSubmit() async {
+    if (_isSaving || formKey.currentState?.validate() != true) return;
+
+    setState(() => _isSaving = true);
+    try {
+      final object = parseObject();
+
+      if (widget.isNew) {
+        await Stock.instance.addItem(Ingredient(
+          name: object.name!,
+          currentAmount: object.currentAmount!,
+          totalAmount: object.totalAmount,
+        ));
+      } else {
+        await widget.ingredient!.update(object);
+      }
+
+      if (mounted && context.canPop()) {
+        context.pop();
+      }
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
+  }
+
+  Iterable<Widget> _buildProducts() sync* {
+    final pi = Menu.instance.getIngredients(widget.ingredient!.id);
+    yield TextDivider(label: S.stockIngredientProductsCount(pi.length));
+    for (final ingredient in pi) {
+      final product = ingredient.product;
+      yield ListTile(
+        key: Key('stock.ingredient.${product.id}'),
+        title: Text('${product.catalog.name} - ${product.name}'),
+        onTap: () => context.pushNamed(
+          Routes.menuProductUpdate,
+          pathParameters: {'id': product.id},
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return ScaffoldMessenger(
+      key: scaffoldMessengerKey,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+          centerTitle: true,
+          elevation: 0,
+        ),
+        body: Form(
+          key: formKey,
+          child: Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      TextFormField(
+                        key: const Key('stock.ingredient.name'),
+                        controller: nameController,
+                        focusNode: _nameFocusNode,
+                        textInputAction: TextInputAction.next,
+                        textCapitalization: TextCapitalization.words,
+                        maxLength: 30,
+                        decoration: InputDecoration(
+                          labelText: S.stockIngredientNameLabel,
+                          hintText: widget.ingredient?.name ?? S.stockIngredientNameHint,
+                          prefixIcon: const Icon(Icons.kitchen_outlined),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+                          filled: true,
+                          fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                        ),
+                        validator: Validator.textLimit(
+                          S.stockIngredientNameLabel,
+                          30,
+                          focusNode: _nameFocusNode,
+                          validator: (name) {
+                            return widget.ingredient?.name != name && Stock.instance.hasName(name)
+                                ? S.stockIngredientNameErrorRepeat
+                                : null;
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        key: const Key('stock.ingredient.amount'),
+                        controller: amountController,
+                        focusNode: _amountFocusNode,
+                        textInputAction: TextInputAction.next,
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          labelText: S.stockIngredientAmountLabel,
+                          prefixIcon: const Icon(Icons.scale_outlined),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+                          filled: true,
+                          fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                        ),
+                        validator: Validator.positiveNumber(
+                          S.stockIngredientAmountLabel,
+                          allowNull: true,
+                          focusNode: _amountFocusNode,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        key: const Key('stock.ingredient.totalAmount'),
+                        controller: totalAmountController,
+                        focusNode: _totalAmountFocusNode,
+                        textInputAction: TextInputAction.done,
+                        keyboardType: TextInputType.number,
+                        onFieldSubmitted: (_) => _handleSubmit(),
+                        decoration: InputDecoration(
+                          labelText: S.stockIngredientAmountMaxLabel,
+                          helperText: S.stockIngredientAmountMaxHelper,
+                          helperMaxLines: 6,
+                          prefixIcon: const Icon(Icons.inventory_2_outlined),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+                          filled: true,
+                          fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                        ),
+                        validator: Validator.positiveNumber(
+                          S.stockIngredientAmountMaxLabel,
+                          allowNull: true,
+                          focusNode: _totalAmountFocusNode,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      if (!widget.isNew) ..._buildProducts(),
+                    ],
+                  ),
+                ),
+              ),
+              SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
+                  child: FilledButton(
+                    key: const Key('modal.save'),
+                    onPressed: _isSaving ? null : _handleSubmit,
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size.fromHeight(56),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    child: _isSaving
+                        ? const SizedBox(
+                            height: 24,
+                            width: 24,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : Text(
+                            MaterialLocalizations.of(context).saveButtonLabel,
+                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

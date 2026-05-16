@@ -24,7 +24,8 @@ class EmptyBody extends StatelessWidget {
     this.routeName,
     this.pathParameters = const <String, String>{},
     this.onPressed,
-  }) : assert(routeName != null || onPressed != null, 'Either routeName or onPressed must be provided');
+  }) : assert(routeName != null || onPressed != null,
+            'Either routeName or onPressed must be provided');
 
   @override
   Widget build(BuildContext context) {
@@ -41,12 +42,20 @@ class EmptyBody extends StatelessWidget {
           if (content != null)
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 8.0, 16.0, 8.0),
-              child: Text(content!),
+              child: Text(
+                content!,
+              ),
             ),
-          TextButton(
+          const SizedBox(height: 16),
+          ElevatedButton(
             key: const Key('empty_body'),
-            onPressed: onPressed ?? () => context.pushNamed(routeName!, pathParameters: pathParameters),
-            child: Text(S.emptyBodyAction),
+            onPressed: onPressed ??
+                () => context.pushNamed(routeName!,
+                    pathParameters: pathParameters),
+            child: Text(S.emptyBodyAction,
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                    )),
           ),
         ],
       ),

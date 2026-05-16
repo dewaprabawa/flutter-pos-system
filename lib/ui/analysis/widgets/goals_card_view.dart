@@ -69,6 +69,7 @@ class _GoalsCardViewState extends State<GoalsCardView> {
                   name: S.analysisGoalsCountTitle,
                   desc: S.analysisGoalsCountDescription,
                   compact: compact,
+                  isCurrency: false,
                 ),
                 const SizedBox(height: 16),
                 _GoalItem(
@@ -172,6 +173,7 @@ class _GoalItem extends StatelessWidget {
   final num current;
   final num goal;
   final bool compact;
+  final bool isCurrency;
 
   const _GoalItem({
     required this.name,
@@ -179,6 +181,7 @@ class _GoalItem extends StatelessWidget {
     required this.current,
     required this.goal,
     required this.compact,
+    this.isCurrency = true,
   });
 
   @override
@@ -205,7 +208,7 @@ class _GoalItem extends StatelessWidget {
 
     final value = RichText(
       text: TextSpan(
-        text: current.toCurrency(),
+        text: isCurrency ? current.toCurrency() : current.toString(),
         style: textTheme.titleLarge?.copyWith(
           fontWeight: FontWeight.bold,
           letterSpacing: -0.5,
@@ -213,7 +216,7 @@ class _GoalItem extends StatelessWidget {
         children: goal != 0
             ? [
                 TextSpan(
-                  text: ' / ${goal.toCurrency()}',
+                  text: ' / ${isCurrency ? goal.toCurrency() : goal.toString()}',
                   style: textTheme.bodyMedium?.copyWith(
                     color: colorScheme.outline,
                     fontWeight: FontWeight.normal,

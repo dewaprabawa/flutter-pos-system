@@ -137,7 +137,7 @@ class CashierView extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.5),
+          color: color.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(16),
         ),
         child: Column(

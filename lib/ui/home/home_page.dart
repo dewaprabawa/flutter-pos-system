@@ -44,7 +44,7 @@ class _WithTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ColoredBox(
-      color: Theme.of(context).colorScheme.background,
+      color: Theme.of(context).colorScheme.surface,
       child: SafeArea(
         child: Scaffold(
           // appBar: AppBar(

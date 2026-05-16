@@ -197,7 +197,33 @@ class _MenuPageState extends State<MenuPage> {
       queryParameters: {'id': selected?.id},
     );
     if (id is String && mounted) {
-      context.pushNamed(Routes.menuProduct, pathParameters: {'id': id});
+      final product = Menu.instance.getProduct(id);
+      if (product == null) return;
+      
+      final setupNow = await showDialog<bool>(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            title: const Text('Setup Ingredients?'),
+            content: Text('Would you like to set up ingredients for ${product.name} now?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Setup Later'),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('Setup Now'),
+              ),
+            ],
+          );
+        },
+      );
+
+      if (setupNow == true && mounted) {
+        context.pushNamed(Routes.menuProduct, pathParameters: {'id': id});
+      }
     }
   }
 

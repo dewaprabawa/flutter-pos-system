@@ -250,7 +250,7 @@ class _QuantityBtn extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(4),
         decoration: BoxDecoration(
-          border: Border.all(color: theme.colorScheme.outlineVariant.withOpacity(0.5)),
+          border: Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5)),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Icon(icon, size: 16, color: theme.colorScheme.primary),

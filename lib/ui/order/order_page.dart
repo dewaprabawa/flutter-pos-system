@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:possystem/components/linkify.dart';
 import 'package:possystem/components/menu_actions.dart';
 import 'package:possystem/components/style/buttons.dart';
@@ -8,6 +9,7 @@ import 'package:possystem/components/tutorial.dart';
 import 'package:possystem/helpers/breakpoint.dart';
 import 'package:possystem/models/repository/cart.dart';
 import 'package:possystem/models/repository/menu.dart';
+import 'package:possystem/models/repository/notifications.dart';
 import 'package:possystem/routes.dart';
 import 'package:possystem/settings/checkout_warning.dart';
 import 'package:possystem/settings/order_awakening_setting.dart';
@@ -35,8 +37,14 @@ class _OrderPageState extends State<OrderPage> {
   /// Change the catalog index and pass to [OrderProductListView] and [OrderCatalogListView]
   late final ValueNotifier<int> _catalogIndexNotifier;
 
+  late final TextEditingController _searchController;
+  String _searchQuery = '';
+
   @override
   Widget build(BuildContext context) {
+    // Watch Menu to refresh when categories or products are added
+    context.watch<Menu>();
+
     final catalogs = Menu.instance.notEmptyItems;
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
@@ -70,8 +78,23 @@ class _OrderPageState extends State<OrderPage> {
                     centerTitle: false,
                     actions: [
                       IconButton(
-                        icon: const Icon(Icons.notifications_none_outlined, color: Colors.white),
-                        onPressed: () {},
+                        icon: Consumer<Notifications>(
+                          builder: (context, notifs, child) {
+                            if (notifs.unreadCount > 0) {
+                              return Badge(
+                                label: Text(notifs.unreadCount.toString()),
+                                child: const Icon(Icons.notifications, color: Colors.white),
+                              );
+                            }
+                            return const Icon(Icons.notifications_none_outlined, color: Colors.white);
+                          },
+                        ),
+                        onPressed: () => _showNotifications(context),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.lock_outline, color: Colors.white),
+                        tooltip: 'Tutup Toko',
+                        onPressed: () => context.pushNamed(Routes.tutupToko),
                       ),
                       const SizedBox(width: 8),
                       const CircleAvatar(
@@ -85,6 +108,8 @@ class _OrderPageState extends State<OrderPage> {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
                     child: TextField(
+                      controller: _searchController,
+                      onChanged: (value) => setState(() => _searchQuery = value),
                       style: const TextStyle(color: Colors.white),
                       decoration: InputDecoration(
                         hintText: S.menuSearchHint,
@@ -110,25 +135,33 @@ class _OrderPageState extends State<OrderPage> {
                   Column(
                     children: [
                       const SizedBox(height: 12),
-                      OrderCatalogListView(
-                        catalogs: catalogs,
-                        indexNotifier: _catalogIndexNotifier,
-                        onSelected: (index) => _pageController.animateToPage(
-                          index,
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeInOut,
-                        ),
-                      ),
-                      Expanded(
-                        child: PageView.builder(
-                          controller: _pageController,
-                          onPageChanged: (index) => _catalogIndexNotifier.value = index,
-                          itemCount: catalogs.length,
-                          itemBuilder: (context, index) => OrderProductListView(
-                            products: catalogs[index].itemList,
+                      if (_searchQuery.isNotEmpty)
+                        Expanded(
+                          child: OrderProductListView(
+                            products: Menu.instance.searchProducts(text: _searchQuery).map((e) => e.product).toList(),
+                          ),
+                        )
+                      else ...[
+                        OrderCatalogListView(
+                          catalogs: catalogs,
+                          indexNotifier: _catalogIndexNotifier,
+                          onSelected: (index) => _pageController.animateToPage(
+                            index,
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeInOut,
                           ),
                         ),
-                      ),
+                        Expanded(
+                          child: PageView.builder(
+                            controller: _pageController,
+                            onPageChanged: (index) => _catalogIndexNotifier.value = index,
+                            itemCount: catalogs.length,
+                            itemBuilder: (context, index) => OrderProductListView(
+                              products: catalogs[index].itemList,
+                            ),
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                   Positioned(
@@ -153,6 +186,7 @@ class _OrderPageState extends State<OrderPage> {
     WakelockPlus.disable();
     _pageController.dispose();
     _catalogIndexNotifier.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -164,6 +198,7 @@ class _OrderPageState extends State<OrderPage> {
 
     _pageController = PageController();
     _catalogIndexNotifier = ValueNotifier<int>(0);
+    _searchController = TextEditingController();
     super.initState();
   }
 
@@ -172,6 +207,66 @@ class _OrderPageState extends State<OrderPage> {
     if (status != null && mounted) {
       handleCheckoutStatus(context, status);
     }
+  }
+
+  void _showNotifications(BuildContext context) {
+    Notifications.instance.markAllAsRead();
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (context) {
+        return Consumer<Notifications>(
+          builder: (context, notifs, child) {
+            if (notifs.items.isEmpty) {
+              return const SizedBox(
+                height: 200,
+                child: Center(child: Text('No recent activity')),
+              );
+            }
+            return Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Activity History', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      TextButton(
+                        onPressed: () {
+                          notifs.clearAll();
+                          Navigator.pop(context);
+                        },
+                        child: const Text('Clear All'),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: notifs.items.length,
+                    itemBuilder: (context, index) {
+                      final item = notifs.items[index];
+                      return ListTile(
+                        leading: CircleAvatar(
+                          backgroundColor: Colors.blue.shade100,
+                          child: const Icon(Icons.check_circle, color: Colors.blue),
+                        ),
+                        title: Text(item.title),
+                        subtitle: Text(item.body),
+                        trailing: Text(
+                          '${item.createdAt.hour.toString().padLeft(2, '0')}:${item.createdAt.minute.toString().padLeft(2, '0')}',
+                          style: const TextStyle(color: Colors.grey, fontSize: 12),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
   }
 
   void _showActions(BuildContext context) async {
@@ -216,6 +311,13 @@ class _OrderPageState extends State<OrderPage> {
 
 void handleCheckoutStatus(BuildContext context, CheckoutStatus status) {
   status = CheckoutWarningSetting.instance.shouldShow(status);
+
+  if (status == CheckoutStatus.ok || status == CheckoutStatus.restore) {
+    Notifications.instance.add(
+      'Transaction Complete',
+      'An order has been successfully completed and recorded.',
+    );
+  }
 
   return switch (status) {
     CheckoutStatus.ok || CheckoutStatus.stash || CheckoutStatus.restore => showSnackBar(

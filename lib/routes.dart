@@ -41,6 +41,7 @@ import 'package:possystem/ui/menu/widgets/product_quantity_modal.dart';
 import 'package:possystem/ui/menu/widgets/product_reorder.dart';
 import 'package:possystem/ui/order/order_checkout_page.dart';
 import 'package:possystem/ui/order/order_page.dart';
+import 'package:possystem/ui/order/tutup_toko_page.dart';
 import 'package:possystem/ui/order_attr/order_attribute_page.dart';
 import 'package:possystem/ui/order_attr/widgets/order_attribute_modal.dart';
 import 'package:possystem/ui/order_attr/widgets/order_attribute_option_modal.dart';
@@ -134,6 +135,11 @@ class Routes {
                     path: 'details',
                     builder: (ctx, state) => _l(const OrderCheckoutPage(), state),
                   ),
+                  GoRoute(
+                    name: Routes.tutupToko,
+                    path: 'tutup-toko',
+                    builder: (ctx, state) => _l(const TutupTokoPage(), state),
+                  ),
                 ],
               )
             ]),
@@ -169,6 +175,7 @@ class Routes {
                   _elfRoute(inShell: false),
                   _transitRoute(inShell: false),
                   _settingsRoute(inShell: false),
+                  _analysisRoute(inShell: false),
                 ],
               ),
             ]),
@@ -196,6 +203,11 @@ class Routes {
                     name: Routes.orderCheckout,
                     path: 'details',
                     builder: (ctx, state) => _l(const OrderCheckoutPage(), state),
+                  ),
+                  GoRoute(
+                    name: Routes.tutupToko,
+                    path: 'tutup-toko',
+                    builder: (ctx, state) => _l(const TutupTokoPage(), state),
                   ),
                 ],
               )
@@ -720,6 +732,7 @@ class Routes {
   static const cashierSurplus = 'cashier.surplus';
   static const order = 'order';
   static const orderCheckout = 'order.checkout';
+  static const tutupToko = 'tutup.toko';
   static const history = 'history';
   static const historyOrder = 'history.order';
   static const anal = 'anal';

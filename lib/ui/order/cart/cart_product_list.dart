@@ -119,7 +119,7 @@ class _CartProductListTile extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: theme.colorScheme.surfaceVariant.withOpacity(0.2),
+          color: theme.colorScheme.surfaceVariant.withValues(alpha: 0.2),
           borderRadius: BorderRadius.circular(16),
         ),
         child: Row(

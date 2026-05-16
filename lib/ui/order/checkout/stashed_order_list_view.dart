@@ -178,7 +178,7 @@ class StashedOrderListView extends StatelessWidget {
     );
 
     if (confirmed == true && context.mounted) {
-      final future = cart.checkout(paid: paid.value, context: context);
+      final future = cart.checkout(paid: paid.value, paymentMethod: 'Tunai', context: context);
       final status = await showSnackbarWhenFutureError(future, 'stashed_order_checkout', context: context);
 
       if (status == CheckoutStatus.paidNotEnough || status == null) {

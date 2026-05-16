@@ -67,4 +67,26 @@ const dbMigrationUp = <int, List<String>>{
     'ALTER TABLE `order_records` ADD COLUMN `imagePath` TEXT;',
     'ALTER TABLE `order_stash` ADD COLUMN `imagePath` TEXT;',
   ],
+  12: <String>[
+    '''CREATE TABLE `notifications` (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  title BLOB NOT NULL DEFAULT "",
+  body BLOB NOT NULL DEFAULT "",
+  isRead INTEGER NOT NULL DEFAULT 0,
+  createdAt INTEGER NOT NULL DEFAULT 0);''',
+    '''CREATE INDEX idx_notifications_created_at ON `notifications` (createdAt);''',
+  ],
+  13: <String>[
+    '''CREATE TABLE `sessions` (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  startTime INTEGER NOT NULL,
+  endTime INTEGER DEFAULT NULL,
+  startCash REAL NOT NULL DEFAULT 0,
+  expectedCash REAL NOT NULL DEFAULT 0,
+  actualCash REAL DEFAULT NULL,
+  cashierName BLOB NOT NULL DEFAULT "",
+  status INTEGER NOT NULL DEFAULT 0);''',
+    'ALTER TABLE `order_records` ADD COLUMN `sessionId` INTEGER DEFAULT NULL;',
+    'ALTER TABLE `order_records` ADD COLUMN `paymentMethod` BLOB DEFAULT "Tunai";',
+  ],
 };

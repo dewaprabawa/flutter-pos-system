@@ -23,6 +23,8 @@ import 'models/repository/quantities.dart';
 import 'models/repository/replenisher.dart';
 import 'models/repository/seller.dart';
 import 'models/repository/stock.dart';
+import 'models/repository/session_manager.dart';
+import 'models/repository/notifications.dart';
 import 'services/cache.dart';
 import 'services/database.dart';
 import 'services/storage.dart';
@@ -77,6 +79,8 @@ void main() async {
       await Printers().initialize();
       // Last for setup ingredient and quantity
       await Menu().initialize();
+      await Notifications.instance.initialize();
+      await SessionManager.instance.initialize();
 
       /// Why use provider?
       /// https://stackoverflow.com/questions/57157823/provider-vs-inheritedwidget
@@ -92,6 +96,8 @@ void main() async {
           ChangeNotifierProvider.value(value: Cashier.instance),
           ChangeNotifierProvider.value(value: Cart.instance),
           ChangeNotifierProvider.value(value: Printers.instance),
+          ChangeNotifierProvider.value(value: Notifications.instance),
+          ChangeNotifierProvider.value(value: SessionManager.instance),
         ],
         child: const App(),
       ));

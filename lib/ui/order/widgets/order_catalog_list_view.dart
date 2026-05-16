@@ -73,7 +73,7 @@ class _OrderCatalogListViewState extends State<OrderCatalogListView> {
                       ),
                     ),
                     selectedColor: theme.colorScheme.primary,
-                    backgroundColor: theme.colorScheme.surfaceVariant.withOpacity(0.3),
+                    backgroundColor: theme.colorScheme.surfaceVariant.withValues(alpha: 0.3),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                       side: BorderSide.none,

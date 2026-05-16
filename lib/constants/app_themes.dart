@@ -49,7 +49,7 @@ class AppThemes {
         iconTheme: IconThemeData(color: colorScheme.onSurface),
       ),
       navigationBarTheme: NavigationBarThemeData(
-        indicatorColor: primaryColor.withOpacity(0.15),
+        indicatorColor: primaryColor.withValues(alpha: 0.15),
         backgroundColor: colorScheme.surface,
         labelTextStyle: WidgetStatePropertyAll(
           GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w500),
@@ -84,7 +84,7 @@ class AppThemes {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: isDark ? Colors.white.withOpacity(0.05) : const Color(0xFFF1F5F9),
+        fillColor: isDark ? Colors.white.withValues(alpha: 0.05) : const Color(0xFFF1F5F9),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,

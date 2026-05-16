@@ -23,7 +23,7 @@
   "settingLogoutBtn": "Log Out",
   "settingElfTitle": "Suggestions",
   "settingElfDescription": "Provide feedback using Google Forms",
-  "settingElfContent": "Feel like something's missing here?\nFeel free to [give suggestions](https://forms.gle/s8V5SXuqhA1u3zmt7).\nYou can also check out [upcoming features](https://github.com/evan361425/flutter-pos-system/milestones).",
+  "settingElfContent": "Feel like something's missing here?\nFeel free to send suggestions to gedeagusprabawadewa@gmail.com",
   "settingFeatureTitle": "Other Settings",
   "settingFeatureDescription": "Appearance, Language, Tips",
   "settingThemeTitle": "Theme",
